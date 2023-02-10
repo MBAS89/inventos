@@ -47,6 +47,7 @@ export const DashHeader = () => {
                     >
                         <MdOutlineDarkMode className="text-[1.3rem]"/>
                     </a>
+                    <span aria-hidden="true" className="block h-6 w-px rounded-full bg-gray-200"></span>
                     <a href="#" className="block shrink-0">
                         <img
                         alt="Man"
