@@ -472,8 +472,6 @@ exports.removeBrand = async (req, res, next) => {
             //if there is an error send it to the error middleware to be output in a good way 
             next(error)
         }
-
-
     }
 }
 
@@ -557,11 +555,87 @@ exports.editBrand = async (req, res, next) => {
  * 
  * */
 
+exports.readProducts = async (req, res, next) => {
+
+    try {
+        const storeId = req.authData.store_id
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
+
+        if (!page || !storeId) {
+            return next(new ErrorResponse('Page Number and Store ID are required', 400));
+        }
+        
+        const totalCount = await Products.count({ where: { store_id: storeId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            store_id: storeId,
+            [Op.or]: [
+                { name: { [Op.iLike]: `%${searchQuery}%` } },
+                { sku: { [Op.iLike]: `%${searchQuery}%` } },
+                { description: { [Op.iLike]: `%${searchQuery}%` } },
+                { product_id: searchQuery ? searchQuery : null},
+            ]
+        } : { store_id: storeId };
+
+        const products = await Products.findAll({
+            where: whereClause,
+            limit: searchQuery ? null : parseInt(limit),
+            offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
+            order:column && sort ? getOrderOptions(column, sort) : []
+        });
+
+
+        return res.status(200).json({ totalCount, totalPages, currentPage, products });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+
+exports.readSingleProduct = async (req, res, next) => {
+
+    try {
+        const storeId = req.authData.store_id
+        const { productId } = req.query;
+
+        if (!productId || !storeId) {
+            return next(new ErrorResponse('Product ID and Store ID are required', 400));
+        }
+        
+        const product = await Products.findOne({
+            where: { 
+                store_id: storeId,
+                product_id: productId
+            }
+        })
+
+        if(!product){
+            return  next(new ErrorResponse('No Product Found!', 404))
+        }
+
+        return res.status(200).json({ product });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+
+
 exports.addProduct = async (req, res, next) => {
     try {
+        //retrieve store id from rquest authData
+        const storeId = req.authData.store_id
 
         //retrive product values from req body 
-        const { storeId, productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale, unit, unit_catergory  } = req.body;
+        const { productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale, unit, unit_catergory  } = req.body;
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -634,17 +708,19 @@ exports.removeProduct = async (req, res, next) => {
             return next(new ErrorResponse("Product ID Is required", 422));
         }
 
-        //this will send a request to cloudinary to delete the image from there and return ok or fail 
-        const result = await deleteImage(imageId)
-
-
-
         //DELETE Product FROM DATA BASE WITH THE DISRE ID VALUE
-        await Products.destroy({
+        const product = await Products.destroy({
             where: {
                 product_id: productId
             }
         });
+
+        if(!product){
+            return next(new ErrorResponse("Something went wrong!", 500));
+        }
+
+        //this will send a request to cloudinary to delete the image from there and return ok or fail 
+        const result = await deleteImage(imageId)
 
         //return success response with message
         res.status(200).json({
@@ -661,17 +737,27 @@ exports.removeProduct = async (req, res, next) => {
 
 exports.editProduct = async (req, res, next) => {
     try {
-        
         //retrive productId from req params 
         const { productId } =  req.params
         //retrive product values from req body 
         const { productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale, unit, unit_catergory } = req.body;
 
+        let imageId
+        let imageUrl
+        // Access Cloudinary image URL after uploading
+        if(req.file){
+            imageUrl = req.file.path;
+
+            // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
+            imageId = cloudinaryExtractPublicId(imageUrl)
+        }
+
         //check if Product Id Have a value 
         if(!productId){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
-
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse("Product ID Required", 422));
         }
@@ -684,22 +770,18 @@ exports.editProduct = async (req, res, next) => {
             attributes: ['image_id']
         });
 
-        // If the category exists, extract the image ID
+        // If the product exists, extract the image ID
         const oldProductImageId = product ? product.image_id : null;
-
-        // Access Cloudinary image URL after uploading
-        const imageUrl = req.file.path;
-        // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
-        const imageId = cloudinaryExtractPublicId(imageUrl)
 
         //Check if all Required Fileds are there
         const requiredFields = ['productName', 'sku', 'price', 'retailPrice', 'wholesalePrice', 'qty', 'unit', 'unit_catergory'];
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
-
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse(validationError, 422));
         }
@@ -732,20 +814,25 @@ exports.editProduct = async (req, res, next) => {
 
         //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
         if(!updatedProduct){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
-        //this will send a request to cloudinary to delete the old image from there and return ok or fail 
-        const result = await deleteImage(oldProductImageId)
+        let result
+        if(req.file){
+            //this will send a request to cloudinary to delete the old image from there and return ok or fail 
+            result = await deleteImage(oldProductImageId)
+        }
 
 
         //return success response with message
         res.status(201).json({
             status:"success",
             message:"Product Edited",
-            cloudinary:result,
+            cloudinary:result || 'no new Image',
             results:1,
             data: {
                 product:updatedProduct

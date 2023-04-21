@@ -24,6 +24,10 @@ const validateAddEditBrand = async (req, res, next) => {
             return next(new ErrorResponse("Brand Name Is required", 422));
         }
 
+        if(req.method === "PUT"){
+            return next();
+        }
+
         // Check if the Brand name is already exists
         const existinBrand = await Brands.findOne({
             where: {

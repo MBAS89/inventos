@@ -12,15 +12,28 @@ const validateAddEditProduct = async (req, res, next) => {
         //retrieve category name from req params to check if the category name is used before uploading to cloudinary
         const { productName } = req.params
 
+        //retrieve store id from rquest authData
+        const storeId = req.authData.store_id
+
+        if(!storeId){
+            return next(new ErrorResponse("Store ID Is required", 422));
+        }
+
         // Check if all fields are present
         if (!productName) {
             return next(new ErrorResponse("Product Name Is required", 422));
         }
 
+        if(req.method === "PUT"){
+            return next();
+        }
+
+
         // Check if the Category name is already exists
         const existingProduct = await Products.findOne({
             where: {
-                name:productName
+                name:productName, 
+                store_id: storeId
             }
         });
 

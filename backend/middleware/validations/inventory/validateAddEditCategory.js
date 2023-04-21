@@ -23,6 +23,10 @@ const validateAddEditCategory = async (req, res, next) => {
             return next(new ErrorResponse("Category Name Is required", 422));
         }
 
+        if(req.method === "PUT"){
+            return next();
+        }
+
         // Check if the Category name is already exists
         const existingCategory = await Categories.findOne({
             where: {
