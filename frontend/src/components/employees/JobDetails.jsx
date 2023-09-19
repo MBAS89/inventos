@@ -2,7 +2,7 @@ import React from 'react'
 
 export const JobDetails = () => {
     return (
-        <div className='w-[60%] mx-auto '>
+        <div className='w-[60%] mx-auto flex gap-5'>
             <div className='rounded-md border-2 border-gray-200 p-4 bg-white mt-4 w-[59%]'>
                 <h2 className='font-bold text-[1.3rem] pl-4 mb-2'>Job Details</h2>
                 <div className='pl-4 flex justify-between w-[98%]'>
@@ -23,7 +23,10 @@ export const JobDetails = () => {
                     </div>
                 </div>
             </div>
-
+            <div className='bg-white rounded-md border-2 border-gray-200 p-4 mt-4 w-[39%]'>
+                <h2 className='font-bold text-[1.3rem] pl-4 mb-2'>Employee Documents</h2>
+                 
+            </div>
         </div>
     )
 }
