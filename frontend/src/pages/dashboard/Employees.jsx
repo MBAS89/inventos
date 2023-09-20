@@ -22,6 +22,12 @@ export const Employees = () => {
             title:"department"
         },
         {
+            title:"work type"
+        },
+        {
+            title:"contract"
+        },
+        {
             title:"total paid"
         },
         {
