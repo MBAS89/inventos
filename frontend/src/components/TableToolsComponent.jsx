@@ -8,7 +8,7 @@ import { FiFilter } from "react-icons/fi";
 import { BsSortDown,BsPencil } from "react-icons/bs";
 
 
-export const TableToolsComponent = () => {
+export const TableToolsComponent = ({ setOpenDeletePopup }) => {
     const [openFilter, setOpenFilter] = useState(false)
     const [openSortBy, setOpenSortBy] = useState(false)
 
@@ -24,7 +24,7 @@ export const TableToolsComponent = () => {
                 <BsPencil className='text-[#50B426] text-xl'/>
                 <span>edit</span>
             </button>
-            <button className='flex items-center capitalize gap-1 cursor-pointer hover:scale-105'>
+            <button onClick={() => setOpenDeletePopup(true)} className='flex items-center capitalize gap-1 cursor-pointer hover:scale-105'>
                 <MdOutlineDelete className='text-[#50B426] text-xl'/>
                 <span>delete</span>
             </button>
