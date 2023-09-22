@@ -1,12 +1,11 @@
-import React from 'react'
-
-
+import {React,useState} from 'react'
 import { SearchComponents } from '../../components/SearchComponents'
 import {TableToolsComponent} from '../../components/TableToolsComponent'
 import { SuppliersTable } from '../../components/suppliers/SuppliersTable'
+import { AddAndEditSuppliersPopup } from '../../components/suppliers/AddAndEditSuppliersPopup'
 
 export const Suppliers = () => {
-
+    const [openPopup, setOpenPopup] = useState(false)
     const headItems = [
         {
             title:"Supplier Name"
@@ -40,9 +39,12 @@ export const Suppliers = () => {
 
     return (
         <div className=' bg-gray-100 h-[calc(100vh-64px)]'>
-            <SearchComponents placeholder="Search for Supplier" actionName="Add Supplier" />
+            <SearchComponents placeholder="Search for Supplier" actionName="Add Supplier" setOpenPopup={setOpenPopup}/>
             <TableToolsComponent/>
             <SuppliersTable headItems={headItems}/>
+            {openPopup && 
+                <AddAndEditSuppliersPopup setOpenPopup={setOpenPopup} />
+            }
         </div>
     )
 }

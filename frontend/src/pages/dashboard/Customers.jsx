@@ -43,7 +43,7 @@ export const Customers = () => {
         <div className=' bg-gray-100 h-[calc(100vh-64px)] relative'>
             <SearchComponents placeholder="Search for customer" actionName="Add Customer" setOpenPopup={setOpenPopup} />
             <TableToolsComponent />
-            <CustomersTable headItems={headItems}   />
+            <CustomersTable headItems={headItems} />
             {openPopup && 
                 <AddAndEditCustomersPopup setOpenPopup={setOpenPopup} />
             }
