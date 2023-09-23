@@ -2,7 +2,7 @@ import React from 'react'
 import { BiSearch } from 'react-icons/bi'
 import { AiOutlinePlus } from "react-icons/ai"
 
-export const SearchComponents = ({ placeholder, actionName }) => {
+export const SearchComponents = ({ placeholder, actionName, setOpenPopup }) => {
   return (
     <div className='flex justify-between items-center p-4'>
       <div className="relative w-[500px]">
@@ -12,7 +12,7 @@ export const SearchComponents = ({ placeholder, actionName }) => {
           </button>
       </div>
       <div>
-        <button className="w-full flex justify-center items-center gap-4 rounded border border-[#50B426] bg-[#50B426] px-8 py-2 text-sm font-medium text-white hover:bg-transparent hover:text-[#50B426]">
+        <button onClick={() => setOpenPopup(true)} className="w-full flex justify-center items-center gap-4 rounded border border-[#50B426] bg-[#50B426] px-8 py-2 text-sm font-medium text-white hover:bg-transparent hover:text-[#50B426]">
           <span>{actionName}</span> 
           <AiOutlinePlus className='text-lg'/>
         </button>
