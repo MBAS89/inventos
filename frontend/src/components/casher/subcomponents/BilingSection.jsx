@@ -11,6 +11,7 @@ import { MdOutlineDelete } from "react-icons/md";
 import {AiOutlineMinus, AiOutlinePlus, AiOutlineCheckCircle, AiOutlineEye, AiOutlinePoweroff} from "react-icons/ai";
 import { GrEdit } from 'react-icons/gr'
 import { DiscountAndCouponPopup } from './DiscountAndCouponPopup';
+import { SearchComponentsPopup } from './SearchComponentsPopup';
 
 
 
@@ -66,13 +67,16 @@ export const BilingSection = () => {
                 </div>
             </div>
         </div>
-        <div className='flex gap-3 px-5 pt-1 pb-3'>
+        <div className='flex gap-3 px-5 pt-1 pb-3 relative'>
             <div className="relative">
                 <input type="text" id="Search" placeholder="Add by Item Code" autoFocus className="w-[416px] rounded-md border-gray-200 py-2.5 ps-3 pe-5 shadow-sm sm:text-sm"/>
                 <button type="button" className="text-gray-600 hover:text-gray-700 absolute right-2 top-2">
                     <BiSearch className='text-[1.5rem]'/>
                 </button>
             </div>
+            {false && (
+                <SearchComponentsPopup />
+            )}
             <button className='bg-[#50B426] text-white py-2 px-2 text-sm font-medium rounded-md capitalize active:bg-green-300'>add item</button>
             <button className='border border-red-500 hover:border-transparent hover:text-white hover:bg-red-500 text-red-500 py-2 px-1 text-sm font-medium rounded-md capitalize active:bg-red-300'>clear cart</button>
         </div>
