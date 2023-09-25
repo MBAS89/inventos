@@ -1,11 +1,22 @@
-import React from 'react'
+import React, { useState } from 'react'
+
+//components
+import { CustomersPopup } from './CustomersPopup';
+
+
+//icons
 import { BsPeopleFill } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import { MdOutlineDelete } from "react-icons/md";
 import {AiOutlineMinus, AiOutlinePlus, AiOutlineCheckCircle, AiOutlineEye, AiOutlinePoweroff} from "react-icons/ai";
 import { GrEdit } from 'react-icons/gr'
-import { CustomersPopup } from './CustomersPopup';
+import { DiscountAndCouponPopup } from './DiscountAndCouponPopup';
+
+
+
 export const BilingSection = () => {
+
+    const [showCustomersList, setShowCustomersList] = useState(false)
 
     const items = [
         {
@@ -24,17 +35,21 @@ export const BilingSection = () => {
         }
     ]
 
+    const [showDiscountAndCouponPopup, setShowDiscountAndCouponPopup] = useState(false)
+    const [couponPopup, setCouponPopup] = useState(false)
+    
+
     return (
-    <div>
+    <div className='relative'>
         
         <div className='flex justify-between p-5 relative'>
             <h1 className='capitalize font-bold text-lg'>biling section</h1>
-            <button className='flex items-center gap-2 text-[#50B426] border-[#50B426] border-solid border-[1px] py-2 px-3 text-sm font-medium rounded capitalize hover:bg-[#50B426] hover:text-white'>
+            <button onClick={()=> setShowCustomersList(true)} className='flex items-center gap-2 text-[#50B426] border-[#50B426] border-solid border-[1px] py-2 px-3 text-sm font-medium rounded capitalize hover:bg-[#50B426] hover:text-white'>
                 <BsPeopleFill/>
                 <p>customer</p>
             </button>
-            {false && 
-                <CustomersPopup />
+            {showCustomersList && 
+                <CustomersPopup setShowCustomersList={setShowCustomersList} />
             }
         </div>
         <div className='flex justify-between py-2 px-5'>
@@ -58,8 +73,8 @@ export const BilingSection = () => {
                     <BiSearch className='text-[1.5rem]'/>
                 </button>
             </div>
-            <button className='bg-[#50B426] text-white py-2 px-2 text-sm font-medium rounded-md capitalize'>add item</button>
-            <button className='border border-red-500  text-red-500 py-2 px-1 text-sm font-medium rounded-md capitalize'>clear cart</button>
+            <button className='bg-[#50B426] text-white py-2 px-2 text-sm font-medium rounded-md capitalize active:bg-green-300'>add item</button>
+            <button className='border border-red-500 hover:border-transparent hover:text-white hover:bg-red-500 text-red-500 py-2 px-1 text-sm font-medium rounded-md capitalize active:bg-red-300'>clear cart</button>
         </div>
         <div className="overflow-x-auto w-[94%] mx-auto">
             <table className="min-w-[94%] divide-y-2 divide-gray-200 bg-white text-sm">
@@ -127,16 +142,36 @@ export const BilingSection = () => {
                 <div className='flex justify-between items-center capitalize'>
                     <div>extra discount:</div>
                     <div className='flex items-center gap-1'>
-                        <span className='cursor-pointer'><GrEdit /></span>
+                        <span className='cursor-pointer' onClick={() =>{
+                            setShowDiscountAndCouponPopup(true) 
+                            setCouponPopup(false)
+                        }} ><GrEdit className='hover:scale-110'/></span>
                         <span>1200$</span>
                     </div>
+                    {showDiscountAndCouponPopup &&
+                        !couponPopup && <DiscountAndCouponPopup 
+                            couponPopup={couponPopup} 
+                            setShowDiscountAndCouponPopup={setShowDiscountAndCouponPopup} 
+                            setCouponPopup={setCouponPopup} 
+                        />
+                    }
                 </div>
                 <div className='flex justify-between items-center capitalize'>
                     <div>coupon discount:</div>
                     <div className='flex items-center gap-1'>
-                        <span className='cursor-pointer'><GrEdit /></span>
+                        <span className='cursor-pointer' onClick={() => {
+                            setShowDiscountAndCouponPopup(true) 
+                            setCouponPopup(true)
+                        }}><GrEdit className='hover:scale-110'/></span>
                         <span>1200$</span>
                     </div>
+                    {showDiscountAndCouponPopup &&
+                        couponPopup && <DiscountAndCouponPopup 
+                            couponPopup={couponPopup} 
+                            setShowDiscountAndCouponPopup={setShowDiscountAndCouponPopup} 
+                            setCouponPopup={setCouponPopup} 
+                        />
+                    }
                 </div>
                 <div className='flex justify-between items-center capitalize font-bold'>
                     <div>total:</div>
