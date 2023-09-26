@@ -23,16 +23,19 @@ export const BilingSection = () => {
             img:"https://img.icons8.com/dusk/64/peach.png"
         }
     ]
-  return (
+
+    return (
     <div>
         
         <div className='flex justify-between p-5 relative'>
             <h1 className='capitalize font-bold text-lg'>biling section</h1>
-            <button className='flex items-center gap-2 text-[#50B426] border-[#50B426] border-solid border-[1px] py-2 px-3 text-sm font-medium rounded capitalize'>
+            <button className='flex items-center gap-2 text-[#50B426] border-[#50B426] border-solid border-[1px] py-2 px-3 text-sm font-medium rounded capitalize hover:bg-[#50B426] hover:text-white'>
                 <BsPeopleFill/>
                 <p>customer</p>
             </button>
-            <CustomersPopup />
+            {false && 
+                <CustomersPopup />
+            }
         </div>
         <div className='flex justify-between py-2 px-5'>
             <div className='flex items-center gap-3 font-bold '>
@@ -94,7 +97,7 @@ export const BilingSection = () => {
                                 </button>
                                 <span className="h-4 w-px bg-gray-300"></span>
                                 <div>
-                                    <input type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none focus:ring-inset focus:ring-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1" value="2" id="PaginationPage"/>
+                                    <input type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1" value="2" id="PaginationPage"/>
                                 </div>
                                 <span className="h-4 w-px bg-gray-300"></span>
                                 <button className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
@@ -141,10 +144,10 @@ export const BilingSection = () => {
                 </div>
             </div>
             <div className='flex justify-between mt-4 gap-5'>
-                <button className="w-full inline-block rounded border border-[#50B426] px-12 py-3 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-indigo-500">
-                    Download
+                <button className="w-full inline-block rounded border border-[#50B426] px-12 py-3 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none active:bg-green-500">
+                    Partially Order
                 </button>
-                <button className="w-full flex justify-center items-center gap-4 rounded border border-[#50B426] bg-[#50B426] px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-[#50B426] focus:outline-none focus:ring active:text-indigo-500">
+                <button className="w-full flex justify-center items-center gap-4 rounded border border-[#50B426] bg-[#50B426] px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-[#50B426] focus:outline-none active:bg-green-500 active:text-white">
                     <span>Order Done</span> 
                     <AiOutlineCheckCircle className='text-lg'/>
                 </button>

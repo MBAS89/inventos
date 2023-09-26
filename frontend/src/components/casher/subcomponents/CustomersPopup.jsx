@@ -14,6 +14,7 @@ export const CustomersPopup = () => {
             title:"type"
         }
     ]
+    
     const data = [
         {
             image:"https://img.icons8.com/dusk/64/futurama-leela.png",
@@ -35,8 +36,10 @@ export const CustomersPopup = () => {
             name:"Takuma Asahi",
             type:"wholesale",
            
-        },]
-  return (
+        }
+    ]
+
+    return (
     <section className="absolute left-3 top-16 w-[95%] z-10 bg-gray-100 overflow-hidden border-2 border-solid border-gray-200 rounded-lg shadow-2xl h-[25rem]">
         <div className='flex justify-between items-center px-4 py-4'>
             <div className="relative">
