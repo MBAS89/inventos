@@ -12,6 +12,7 @@ import { Customers } from "./pages/dashboard/Customers"
 import { Suppliers } from "./pages/dashboard/Suppliers"
 import { Employees } from "./pages/dashboard/Employees"
 import { Expenses } from "./pages/dashboard/Expenses"
+import { Invoices } from "./pages/dashboard/Invoices"
 
 
 function App() {
@@ -57,6 +58,11 @@ function App() {
         <Route path="/dashboard/expenses" element={
           <DashLayout>
             <Expenses />
+          </DashLayout>
+        }></Route>
+        <Route path="/dashboard/invoices" element={
+          <DashLayout>
+            <Invoices/>
           </DashLayout>
         }></Route>
       </Routes>
