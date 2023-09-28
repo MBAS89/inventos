@@ -1,10 +1,11 @@
 import React from 'react'
 
-import { AiOutlineSetting, AiOutlineShoppingCart } from "react-icons/ai";
+import { AiOutlineShoppingCart } from "react-icons/ai";
 import { BsBoxSeam, BsPeople } from "react-icons/bs"
 import {  FiTruck } from "react-icons/fi"
 import { MdOutlineManageAccounts, MdAttachMoney } from "react-icons/md"
 import { TbDeviceAnalytics } from "react-icons/tb"
+import { LiaFileInvoiceDollarSolid } from "react-icons/lia"
 
 export const Dashboard = () => {
 
@@ -16,7 +17,7 @@ export const Dashboard = () => {
         { Icon: FiTruck, title: "Suppliers" },
         { Icon: MdOutlineManageAccounts, title: "Employees" },
         { Icon: MdAttachMoney, title: "Expenses" },
-        { Icon: AiOutlineSetting, title: "Settings" },
+        { Icon: LiaFileInvoiceDollarSolid, title: "Invoices" },
     ];
 
     return (

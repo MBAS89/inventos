@@ -1,7 +1,7 @@
 import React from "react";
 
 //icons
-import { AiOutlineAppstore } from "react-icons/ai";
+import { AiOutlineAppstore, AiOutlineSetting } from "react-icons/ai";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { MdOutlineDarkMode } from "react-icons/md";
 
@@ -40,6 +40,12 @@ export const DashHeader = () => {
                         className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"
                     >
                         <IoMdNotificationsOutline className="text-[1.3rem]"/>
+                    </a>
+                    <a
+                        href="#"
+                        className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"
+                    >
+                        <AiOutlineSetting className="text-[1.3rem]"/>
                     </a>
                     <a
                         href="#"
