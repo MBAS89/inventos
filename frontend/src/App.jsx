@@ -10,6 +10,7 @@ import { Casher } from "./pages/dashboard/Casher"
 import { Inventory } from "./pages/dashboard/Inventory"
 import { Customers } from "./pages/dashboard/Customers"
 import { Suppliers } from "./pages/dashboard/Suppliers"
+import { Employees } from "./pages/dashboard/Employees"
 
 
 function App() {
@@ -45,6 +46,11 @@ function App() {
         <Route path="/dashboard/suppliers" element={
           <DashLayout>
             <Suppliers />
+          </DashLayout>
+        }></Route>
+        <Route path="/dashboard/employees" element={
+          <DashLayout>
+            <Employees />
           </DashLayout>
         }></Route>
       </Routes>
