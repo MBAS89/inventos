@@ -115,7 +115,7 @@ export const FilteredItems = () => {
       <div className='grid grid-cols-4 gap-4 p-4 pt-2'>
       {items.map((item, index) => (
         <div key={index} className='bg-white flex items-center justify-center gap-6 rounded-lg p-5'>
-          <img width="54" height="64" src={item.link} alt="apple"/>
+          <img width="54" height="54" src={item.link} alt="apple"/>
           <div>
             <h3 className='font-bold capitalize text-sm'>{item.title}</h3>
             <span className='flex justify-left items-center gap-2'>
