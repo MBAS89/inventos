@@ -1,5 +1,12 @@
 import React from "react";
 
+//icons
+import { AiOutlineAppstore } from "react-icons/ai";
+import { IoMdNotificationsOutline } from "react-icons/io";
+import { MdOutlineDarkMode } from "react-icons/md";
+
+
+
 export const DashHeader = () => {
   return (
     <header className="bg-white">
@@ -7,7 +14,6 @@ export const DashHeader = () => {
             <div className="flex h-16 items-center justify-between">
                 <div className="flex-1 md:flex md:items-center md:gap-12">
                     <a className="block text-teal-600" href="/">
-                        <span className="sr-only">Home</span>
                         <svg
                             className="h-8"
                             viewBox="0 0 28 24"
@@ -22,103 +28,32 @@ export const DashHeader = () => {
                     </a>
                 </div>
 
-                <div className="md:flex md:items-center md:gap-12">
-                    <nav aria-label="Global" className="hidden md:block">
-                        <ul className="flex items-center gap-6 text-sm">
-                            <li>
-                                <a
-                                    className="text-gray-500 transition hover:text-gray-500/75"
-                                    href="/"
-                                >
-                                    About
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    className="text-gray-500 transition hover:text-gray-500/75"
-                                    href="/"
-                                >
-                                    Careers
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    className="text-gray-500 transition hover:text-gray-500/75"
-                                    href="/"
-                                >
-                                    History
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    className="text-gray-500 transition hover:text-gray-500/75"
-                                    href="/"
-                                >
-                                    Services
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    className="text-gray-500 transition hover:text-gray-500/75"
-                                    href="/"
-                                >
-                                    Projects
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    className="text-gray-500 transition hover:text-gray-500/75"
-                                    href="/"
-                                >
-                                    Blog
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-
-                    <div className="flex items-center gap-4">
-                        <div className="sm:flex sm:gap-4">
-                            <a
-                                className="rounded-md bg-teal-600 px-5 py-2.5 text-sm font-medium text-white shadow"
-                                href="/"
-                            >
-                                Login
-                            </a>
-
-                            <div className="hidden sm:flex">
-                                <a
-                                    className="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-teal-600"
-                                    href="/"
-                                >
-                                    Register
-                                </a>
-                            </div>
-                        </div>
-
-                        <div className="block md:hidden">
-                            <button className="rounded bg-gray-100 p-2 text-gray-600 transition hover:text-gray-600/75">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                >
-                                    <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                <div className="flex items-center gap-5">
+                    <a
+                        href="#"
+                        className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"
+                    >
+                        <AiOutlineAppstore className="text-[1.3rem]"/>
+                    </a>
+                    <a
+                        href="#"
+                        className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"
+                    >
+                        <IoMdNotificationsOutline className="text-[1.3rem]"/>
+                    </a>
+                    <a
+                        href="#"
+                        className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"
+                    >
+                        <MdOutlineDarkMode className="text-[1.3rem]"/>
+                    </a>
+                    <a href="#" className="block shrink-0">
+                        <img
+                        alt="Man"
+                        src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
+                        className="h-10 w-10 rounded-full object-cover"
+                        />
+                    </a>
                 </div>
             </div>
         </div>
