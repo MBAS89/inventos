@@ -120,7 +120,7 @@ export const FilteredItems = () => {
             <h3 className='font-bold capitalize text-sm'>{item.title}</h3>
             <span className='flex justify-left items-center gap-2'>
               <p className='text-[14px] font-bold line-through text-gray-400'>{item.prevPrice}</p>
-              <p className='text-[14px] font-bold text-orange-500'>{item.price}</p>
+              <p className='text-[14px] font-bold text-[#50B426]'>{item.price}</p>
             </span>
           </div>
         </div>
@@ -135,7 +135,7 @@ export const FilteredItems = () => {
         <li>
           <a href="#" className="block h-8 w-8 rounded border border-gray-100 bg-white text-center leading-8 text-gray-900">1</a>
         </li>
-        <li className="block h-8 w-8 rounded border-orange-500 bg-orange-500 text-center leading-8 text-white">2</li>
+        <li className="block h-8 w-8 rounded border-[#50B426] bg-[#50B426] text-center leading-8 text-white">2</li>
         <li>
           <a href="#" className="block h-8 w-8 rounded border border-gray-100 bg-white text-center leading-8 text-gray-900">3</a>
         </li>

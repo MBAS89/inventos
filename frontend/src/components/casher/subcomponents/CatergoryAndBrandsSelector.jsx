@@ -171,7 +171,7 @@ export const CatergoryAndBrandsSelector = () => {
                 <button  onClick={handlePrevClick}  className={`inline-block rounded-full border border-[#50B426] p-1 ${translateX === 0 ? 'text-[#50B426] bg-transparent opacity-50' : 'text-white bg-[#50B426]'}`}>
                     <MdKeyboardArrowLeft className='text-[1.5rem]'/>
                 </button>
-                <button onClick={handleNextClick}  className={`inline-block rounded-full border border-[#50B426] p-1 bg-[#50B426] text-white ${translateX <= maxTranslateX ? 'text-[#50B426] bg-transparent opacity-50' : 'text-white bg-[#50B426]'}`}>                
+                <button onClick={handleNextClick}  className={`inline-block rounded-full border border-[#50B426] p-1 bg-[#50B426] ${translateX <= maxTranslateX ? 'bg-transparent opacity-50 text-[#50B426]' : 'text-white bg-[#50B426]'}`}>                
                     <MdKeyboardArrowRight className='text-[1.5rem]'/>
                 </button>
             </div>
