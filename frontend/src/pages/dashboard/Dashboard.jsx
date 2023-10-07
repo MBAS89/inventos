@@ -37,7 +37,6 @@ export const Dashboard = () => {
                     </button>
                 ))}
                 </div>
-                <img width="64" height="64" src="https://img.icons8.com/dusk/64/asian-hat.png" alt="asian-hat"/>
             </div>
         </section>
     </div>

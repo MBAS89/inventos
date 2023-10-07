@@ -6,6 +6,7 @@ import { Home } from "./pages/Home"
 import { MainLayout } from "./components/MainLayout"
 import { Dashboard } from "./pages/dashboard/Dashboard"
 import { DashLayout } from "./components/DashLayout"
+import { Casher } from "./pages/dashboard/Casher"
 
 
 function App() {
@@ -22,7 +23,12 @@ function App() {
           <DashLayout>
             <Dashboard />
           </DashLayout>
-        }></Route>        
+        }></Route>     
+        <Route path="/dashboard/casher" element={
+          <DashLayout>
+            <Casher />
+          </DashLayout>
+        }></Route>       
       </Routes>
     </>
   )
