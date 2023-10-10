@@ -2,8 +2,9 @@ import React from 'react'
 import { BsPeopleFill } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import { MdOutlineDelete } from "react-icons/md";
-import {AiOutlineMinus, AiOutlinePlus, AiOutlineCheckCircle} from "react-icons/ai";
+import {AiOutlineMinus, AiOutlinePlus, AiOutlineCheckCircle, AiOutlineEye, AiOutlinePoweroff} from "react-icons/ai";
 import { GrEdit } from 'react-icons/gr'
+import { CustomersPopup } from './CustomersPopup';
 export const BilingSection = () => {
 
     const items = [
@@ -24,12 +25,28 @@ export const BilingSection = () => {
     ]
   return (
     <div>
-        <div className='flex justify-between p-5'>
+        
+        <div className='flex justify-between p-5 relative'>
             <h1 className='capitalize font-bold text-lg'>biling section</h1>
             <button className='flex items-center gap-2 text-[#50B426] border-[#50B426] border-solid border-[1px] py-2 px-3 text-sm font-medium rounded capitalize'>
                 <BsPeopleFill/>
                 <p>customer</p>
             </button>
+            <CustomersPopup />
+        </div>
+        <div className='flex justify-between py-2 px-5'>
+            <div className='flex items-center gap-3 font-bold '>
+                <div className=' bg-gray-100 p-1 rounded-md flex items-center justify-center'>
+                    <img width="40" height="40" src="https://img.icons8.com/dusk/64/administrator-male.png" alt="nut"/>
+                </div>
+                <div>
+                    <span className='capitalize'>Narek Svetlana</span>
+                    <div className='flex items-center gap-3'>
+                        <AiOutlineEye className='cursor-pointer text-[1.2rem] hover:scale-110'/>
+                        <AiOutlinePoweroff className=' cursor-pointer text-red-500 hover:scale-110'/>
+                    </div>
+                </div>
+            </div>
         </div>
         <div className='flex gap-3 px-5 pt-1 pb-3'>
             <div className="relative">
@@ -61,7 +78,7 @@ export const BilingSection = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                     {items.map((item, index) => (
-                    <tr>
+                    <tr key={index}>
                         <td className="px-4 py-2 font-medium text-gray-900 flex items-center gap-3">
                             <div className=' bg-gray-100 p-1 rounded-md w-[20%] flex items-center justify-center'>
                                 <img width="40" height="40" src={item.img} alt="nut"/>
