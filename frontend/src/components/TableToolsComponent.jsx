@@ -33,7 +33,7 @@ export const TableToolsComponent = () => {
                             </div>
                         </button>
                     </div>
-                    {false && (
+                    {true && (
                     <div className="absolute end-0 z-10 mt-2 w-56 rounded-md border border-gray-100 bg-white shadow-lg" role="menu">
                         <div className="p-2">
                             <a href="#" className="block rounded-lg px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700" role="menuitem">

@@ -8,6 +8,7 @@ import { Dashboard } from "./pages/dashboard/Dashboard"
 import { DashLayout } from "./components/DashLayout"
 import { Casher } from "./pages/dashboard/Casher"
 import { Inventory } from "./pages/dashboard/Inventory"
+import { Customers } from "./pages/dashboard/Customers"
 
 
 function App() {
@@ -34,7 +35,12 @@ function App() {
           <DashLayout>
             <Inventory />
           </DashLayout>
-        }></Route>            
+        }></Route>    
+        <Route path="/dashboard/customers" element={
+          <DashLayout>
+            <Customers />
+          </DashLayout>
+        }></Route>  
       </Routes>
     </>
   )
