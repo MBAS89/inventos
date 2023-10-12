@@ -13,6 +13,9 @@ import { Suppliers } from "./pages/dashboard/Suppliers"
 import { Employees } from "./pages/dashboard/Employees"
 import { Expenses } from "./pages/dashboard/Expenses"
 import { Invoices } from "./pages/dashboard/Invoices"
+import { Categories } from "./components/inventory/Categories"
+import { Brands } from "./components/inventory/Brands"
+import { Products } from "./components/inventory/Products"
 
 
 function App() {
@@ -37,9 +40,14 @@ function App() {
         }></Route>  
         <Route path="/dashboard/inventory" element={
           <DashLayout>
-            <Inventory />
+            <Inventory/>
           </DashLayout>
-        }></Route>    
+        }>
+          <Route index element={< Products/>}/>
+          <Route path="products" element={< Products/>}/>
+          <Route path="categories" element={<Categories/>}/>
+          <Route path="brands" element={<Brands/>}/>
+        </Route>    
         <Route path="/dashboard/customers" element={
           <DashLayout>
             <Customers />
