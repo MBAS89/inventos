@@ -43,6 +43,7 @@ function App() {
             <Inventory/>
           </DashLayout>
         }>
+          <Route index element={< Products/>}/>
           <Route path="products" element={< Products/>}/>
           <Route path="categories" element={<Categories/>}/>
           <Route path="brands" element={<Brands/>}/>
