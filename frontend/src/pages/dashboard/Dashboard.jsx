@@ -6,18 +6,18 @@ import {  FiTruck } from "react-icons/fi"
 import { MdOutlineManageAccounts, MdAttachMoney } from "react-icons/md"
 import { TbDeviceAnalytics } from "react-icons/tb"
 import { LiaFileInvoiceDollarSolid } from "react-icons/lia"
-
+import { useNavigate } from 'react-router-dom';
 export const Dashboard = () => {
-
+    const navigate = useNavigate();
     const buttonsData = [
-        { Icon: TbDeviceAnalytics, title: "Analytics" },
-        { Icon: AiOutlineShoppingCart, title: "Casher" },
-        { Icon: BsBoxSeam, title: "Inventory" },
-        { Icon: BsPeople, title: "Customers" },
-        { Icon: FiTruck, title: "Suppliers" },
-        { Icon: MdOutlineManageAccounts, title: "Employees" },
-        { Icon: MdAttachMoney, title: "Expenses" },
-        { Icon: LiaFileInvoiceDollarSolid, title: "Invoices" },
+        { Icon: TbDeviceAnalytics, title: "Analytics", link:"analytics" },
+        { Icon: AiOutlineShoppingCart, title: "Casher",link:"casher" },
+        { Icon: BsBoxSeam, title: "Inventory",link:"inventory" },
+        { Icon: BsPeople, title: "Customers",link:"customers" },
+        { Icon: FiTruck, title: "Suppliers",link:"suppliers" },
+        { Icon: MdOutlineManageAccounts, title: "Employees",link:"employees" },
+        { Icon: MdAttachMoney, title: "Expenses",link:"expenses" },
+        { Icon: LiaFileInvoiceDollarSolid, title: "Invoices",link:"invoices" },
     ];
 
     return (
@@ -30,10 +30,10 @@ export const Dashboard = () => {
 
                 <div className="mt-16 grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-4">
                 {buttonsData.map((button, index) => (
-                    <button key={index} className="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-[#54AD31]/10 hover:shadow-[#54AD31]/10">
+                    <button  onClick={()=>navigate(button.link)} key={index} className="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-[#54AD31]/10 hover:shadow-[#54AD31]/10">
                     <button.Icon className="mx-auto text-[2.2rem] text-[#54AD31]" />
                     <h2 className="mt-4 text-xl font-bold text-white capitalize">
-                        {button.title}
+                       {button.title}
                     </h2>
                     </button>
                 ))}
