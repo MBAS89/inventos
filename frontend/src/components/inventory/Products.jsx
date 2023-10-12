@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TableHead } from '../TableHead'
 import { TablePagination } from '../TablePagination'
 import { SearchComponents } from '../../components/SearchComponents'
 import {TableToolsComponent} from '../../components/TableToolsComponent'
+import { AddAndEditProductPopup } from './AddAndEditProductPopup'
 
 export const Products = () => {
+    const [openPopup, setOpenPopup] = useState(false)
+
     const headItems = [
         {
             title:"product info"
@@ -215,8 +218,8 @@ export const Products = () => {
 
   return (
     <div>
-        <SearchComponents placeholder="Search for product" actionName="Add Prodcut"/>
-        <TableToolsComponent/>
+        <SearchComponents placeholder="Search for product" actionName="Add Prodcut" setOpenPopup={setOpenPopup}/>
+        <TableToolsComponent  />
         <div className='px-6 mt-6'>
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm rounded-md">
@@ -263,6 +266,9 @@ export const Products = () => {
                 <TablePagination />
             </div>
         </div>
+        {openPopup && 
+            <AddAndEditProductPopup setOpenPopup={setOpenPopup} />
+        }
     </div>
   )
 }
