@@ -1,103 +1,108 @@
-import React from 'react'
+import React, { useState } from 'react'
+
 import { TableHead } from '../TableHead'
 import { TablePagination } from '../TablePagination'
 import { SearchComponents } from '../../components/SearchComponents'
 import {TableToolsComponent} from '../../components/TableToolsComponent'
+import { AddAndEditBrand } from './AddAndEditBrand'
 
 export const Brands = () => {
-  const headItems = [
-    {
-        title:"name"
-    },
-    {
-        title:"products"
-    },
-    {
-        title:"created date"
-    },
-    {
-        title:"updated date"
-    }
-]
 
-const data = [
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    },
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    },
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    },
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    },
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    },
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    },
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    },
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    },
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    },
-    {
-        image:"https://img.icons8.com/dusk/64/spring.png",
-        name:"kakuma organic tutmeric immune booster",
-        products:2,
-        createdDate:"24/05/1995",
-        updatedDate:"24/05/1995"
-    }
-]
+    const [openPopup, setOpenPopup] = useState(false)
+
+    const headItems = [
+        {
+            title:"name"
+        },
+        {
+            title:"products"
+        },
+        {
+            title:"created date"
+        },
+        {
+            title:"updated date"
+        }
+    ]
+
+    const data = [
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        },
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        },
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        },
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        },
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        },
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        },
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        },
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        },
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        },
+        {
+            image:"https://img.icons8.com/dusk/64/spring.png",
+            name:"kakuma organic tutmeric immune booster",
+            products:2,
+            createdDate:"24/05/1995",
+            updatedDate:"24/05/1995"
+        }
+    ]
   return (
     <div>
-        <SearchComponents placeholder="Search for product" actionName="Add Prodcut"/>
+        <SearchComponents placeholder="Search for brand" actionName="Add Brand" setOpenPopup={setOpenPopup}/>
         <TableToolsComponent/>
         <div className='px-6 mt-6'>
-              <div className="overflow-x-auto">
+            <div className="overflow-x-auto">
                 <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm rounded-md">
                     <TableHead headItems={headItems} />
                     <tbody className="divide-y divide-gray-200">
@@ -122,8 +127,11 @@ const data = [
                     </tbody>
                 </table>
                 <TablePagination />
-              </div>
+            </div>
         </div>
+        {openPopup && 
+            <AddAndEditBrand setOpenPopup={setOpenPopup} />
+        }
     </div>
   )
 }
