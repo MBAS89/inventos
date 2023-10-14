@@ -3,9 +3,10 @@ import React, { useState } from 'react'
 //icons
 import { SiMicrosoftexcel } from 'react-icons/si';
 import { GrEdit } from 'react-icons/gr';
-import { MdOutlineDelete } from "react-icons/md";
+import { MdOutlineDelete,MdOutlineRemoveRedEye } from "react-icons/md";
 import { FiFilter } from "react-icons/fi";
 import { BsSortDown,BsPencil } from "react-icons/bs";
+import { Link } from 'react-router-dom';
 
 
 export const TableToolsComponent = ({ setOpenDeletePopup }) => {
@@ -20,6 +21,10 @@ export const TableToolsComponent = ({ setOpenDeletePopup }) => {
                 <SiMicrosoftexcel className='text-[#50B426] text-xl'/>
                 <span>export to excel</span>
             </button>
+            <Link to="/dashboard/customers/single-customer" className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
+                <MdOutlineRemoveRedEye className='text-[#50B426] text-xl'/>
+                <span>view</span>
+            </Link>
             <button className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
                 <BsPencil className='text-[#50B426] text-xl'/>
                 <span>edit</span>

@@ -6,8 +6,9 @@ import { BiCategory } from 'react-icons/bi'
 import { TbBrandZeit } from 'react-icons/tb'
 import { MdOutlineProductionQuantityLimits } from 'react-icons/md'
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-export const Inventory = () => {
 
+export const Inventory = () => {
+    
     const location = useLocation()
     const headItems = [
         {
@@ -69,7 +70,7 @@ export const Inventory = () => {
                 <Outlet/>
             </div>
         </div>
-       
+        
     </div>
   )
 }
