@@ -1,13 +1,14 @@
-import React from "react";
+import {React,useState} from "react";
 
 //icons
 import { AiOutlineAppstore, AiOutlineSetting } from "react-icons/ai";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { MdOutlineDarkMode } from "react-icons/md";
-
-
+import { Link, useLocation, NavLink } from "react-router-dom";
 
 export const DashHeader = () => {
+  const location = useLocation()
+
   return (
     <header className="bg-white">
         <div className="mx-auto max-w-screen-full px-4 sm:px-6 lg:px-8">
@@ -29,17 +30,15 @@ export const DashHeader = () => {
                 </div>
 
                 <div className="flex items-center gap-5">
-                    <a
-                        href="#"
-                        className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"
-                    >
+                    {location.pathname !== "/dashboard" && 
+                    <NavLink to="/dashboard" className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
                         <AiOutlineAppstore className="text-[1.3rem]"/>
-                    </a>
+                    </NavLink>}
                     <a
                         href="#"
                         className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"
                     >
-                        <IoMdNotificationsOutline className="text-[1.3rem]"/>
+                        <IoMdNotificationsOutline className="text-[1.3rem] "/>
                     </a>
                     <a
                         href="#"
