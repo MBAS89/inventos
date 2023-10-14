@@ -6,7 +6,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai"
 import { DropZone } from '../DropZone'
 
 
-export const AddAndEditBrand = () => {
+export const AddAndEditBrand = ({ setOpenPopup }) => {
 
     return (
         <section className="overflow-auto bg-white left-[32%] top-[7%] h-[37rem] w-[40rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
