@@ -4,9 +4,11 @@ import { SearchComponents } from '../../components/SearchComponents'
 import {TableToolsComponent} from '../../components/TableToolsComponent'
 import { CustomersTable } from '../../components/customers/CustomersTable'
 import { AddAndEditCustomersPopup } from '../../components/customers/AddAndEditCustomersPopup'
+import { DeletePopup } from '../../components/DeletePopup'
 
 export const Customers = () => {
     const [openPopup, setOpenPopup] = useState(false)
+    const [openDeletePopup, setOpenDeletePopup] = useState(false)
 
     const headItems = [
         {
@@ -42,10 +44,13 @@ export const Customers = () => {
     return (
         <div className=' bg-gray-100 h-[calc(100vh-64px)] relative'>
             <SearchComponents placeholder="Search for customer" actionName="Add Customer" setOpenPopup={setOpenPopup} />
-            <TableToolsComponent />
+            <TableToolsComponent setOpenDeletePopup={setOpenDeletePopup} />
             <CustomersTable headItems={headItems} />
             {openPopup && 
                 <AddAndEditCustomersPopup setOpenPopup={setOpenPopup} />
+            }
+            {openDeletePopup && 
+                <DeletePopup setOpenDeletePopup={setOpenDeletePopup} />
             }
         </div>
     )
