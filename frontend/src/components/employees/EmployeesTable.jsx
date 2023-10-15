@@ -17,6 +17,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"part time",
+            contract:false,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -31,6 +33,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"full time",
+            contract:true,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -45,6 +49,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"remote",
+            contract:false,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -59,6 +65,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"remote",
+            contract:false,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -73,6 +81,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"part time",
+            contract:true,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -87,6 +97,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"full time",
+            contract:false,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -101,6 +113,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"remote",
+            contract:false,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -115,6 +129,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"remote",
+            contract:true,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -129,6 +145,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"part time",
+            contract:false,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -143,6 +161,8 @@ export const EmployeesTable = ({ headItems }) => {
             phone:"+12734076561",
             address:"United States-Winchester",
             department:"wholesale",
+            workType:"full time",
+            contract:false,
             totalPaid:22000,
             totalDue:10000,
             salary:"20k",
@@ -152,6 +172,22 @@ export const EmployeesTable = ({ headItems }) => {
             updatedDate:"24/05/1995"
         }
     ]
+
+    const handleContract = (status) => {
+        if(status === true){
+            return(
+                <span className="whitespace-nowrap rounded-full bg-emerald-100 px-2.5 py-0.5 text-emerald-700">
+                    Yes
+                </span>
+            )
+        }else{ 
+            return(
+                <span className="whitespace-nowrap rounded-full bg-red-100 px-2.5 py-0.5 text-red-700">
+                    No
+                </span>
+            )
+        }
+    } 
 
     return (
         <div className='px-6 mt-2'>
@@ -187,6 +223,14 @@ export const EmployeesTable = ({ headItems }) => {
                                     <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-sm text-purple-700 bg-purple-100`}>
                                         {item.department}
                                     </span>
+                                </td>
+                                <td className="px-4 py-2 text-gray-700">
+                                    <span className={`whitespace-nowrap capitalize rounded-full px-2.5 py-0.5 text-sm text-purple-700 bg-purple-100`}>
+                                        {item.workType}
+                                    </span>
+                                </td>
+                                <td className="px-4 py-2 text-gray-700">
+                                    {handleContract(item.contract)}
                                 </td>
                                 <td className="px-4 py-2 text-[#50B426] font-bold">${item.totalPaid}</td>
                                 <td className="px-4 py-2 font-bold text-[#4454DC]">${item.totalDue}</td>
