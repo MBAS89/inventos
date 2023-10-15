@@ -1,19 +1,39 @@
 import React from 'react'
+import { MdPlace} from "react-icons/md";
 
 export const CustomersProfile = () => {
   return (
-    <div className=''>
-        <div className='bg-red-300 flex items-center gap-6 rounded-lg p-5 w-[1000px]'>
-            <img width="120" height="120" src="https://img.icons8.com/dusk/64/cat--v1.png" alt="cat--v1"/>
-            <div className=''>
-                <h1 className='font-bold capitalize text-2xl'>natalie wheeler</h1>
-                <span className=''>
-                    <p className='text-xl font-bold line-through text-gray-400'>+972546789</p>
-                    <p className='text-xl font-bold text-[#50B426]'>los angelos Calefornia</p>
-                    <p className='text-[14px] font-bold text-[#50B426]'>natalie@gmail.com</p>
-                </span>
+    <div className='col-span-2 bg-white rounded-lg'>
+        <div className="relative block overflow-hidden rounded-lg border border-gray-100 p-8 bg-red-100">
+        {/*<span className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-green-300 via-blue-500 to-purple-600"></span>*/}
+            <div className="sm:flex sm:justify-between sm:gap-4 ">
+                <div>
+                    <h3 className="text-lg font-bold text-gray-900 sm:text-xl w-60 mt-4">Customer Information</h3>
+                </div>
+                <div className="hidden sm:block sm:shrink-0">
+                    <img alt="Paul Clapton" src="https://img.icons8.com/dusk/64/cat--v1.png" className="h-16 w-16 rounded-lg object-cover shadow-sm"/>
+                </div>
+            </div>
+            <div className='flex items-center gap-20'>
+                <dl className="mt-2 flex gap-4">
+                    <div className="flex flex-col gap-2">
+                        <dd className="text-xs text-gray-500">Name</dd>
+                        <dt className="text-sm font-medium text-gray-600">Natalia Wheeler</dt>
+                        <dd className="text-xs text-gray-500">Phone</dd>
+                        <dt className="text-sm font-medium text-gray-600">+9725473490</dt>
+                    </div>
+                </dl>
+                <dl className="mt-2 flex gap-4 ">
+                    <div className="flex flex-col gap-2">
+                        <dd className="text-xs text-gray-500">Email</dd>
+                        <dt className="text-sm font-medium text-gray-600">Natalia@gmail.com</dt>
+                        <dd className="text-xs text-gray-500">Address</dd>
+                        <dt className="text-sm font-medium text-gray-600">Los Angelos Calefornia</dt>
+                    </div>
+                </dl>
             </div>
         </div>
-  </div>
+    </div>
   )
 }
+
