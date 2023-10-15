@@ -8,7 +8,7 @@ import { Dashboard } from "./pages/dashboard/Dashboard"
 import { DashLayout } from "./components/DashLayout"
 import { Casher } from "./pages/dashboard/Casher"
 import { Inventory } from "./pages/dashboard/Inventory"
-import { Customers } from "./pages/dashboard/Customers"
+import { Customers } from "./pages/dashboard/customers/Customers"
 import { Suppliers } from "./pages/dashboard/Suppliers"
 import { Employees } from "./pages/dashboard/Employees"
 import { Expenses } from "./pages/dashboard/Expenses"
@@ -16,6 +16,7 @@ import { Invoices } from "./pages/dashboard/Invoices"
 import { Categories } from "./components/inventory/Categories"
 import { Brands } from "./components/inventory/Brands"
 import { Products } from "./components/inventory/Products"
+import { SingleCustomers } from "./pages/dashboard/customers/SingleCustomers"
 
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
             <Customers />
           </DashLayout>
         }></Route>  
+        <Route path="/dashboard/customers/single-customer" element={<SingleCustomers />}></Route>
         <Route path="/dashboard/suppliers" element={
           <DashLayout>
             <Suppliers />

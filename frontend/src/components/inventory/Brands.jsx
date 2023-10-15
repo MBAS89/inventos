@@ -5,11 +5,11 @@ import { TablePagination } from '../TablePagination'
 import { SearchComponents } from '../../components/SearchComponents'
 import {TableToolsComponent} from '../../components/TableToolsComponent'
 import { AddAndEditBrand } from './AddAndEditBrand'
-
+import { DeletePopup } from '../../components/DeletePopup'
 export const Brands = () => {
 
     const [openPopup, setOpenPopup] = useState(false)
-
+    const [openDeletePopup, setOpenDeletePopup] = useState(false)
     const headItems = [
         {
             title:"name"
@@ -100,7 +100,7 @@ export const Brands = () => {
   return (
     <div>
         <SearchComponents placeholder="Search for brand" actionName="Add Brand" setOpenPopup={setOpenPopup}/>
-        <TableToolsComponent/>
+        <TableToolsComponent setOpenDeletePopup={setOpenDeletePopup}/>
         <div className='px-6 mt-6'>
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm rounded-md">
@@ -131,6 +131,9 @@ export const Brands = () => {
         </div>
         {openPopup && 
             <AddAndEditBrand setOpenPopup={setOpenPopup} />
+        }
+        {openDeletePopup && 
+            <DeletePopup setOpenDeletePopup={setOpenDeletePopup} />
         }
     </div>
   )
