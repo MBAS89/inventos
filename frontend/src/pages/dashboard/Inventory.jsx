@@ -1,7 +1,4 @@
 import React from 'react'
-import { SearchComponents } from '../../components/SearchComponents'
-import {TableToolsComponent} from '../../components/TableToolsComponent'
-import { InventoryTable } from '../../components/inventory/InventoryTable'
 import { BiCategory } from 'react-icons/bi'
 import { TbBrandZeit } from 'react-icons/tb'
 import { MdOutlineProductionQuantityLimits } from 'react-icons/md'
