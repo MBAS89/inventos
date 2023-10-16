@@ -1,9 +1,9 @@
 import {React,useState} from 'react'
-import { SearchComponents } from '../../components/SearchComponents'
-import {TableToolsComponent} from '../../components/TableToolsComponent'
-import { SuppliersTable } from '../../components/suppliers/SuppliersTable'
-import { AddAndEditSuppliersPopup } from '../../components/suppliers/AddAndEditSuppliersPopup'
-import { DeletePopup } from '../../components/DeletePopup'
+import { SearchComponents } from '../../../components/SearchComponents'
+import {TableToolsComponent} from '../../../components/TableToolsComponent'
+import { SuppliersTable } from '../../../components/suppliers/SuppliersTable'
+import { AddAndEditSuppliersPopup } from '../../../components/suppliers/AddAndEditSuppliersPopup'
+import { DeletePopup } from '../../../components/DeletePopup'
 
 export const Suppliers = () => {
     const [openPopup, setOpenPopup] = useState(false)

@@ -9,7 +9,7 @@ import { DashLayout } from "./components/DashLayout"
 import { Casher } from "./pages/dashboard/Casher"
 import { Inventory } from "./pages/dashboard/Inventory"
 import { Customers } from "./pages/dashboard/customers/Customers"
-import { Suppliers } from "./pages/dashboard/Suppliers"
+import { Suppliers } from "./pages/dashboard/suppliers/Suppliers"
 import { Employees } from "./pages/employees/Employees"
 import { Expenses } from "./pages/dashboard/Expenses"
 import { Invoices } from "./pages/dashboard/Invoices"
@@ -17,11 +17,11 @@ import { Categories } from "./components/inventory/Categories"
 import { Brands } from "./components/inventory/Brands"
 import { Products } from "./components/inventory/Products"
 import { SingleCustomers } from "./pages/dashboard/customers/SingleCustomers"
+import { SingleSuppliers } from "./pages/dashboard/suppliers/SingleSuppliers"
 import { EmployeeInformation } from "./pages/employees/EmployeeInformation"
 
 
 function App() {
-
   return (
     <>
       <Routes>
@@ -61,6 +61,7 @@ function App() {
             <Suppliers />
           </DashLayout>
         }></Route>
+        <Route path="/dashboard/suppliers/single-supplier" element={<SingleSuppliers />}></Route>
         <Route path="/dashboard/employees" element={
           <DashLayout>
             <Employees />
