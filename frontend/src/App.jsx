@@ -10,13 +10,14 @@ import { Casher } from "./pages/dashboard/Casher"
 import { Inventory } from "./pages/dashboard/Inventory"
 import { Customers } from "./pages/dashboard/customers/Customers"
 import { Suppliers } from "./pages/dashboard/Suppliers"
-import { Employees } from "./pages/dashboard/Employees"
+import { Employees } from "./pages/employees/Employees"
 import { Expenses } from "./pages/dashboard/Expenses"
 import { Invoices } from "./pages/dashboard/Invoices"
 import { Categories } from "./components/inventory/Categories"
 import { Brands } from "./components/inventory/Brands"
 import { Products } from "./components/inventory/Products"
 import { SingleCustomers } from "./pages/dashboard/customers/SingleCustomers"
+import { EmployeeInformation } from "./pages/employees/EmployeeInformation"
 
 
 function App() {
@@ -63,6 +64,11 @@ function App() {
         <Route path="/dashboard/employees" element={
           <DashLayout>
             <Employees />
+          </DashLayout>
+        }></Route>
+        <Route path="/dashboard/employees/employee-information" element={
+          <DashLayout>
+            <EmployeeInformation />
           </DashLayout>
         }></Route>
         <Route path="/dashboard/expenses" element={
