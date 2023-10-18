@@ -7,7 +7,6 @@ import { MainLayout } from "./components/MainLayout"
 import { Dashboard } from "./pages/dashboard/Dashboard"
 import { DashLayout } from "./components/DashLayout"
 import { Casher } from "./pages/dashboard/Casher"
-import { Inventory } from "./pages/dashboard/Inventory"
 import { Customers } from "./pages/dashboard/customers/Customers"
 import { Suppliers } from "./pages/dashboard/suppliers/Suppliers"
 import { Employees } from "./pages/employees/Employees"
@@ -19,6 +18,9 @@ import { Products } from "./components/inventory/Products"
 import { SingleCustomers } from "./pages/dashboard/customers/SingleCustomers"
 import { SingleSuppliers } from "./pages/dashboard/suppliers/SingleSuppliers"
 import { EmployeeInformation } from "./pages/employees/EmployeeInformation"
+import { Inventory } from "./pages/dashboard/inventory/Inventory"
+import { SingleProduct } from "./pages/dashboard/inventory/SingleProduct"
+import { SingleCategory } from "./pages/dashboard/inventory/SingleCategory"
 
 
 function App() {
@@ -49,7 +51,9 @@ function App() {
           <Route path="products" element={< Products/>}/>
           <Route path="categories" element={<Categories/>}/>
           <Route path="brands" element={<Brands/>}/>
-        </Route>    
+        </Route> 
+        <Route path="/dashboard/inventory/single-product" element={<SingleProduct />}></Route>
+        <Route path="/dashboard/inventory/single-category" element={<SingleCategory />}></Route>
         <Route path="/dashboard/customers" element={
           <DashLayout>
             <Customers />

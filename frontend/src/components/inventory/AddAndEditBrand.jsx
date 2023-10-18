@@ -22,7 +22,7 @@ export const AddAndEditBrand = ({ setOpenPopup }) => {
                         Brand Name
                     </span>
                 </label>
-                <button className="inline-block mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">Add Category</button>
+                <button className="inline-block mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">Add Brand</button>
             </form>
         </section>
     )

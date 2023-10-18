@@ -6,9 +6,9 @@ import { CustomersInvoicesTable } from '../../../components/customers/CustomersI
 
 export const SingleCustomers = () => {
     return (
-    <div className='bg-slate-200  min-h-[calc(100vh-64px)] pb-10'>
+    <div className='bg-slate-200 min-h-[calc(100vh-64px)] pb-10'>
         <DashHeader/>
-        <div className=''>
+        <div>
             <CustomersProfile/>
             <CustomersProfileStatus/>
             <CustomersInvoicesTable/>
@@ -16,5 +16,3 @@ export const SingleCustomers = () => {
     </div>
   )
 }
-
-{/*grid grid-cols-3 gap-5 mx-[500px] mt-6 */}

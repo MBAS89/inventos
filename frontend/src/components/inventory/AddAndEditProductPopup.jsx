@@ -102,7 +102,10 @@ export const AddAndEditProductPopup = ({ setOpenPopup }) => {
                         </select>
                     </div>
                 </div>
-                <button className="inline-block mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">Add Customer</button>
+                <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                    <textarea id="OrderNotes" className="w-full resize-none border-none align-top focus:ring-0 sm:text-sm p-3 focus:outline-none" rows="4" placeholder="Specifications..."></textarea>
+                </div>
+                <button className="inline-block mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">Add Product</button>
             </form>
         </section>
     )
