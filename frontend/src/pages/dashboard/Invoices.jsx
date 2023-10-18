@@ -1,6 +1,4 @@
 import React, { useState } from 'react'
-
-
 import { SearchComponents } from '../../components/SearchComponents'
 import {TableToolsComponent} from '../../components/TableToolsComponent'
 import { InvoicesTable } from '../../components/Invoices/InvoicesTable'
