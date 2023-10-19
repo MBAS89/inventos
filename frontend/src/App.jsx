@@ -21,6 +21,7 @@ import { EmployeeInformation } from "./pages/employees/EmployeeInformation"
 import { Inventory } from "./pages/dashboard/inventory/Inventory"
 import { SingleProduct } from "./pages/dashboard/inventory/SingleProduct"
 import { SingleCategory } from "./pages/dashboard/inventory/SingleCategory"
+import { SingleBrand } from "./pages/dashboard/inventory/SingleBrand"
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
         </Route> 
         <Route path="/dashboard/inventory/single-product" element={<SingleProduct />}></Route>
         <Route path="/dashboard/inventory/single-category" element={<SingleCategory />}></Route>
+        <Route path="/dashboard/inventory/single-brand" element={<SingleBrand />}></Route>
         <Route path="/dashboard/customers" element={
           <DashLayout>
             <Customers />

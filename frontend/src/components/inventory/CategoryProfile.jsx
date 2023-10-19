@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { TableHead } from '../TableHead'
 import { TablePagination } from '../TablePagination'
 
-export const CategoryProfile = () => {
+export const CategoryProfile = ({page}) => {
     const headItems = [
         {
             title:"product info"
@@ -27,12 +27,6 @@ export const CategoryProfile = () => {
         },
         {
             title:"sale price"
-        },
-        {   
-            title:"category"
-        },
-        {
-            title:"brand"
         },
         {
             title:"created date"
@@ -69,8 +63,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:true,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         },
@@ -84,8 +76,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:true,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         },
@@ -99,8 +89,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:false,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         },
@@ -114,8 +102,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:true,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         },
@@ -129,8 +115,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:false,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         },
@@ -144,8 +128,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:true,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         },
@@ -159,8 +141,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:true,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         },
@@ -174,8 +154,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:false,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         },
@@ -189,8 +167,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:true,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         },
@@ -204,8 +180,6 @@ export const CategoryProfile = () => {
             wholeSalePrice:130,
             sale:false,
             salePrice:100,
-            category:"vegtables",
-            brand:"Nike",
             createdDate:"24/05/1995",
             updatedDate:"24/05/1995"
         }
@@ -214,7 +188,7 @@ export const CategoryProfile = () => {
     <div className='w-[80%] mx-auto'>
         <div className='h-[15rem] mt-10 flex gap-5'>
             <div className='w-[60%] bg-white h-full rounded-md border-gray-200 border-2 p-4'>
-                <h2 className='font-bold text-[1.3rem] pl-4 mb-2'>Category Information</h2>
+                <h2 className='font-bold text-[1.3rem] pl-4 mb-2'>{page} Information</h2>
                 <div className='flex items-center gap-10 h-[90%] pr-16 pl-10'>
                     <div className=' bg-[#50B426] rounded-full w-[128px] h-[128px] p-1'>
                         <img  width="128" height="128"  src="https://res.cloudinary.com/dcbc4t7bq/image/upload/v1687997283/IMG_-o3dpre_tquqrs.jpg" className='rounded-full' alt='customer info image' />
@@ -222,7 +196,7 @@ export const CategoryProfile = () => {
                     <div className='flex gap-10'>
                         <div className='flex flex-col gap-5'>
                             <div>
-                                <h5 className='text-gray-400'>Category Name</h5>
+                                <h5 className='text-gray-400'>{page} Name</h5>
                                 <p className='font-bold'>Takuma Asahi</p>
                             </div>  
                         </div>
@@ -266,16 +240,6 @@ export const CategoryProfile = () => {
                                         {handleOnSaleStatus(item.sale)}
                                     </td>
                                     <td className="px-4 py-2 font-bold text-orange-300">${item.salePrice}</td>
-                                    <td className="px-4 py-2 text-gray-700">
-                                        <span className="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-sm text-purple-700">
-                                        {item.category}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-2 text-gray-700">
-                                        <span className="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-sm text-purple-700">
-                                        {item.brand}
-                                        </span>
-                                    </td>
                                     <td className="px-4 py-2 text-gray-700">{item.createdDate}</td>
                                     <td className="px-4 py-2 text-gray-700">{item.updatedDate}</td>
                                 </tr>
