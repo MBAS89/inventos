@@ -1,9 +1,9 @@
 import {React,useState} from 'react'
-import { SearchComponents } from '../../components/SearchComponents'
-import {TableToolsComponent} from '../../components/TableToolsComponent'
-import { EmployeesTable } from '../../components/employees/EmployeesTable'
-import { AddAndEditEmpolyeesPopup } from '../../components/employees/AddAndEditEmployeesPopup'
-import { DeletePopup } from '../../components/DeletePopup'
+import { SearchComponents } from '../../../components/SearchComponents'
+import { TableToolsComponent } from '../../../components/TableToolsComponent'
+import { EmployeesTable } from '../../../components/employees/EmployeesTable'
+import { AddAndEditEmpolyeesPopup } from '../../../components/employees/AddAndEditEmployeesPopup'
+import { DeletePopup } from '../../../components/DeletePopup'
 
 export const Employees = () => {
     const [openPopup, setOpenPopup] = useState(false)

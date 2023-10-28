@@ -89,7 +89,7 @@ export const BilingSection = () => {
                     <BiSearch className='text-[1.5rem]'/>
                 </button>
             </div>
-            {true && (
+            {false && (
                 <SearchComponentsPopup />
             )}
             <button className='bg-[#50B426] text-white py-2 px-2 text-sm font-medium rounded-md capitalize active:bg-green-300'>add item</button>

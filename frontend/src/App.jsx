@@ -9,7 +9,7 @@ import { DashLayout } from "./components/DashLayout"
 import { Casher } from "./pages/dashboard/Casher"
 import { Customers } from "./pages/dashboard/customers/Customers"
 import { Suppliers } from "./pages/dashboard/suppliers/Suppliers"
-import { Employees } from "./pages/employees/Employees"
+import { Employees } from "./pages/dashboard/employees/Employees"
 import { Expenses } from "./pages/dashboard/Expenses"
 import { Invoices } from "./pages/dashboard/Invoices"
 import { Categories } from "./components/inventory/Categories"
@@ -17,12 +17,13 @@ import { Brands } from "./components/inventory/Brands"
 import { Products } from "./components/inventory/Products"
 import { SingleCustomers } from "./pages/dashboard/customers/SingleCustomers"
 import { SingleSuppliers } from "./pages/dashboard/suppliers/SingleSuppliers"
-import { EmployeeInformation } from "./pages/employees/EmployeeInformation"
+import { EmployeeInformation } from "./pages/dashboard/employees/EmployeeInformation"
 import { Inventory } from "./pages/dashboard/inventory/Inventory"
 import { SingleProduct } from "./pages/dashboard/inventory/SingleProduct"
 import { SingleCategory } from "./pages/dashboard/inventory/SingleCategory"
 import { SingleBrand } from "./pages/dashboard/inventory/SingleBrand"
-
+import { StoreLogin } from "./pages/auth/StoreLogin"
+import { StoreRegister } from "./pages/auth/StoreRegister"
 
 function App() {
   return (
@@ -31,6 +32,16 @@ function App() {
         <Route path="/" element={
           <MainLayout>
             <Home />
+          </MainLayout>
+        }></Route>
+        <Route path="/auth/login" element={
+          <MainLayout>
+            <StoreLogin />
+          </MainLayout>
+        }></Route>
+        <Route path="/auth/register" element={
+          <MainLayout>
+            <StoreRegister />
           </MainLayout>
         }></Route>
         <Route path="/dashboard" element={

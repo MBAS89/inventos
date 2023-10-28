@@ -1,9 +1,10 @@
 import React from 'react'
-import { Breadcrumb } from '../../components/Breadcrumb'
-import { EmployeeInfo } from '../../components/employees/EmployeeInfo'
-import { JobDetails } from '../../components/employees/JobDetails'
-import { DuePayments } from '../../components/employees/DuePayments'
-import { PaidPayments } from '../../components/employees/PaidPayments'
+
+import { Breadcrumb } from '../../../components/Breadcrumb'
+import { EmployeeInfo } from '../../../components/employees/EmployeeInfo'
+import { JobDetails } from '../../../components/employees/JobDetails'
+import { DuePayments } from '../../../components/employees/DuePayments'
+import { PaidPayments } from '../../../components/employees/PaidPayments'
 
 export const EmployeeInformation = () => {
     return (
