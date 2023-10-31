@@ -52,7 +52,7 @@ exports.createStore = async (req, res, next) => {
             message:"Store Created",
             results:storeResponse.rows.length,
             data: {
-                category:storeResponse.rows[0]
+                store:storeResponse.rows[0]
             }
         })
     } catch (error) {

@@ -21,6 +21,8 @@ app.get("/api/v1", (req, res) => {
 //stores route 
 app.use('/api/v1/stores', require('./routes/stores'));
 
+//store admins route
+app.use('/api/v1/store/admins', require('./routes/admins'));
 
 
 
