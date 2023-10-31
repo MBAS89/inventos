@@ -44,3 +44,35 @@ exports.addAdmin = async (req, res, next) => {
         next(error)
     }
 }
+
+exports.removeAdmin = async (req, res, next) => {
+
+    try {
+
+        //retrive all values from req body 
+        const { storeId } = req.params
+        const { email } = req.query
+
+        //check if all fileds are there
+        if(!storeId || !email){
+            return next(new ErrorResponse("A Store ID AND Email Required"))
+        }
+
+        //delete admin from admins table where store id and email match the giving values 
+        await db.query(
+            "DELETE FROM admins where store_id = $1 AND email = $2", 
+            [storeId, email]
+        )
+
+
+        //return response of the req
+        res.status(200).json({
+            status:"success",
+            message:"Admin Removed"
+        })
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}

@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 //store controllers
-const {  addAdmin } = require('../controllers/admins')
+const {  addAdmin, removeAdmin } = require('../controllers/admins')
 
 
 //custom admin validatitors middleware
@@ -10,5 +10,6 @@ const validateAddAdmin = require('../utils/validations/admins/validateAddAdmin')
 
 //routes
 router.post('/add', validateAddAdmin, addAdmin)
+router.delete('/remove/:storeId', removeAdmin)
 
 module.exports = router
