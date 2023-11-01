@@ -5,7 +5,7 @@ const router = express.Router()
 const {  createStore } = require('../controllers/stores')
 
 //custom store validatitor middleware
-const validateCreateStore = require('../utils/validations/stores/validateStore')
+const validateCreateStore = require('../middleware/validations/stores/validateStore')
 
 //routes
 router.post('/create', validateCreateStore, createStore)

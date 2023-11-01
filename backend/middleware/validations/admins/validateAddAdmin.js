@@ -2,7 +2,7 @@
 const db = require('../../../db')
 
 //error response middleware
-const ErrorResponse = require('../../errorResponse')
+const ErrorResponse = require('../../../utils/errorResponse')
 
 
 // Validation middleware for adding an admin

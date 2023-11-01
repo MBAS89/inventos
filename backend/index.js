@@ -24,6 +24,9 @@ app.use('/api/v1/stores', require('./routes/stores'));
 //store admins route
 app.use('/api/v1/store/admins', require('./routes/admins'));
 
+//inventroy routes 
+app.use('/api/v1/store/inventory', require('./routes/inventory'));
+
 
 
 // Error Handler Middleware

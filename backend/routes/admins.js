@@ -6,7 +6,7 @@ const {  addAdmin, removeAdmin } = require('../controllers/admins')
 
 
 //custom admin validatitors middleware
-const validateAddAdmin = require('../utils/validations/admins/validateAddAdmin')
+const validateAddAdmin = require('../middleware/validations/admins/validateAddAdmin')
 
 //routes
 router.post('/add', validateAddAdmin, addAdmin)
