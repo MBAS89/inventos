@@ -3,7 +3,7 @@ CREATE TABLE categories (
     category_id BIGSERIAL PRIMARY KEY,
     image TEXT NOT NULL DEFAULT 'https://res.cloudinary.com/dagzd3ntq/image/upload/v1705620919/trp6vagjxvf5co3hdwlv.png',
     image_id TEXT NOT NULL DEFAULT 'trp6vagjxvf5co3hdwlv',
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     store_id INT REFERENCES stores(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT current_timestamp
@@ -14,7 +14,7 @@ CREATE TABLE brands (
     brand_id BIGSERIAL PRIMARY KEY,
     image TEXT NOT NULL DEFAULT 'https://res.cloudinary.com/dagzd3ntq/image/upload/v1705620919/d67opvq7mqx2i5qqcn5f.png',
     image_id TEXT NOT NULL DEFAULT 'd67opvq7mqx2i5qqcn5f',
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     store_id INT REFERENCES stores(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT current_timestamp
@@ -24,7 +24,7 @@ CREATE TABLE brands (
 -- Create Products Table
 CREATE TABLE products (
     product_id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     image TEXT NOT NULL DEFAULT 'https://res.cloudinary.com/dagzd3ntq/image/upload/v1705621314/fekyljmwjkrvrauqbrgh.png',
     image_id TEXT NOT NULL DEFAULT 'fekyljmwjkrvrauqbrgh',
     sku TEXT NOT NULL,
