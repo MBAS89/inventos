@@ -14,10 +14,12 @@ const Products = require('./models/inventory/products');
 const { Invoices, InvoiceItems } = require('./models/sales/invoices');
 const CustomersTypes = require('./models/cutomers/customersTypes');
 const Customers = require('./models/cutomers/cutomers')
-
+const Suppliers = require('./models/suppliers/suppliers');
+const SuppliersTypes = require('./models/suppliers/suppliersType');
 
 //custom error handler middllware
 const errorHandler = require("./middleware/error");
+
 
 
 
@@ -49,6 +51,9 @@ app.use('/api/v1/store/sales', require('./routes/sales'));
 
 //Customers routes 
 app.use('/api/v1/store/customers', require('./routes/customers'));
+
+//Suppliers routes
+app.use('/api/v1/store/suppliers', require('./routes/suppliers'));
 
 // Error Handler Middleware
 app.use(errorHandler);
