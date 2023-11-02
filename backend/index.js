@@ -11,11 +11,13 @@ const OwnersStore = require('./models/sotres/ownerStores');
 const Categories = require('./models/inventory/categories');
 const Brands = require('./models/inventory/brands');
 const Products = require('./models/inventory/products');
+const { Invoices, InvoiceItems } = require('./models/sales/invoices');
 
  
 
 //custom error handler middllware
 const errorHandler = require("./middleware/error");
+
 
 const app = express()
 
@@ -39,6 +41,8 @@ app.use('/api/v1/store/admins', require('./routes/admins'));
 //inventroy routes 
 app.use('/api/v1/store/inventory', require('./routes/inventory'));
 
+//inventroy routes 
+app.use('/api/v1/store/sales', require('./routes/sales'));
 
 
 // Error Handler Middleware

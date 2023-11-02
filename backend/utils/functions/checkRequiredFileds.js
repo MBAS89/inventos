@@ -3,7 +3,7 @@ function checkRequiredFields(next, body, requiredFields) {
     const missingFields = [];
   
     requiredFields.forEach((field) => {
-      if (!body[field] || body[field].trim() === '') {
+      if (body[field] === undefined || String(body[field]).trim() === '') {
         missingFields.push(field);
       }
     });
