@@ -4,8 +4,8 @@ const sequelize = require('../config/database');
 const ErrorResponse = require('../utils/errorResponse')
 
 //modles
-const { Invoices, InvoiceItems } = require('../models/sales/invoices')
-
+const { Invoices, InvoiceItems } = require('../models/sales/invoices');
+const Products = require('../models/inventory/products');
 
 
 exports.createInvoice = async (req, res, next) => {
@@ -36,6 +36,22 @@ exports.createInvoice = async (req, res, next) => {
                 qty: item.qty,
                 invoiceId:invoice.id
             });
+
+            // Update product's inventory
+            const product = await Products.findOne({
+                where: { product_id: item.product_id }
+            })
+
+            if (product) {
+                const updatedQty = product.qty - item.qty;
+                await Products.update(
+                    { qty: updatedQty },
+                    { where: { product_id: item.product_id }}
+                );
+            } else {
+                console.error(`Product with ID ${item.product_id} not found.`);
+                // Handle error or log it accordingly
+            }
         }
 
         //return response of the req
@@ -64,6 +80,30 @@ exports.editInvoice = async (req, res, next) => {
 
         //retrieve invoiceId from the req params
         const { invoiceId } = req.params
+        
+        //retrive old invoice 
+        const oldInvoice = await InvoiceItems.findAll({
+            where: { invoiceId: invoiceId}
+        });
+
+        // Update product quantities (inventory)
+        for (const item of oldInvoice) {
+            const product = await Products.findOne({
+            where: { product_id: item.product_id },
+            transaction
+            });
+    
+            if (!product) {
+                return next(new ErrorResponse(`Product ${item.product_id} not found`, 404));
+            }
+    
+            const newQty = product.qty + item.qty;
+            if (newQty < 0) {
+                return next(new ErrorResponse(`Insufficient quantity for product ${item.product_id}`, 406));
+            }
+    
+            await Products.update({ qty: newQty }, { where: { product_id: item.product_id }, transaction });
+        }
 
         //retrieve values from req.body 
         const { total_amount, items_discount, extra_discount, total_discount, 
@@ -110,6 +150,25 @@ exports.editInvoice = async (req, res, next) => {
             })),
             { transaction }
         );
+
+        // Update product quantities (inventory)
+        for (const item of items) {
+            const product = await Products.findOne({
+            where: { product_id: item.product_id },
+            transaction
+            });
+    
+            if (!product) {
+                return next(new ErrorResponse(`Product ${item.product_id} not found`, 404));
+            }
+    
+            const newQty = product.qty - item.qty;
+            if (newQty < 0) {
+                return next(new ErrorResponse(`Insufficient quantity for product ${item.product_id}`, 406));
+            }
+    
+            await Products.update({ qty: newQty }, { where: { product_id: item.product_id }, transaction });
+        }
 
         // Commit the transaction
         await transaction.commit();

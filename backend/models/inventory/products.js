@@ -50,6 +50,14 @@ const Products = sequelize.define('products', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    unit:{
+        type: DataTypes.STRING(10),
+        allowNull: false,
+    },
+    unit_catergory:{
+        type: DataTypes.STRING(30),
+        allowNull: false,
+    },
     description: {
         type: DataTypes.TEXT,
     },

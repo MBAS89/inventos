@@ -285,7 +285,7 @@ exports.addProduct = async (req, res, next) => {
     try {
 
         //retrive product values from req body 
-        const { storeId, productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale  } = req.body;
+        const { storeId, productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale, unit, unit_catergory  } = req.body;
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -293,7 +293,7 @@ exports.addProduct = async (req, res, next) => {
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
         //Check if all Required Fileds are there
-        const requiredFields = ['storeId', 'productName', 'sku', 'price', 'retailPrice', 'wholesalePrice', 'qty'];
+        const requiredFields = ['storeId', 'productName', 'sku', 'price', 'retailPrice', 'wholesalePrice', 'qty', 'unit', 'unit_catergory'];
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
@@ -315,6 +315,8 @@ exports.addProduct = async (req, res, next) => {
             price: price,
             retail_price: retailPrice,
             wholesale_price: wholesalePrice,
+            unit,
+            unit_catergory,
             sale_price: salePrice || null,
             on_sale: onSale || false,
             qty: qty,
@@ -387,7 +389,7 @@ exports.editProduct = async (req, res, next) => {
         //retrive productId from req params 
         const { productId } =  req.params
         //retrive product values from req body 
-        const { productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale  } = req.body;
+        const { productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale, unit, unit_catergory } = req.body;
 
         //check if Product Id Have a value 
         if(!productId){
@@ -415,7 +417,7 @@ exports.editProduct = async (req, res, next) => {
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
         //Check if all Required Fileds are there
-        const requiredFields = ['productName', 'sku', 'price', 'retailPrice', 'wholesalePrice', 'qty'];
+        const requiredFields = ['productName', 'sku', 'price', 'retailPrice', 'wholesalePrice', 'qty', 'unit', 'unit_catergory'];
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
@@ -437,6 +439,8 @@ exports.editProduct = async (req, res, next) => {
                 price: price,
                 retail_price: retailPrice,
                 wholesale_price: wholesalePrice,
+                unit,
+                unit_catergory,
                 sale_price: salePrice || null,
                 on_sale: onSale || false,
                 qty: qty,
