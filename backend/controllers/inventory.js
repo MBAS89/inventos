@@ -351,13 +351,15 @@ exports.removeProduct = async (req, res, next) => {
         */
         const { imageId } = req.query
 
-        //this will send a request to cloudinary to delete the image from there and return ok or fail 
-        const result = await deleteImage(imageId)
-
         //check if productId have value if not throw an error
         if(!productId){
             return next(new ErrorResponse("Product ID Is required", 422));
         }
+
+        //this will send a request to cloudinary to delete the image from there and return ok or fail 
+        const result = await deleteImage(imageId)
+
+
 
         //DELETE Product FROM DATA BASE WITH THE DISRE ID VALUE
         await Products.destroy({
@@ -382,13 +384,22 @@ exports.removeProduct = async (req, res, next) => {
 exports.editProduct = async (req, res, next) => {
     try {
         
-        //retrive brandId from req params 
+        //retrive productId from req params 
         const { productId } =  req.params
         //retrive product values from req body 
         const { productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale  } = req.body;
 
+        //check if Product Id Have a value 
+        if(!productId){
+            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+            await deleteImage(imageId)
+
+            //this Will Tell the user which fields they need to fill
+            return next(new ErrorResponse("Product ID Required", 422));
+        }
+
         //fetch the old image id For Product 
-        const product = await Brands.findOne({
+        const product = await Products.findOne({
             where: {
                 product_id: productId
             },
@@ -402,15 +413,6 @@ exports.editProduct = async (req, res, next) => {
         const imageUrl = req.file.path;
         // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
         const imageId = cloudinaryExtractPublicId(imageUrl)
-
-        //check if Product Id Have a value 
-        if(!productId){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
-
-            //this Will Tell the user which fields they need to fill
-            return next(new ErrorResponse("Product ID Required", 422));
-        }
 
         //Check if all Required Fileds are there
         const requiredFields = ['productName', 'sku', 'price', 'retailPrice', 'wholesalePrice', 'qty'];
@@ -426,7 +428,7 @@ exports.editProduct = async (req, res, next) => {
 
 
         //Edit product in database with new values and set || null for the optianl fileds 
-        const updatedProduct = await Product.update(
+        const updatedProduct = await Products.update(
             {
                 name: productName,
                 image: imageUrl,
@@ -439,8 +441,8 @@ exports.editProduct = async (req, res, next) => {
                 on_sale: onSale || false,
                 qty: qty,
                 description: description || null,
-                category_id: categoryId || null,
-                brand_id: brandId || null
+                category_id: category_id || null,
+                brand_id: brand_id || null
             },
             {
                 returning: true,

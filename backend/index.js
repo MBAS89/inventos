@@ -12,11 +12,13 @@ const Categories = require('./models/inventory/categories');
 const Brands = require('./models/inventory/brands');
 const Products = require('./models/inventory/products');
 const { Invoices, InvoiceItems } = require('./models/sales/invoices');
+const CustomersTypes = require('./models/cutomers/customersTypes');
+const Customers = require('./models/cutomers/cutomers')
 
- 
 
 //custom error handler middllware
 const errorHandler = require("./middleware/error");
+
 
 
 const app = express()
@@ -25,6 +27,7 @@ const app = express()
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 
 //main route 
@@ -44,6 +47,8 @@ app.use('/api/v1/store/inventory', require('./routes/inventory'));
 //inventroy routes 
 app.use('/api/v1/store/sales', require('./routes/sales'));
 
+//Customers routes 
+app.use('/api/v1/store/customers', require('./routes/customers'));
 
 // Error Handler Middleware
 app.use(errorHandler);
