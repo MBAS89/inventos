@@ -16,9 +16,19 @@ const CustomersTypes = require('./models/cutomers/customersTypes');
 const Customers = require('./models/cutomers/cutomers')
 const Suppliers = require('./models/suppliers/suppliers');
 const SuppliersTypes = require('./models/suppliers/suppliersType');
+const SalaryTypes = require('./models/employees/salarytypes');
+const Employees = require('./config/associations/employees');
+const Contracts = require('./config/associations/employees');
+const Roles = require('./config/associations/employees');
+const Departments = require('./config/associations/employees');
+const Permissions = require('./config/associations/employees');
+const RolePermissions = require('./config/associations/employees');
+
 
 //custom error handler middllware
 const errorHandler = require("./middleware/error");
+
+
 
 
 
@@ -55,6 +65,9 @@ app.use('/api/v1/store/customers', require('./routes/customers'));
 //Suppliers routes
 app.use('/api/v1/store/suppliers', require('./routes/suppliers'));
 
+//Suppliers routes
+app.use('/api/v1/store/employees', require('./routes/employees'));
+
 // Error Handler Middleware
 app.use(errorHandler);
 
@@ -62,12 +75,10 @@ app.use(errorHandler);
 //porst number that server listen on
 const PORT = process.env.PORT || 5000
 
-//create an express server
-
-
 // Sync Sequelize with the database
-sequelize.sync({ alter:true }).then(() => {
+sequelize.sync({ alter: true }).then(() => {
     console.log('Database synced');
+    //create an express server
     app.listen(PORT, () => {
         console.log(`server is running on port ${PORT}`)
     })

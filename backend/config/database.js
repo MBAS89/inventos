@@ -9,4 +9,6 @@ const sequelize = new Sequelize(database, username, password, {
   logging: false,
 });
 
+
+
 module.exports = sequelize;
