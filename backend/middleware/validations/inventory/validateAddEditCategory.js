@@ -1,9 +1,8 @@
-//database connection
-const db = require('../../../db')
+//modle
+const Categories = require('../../../models/inventory/categories');
 
 //error response middleware
 const ErrorResponse = require('../../../utils/errorResponse')
-
 
 // Validation middleware for creating and editing a category
 const validateAddEditCategory = async (req, res, next) => {
@@ -18,11 +17,15 @@ const validateAddEditCategory = async (req, res, next) => {
         }
 
         // Check if the Category name is already exists
-        const categoryResponse = await db.query('SELECT * FROM categories WHERE name = $1', [categoryName]);
+        const existingCategory = await Categories.findOne({
+            where: {
+                name: categoryName
+            }
+        });
 
         //if it there throw an error 
-        if(categoryResponse.rows.length > 0){
-            return next(new ErrorResponse("Category Already There Use A Diffrent Name", 406));
+        if (existingCategory) {
+            return next(new ErrorResponse("Category Already Exists. Please Use a Different Name", 406));
         }
 
         next();

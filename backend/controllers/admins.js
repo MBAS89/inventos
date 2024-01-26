@@ -4,9 +4,8 @@ const bcrypt = require('bcrypt');
 //error handler
 const ErrorResponse = require('../utils/errorResponse');
 
-//database connection
-const db = require('../db');
-
+//modles
+const Admins = require('../models/sotres/admins');
 
 exports.addAdmin = async (req, res, next) => {
 
@@ -19,25 +18,29 @@ exports.addAdmin = async (req, res, next) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         //insert the admin to database in the store that he belong to
-        const adminResponse = await db.query(
-            'INSERT INTO admins (store_id, first_name, last_name, email, password, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-            [store_id, first_name, last_name, email, hashedPassword, phone_number]
-        )
+        const admin = await Admins.create({
+            store_id,
+            first_name,
+            last_name,
+            email,
+            password: hashedPassword,
+            phone_number
+        });
 
         //if the adding did not work throw an error
-        if(adminResponse.rows.length <= 0){
+        if (!admin) {
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
         //return response of the req
         res.status(201).json({
-            status:"success",
-            message:"Admin Added",
-            results:adminResponse.rows.length,
+            status: "success",
+            message: "Admin Added",
+            results: 1,
             data: {
-                admin:adminResponse.rows[0]
+                admin
             }
-        })
+        });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
@@ -59,10 +62,12 @@ exports.removeAdmin = async (req, res, next) => {
         }
 
         //delete admin from admins table where store id and email match the giving values 
-        await db.query(
-            "DELETE FROM admins where store_id = $1 AND email = $2", 
-            [storeId, email]
-        )
+        await Admins.destroy({
+            where: {
+                store_id: storeId,
+                email: email
+            }
+        });
 
 
         //return response of the req

@@ -1,5 +1,5 @@
-//database connection
-const db = require('../../../db')
+//modles
+const Products = require('../../../models/inventory/products');
 
 //error response middleware
 const ErrorResponse = require('../../../utils/errorResponse')
@@ -18,10 +18,14 @@ const validateAddEditProduct = async (req, res, next) => {
         }
 
         // Check if the Category name is already exists
-        const productResponse = await db.query('SELECT * FROM products WHERE name = $1', [productName]);
+        const existingProduct = await Products.findOne({
+            where: {
+                name:productName
+            }
+        });
 
         //if it there throw an error 
-        if(productResponse.rows.length > 0){
+        if(existingProduct){
             return next(new ErrorResponse("Product Already There Use A Diffrent Name", 406));
         }
 

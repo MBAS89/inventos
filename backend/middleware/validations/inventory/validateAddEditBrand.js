@@ -1,5 +1,5 @@
-//database connection
-const db = require('../../../db')
+//models
+const Brands = require('../../../models/inventory/brands');
 
 //error response middleware
 const ErrorResponse = require('../../../utils/errorResponse')
@@ -18,10 +18,14 @@ const validateAddEditBrand = async (req, res, next) => {
         }
 
         // Check if the Category name is already exists
-        const brandResponse = await db.query('SELECT * FROM brands WHERE name = $1', [brandName]);
+        const existinBrand = await Brands.findOne({
+            where: {
+                name: brandName
+            }
+        });
 
         //if it there throw an error 
-        if(brandResponse.rows.length > 0){
+        if(existinBrand){
             return next(new ErrorResponse("Brand Already There Use A Diffrent Name", 406));
         }
 

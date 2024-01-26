@@ -1,9 +1,8 @@
-//db 
-const db = require('../../../db')
+//modle
+const Stores = require('../../../models/sotres/stores');
 
 //error response middleware
 const ErrorResponse = require('../../../utils/errorResponse')
-
 
 // Validation middleware for creating a store
 const validateCreateStore = async (req, res, next) => {
@@ -22,17 +21,15 @@ const validateCreateStore = async (req, res, next) => {
         }
 
         //check store name in my database
-        const isStoreThereResponse = await db.query(
-            'SELECT * FROM stores WHERE store_name = $1',
-            [store_name]
-        )
-
-        if(isStoreThereResponse.rows.length > 0){
-            return next(new ErrorResponse("Store Name Is Taken Use Diffrent Name", 406));
-        }
-
-        
+        const existingStore = await Stores.findOne({
+            where: {
+                store_name
+            }
+        });
     
+        if (existingStore) {
+            return next(new ErrorResponse("Store Name Is Taken. Please Use a Different Name", 406));
+        }
 
         next();
     } catch (error) {

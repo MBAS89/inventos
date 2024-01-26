@@ -1,5 +1,5 @@
-//db 
-const db = require('../../../db')
+//modle
+const Admins = require('../../../models/sotres/admins');
 
 //error response middleware
 const ErrorResponse = require('../../../utils/errorResponse')
@@ -26,13 +26,15 @@ const validateAddAdmin = async (req, res, next) => {
             already becease he can be an admin for other
             stores and this is not an issue
         */
-        const adminResponse = await db.query(
-            'SELECT * FROM admins WHERE email = $1 AND store_id = $2',
-            [email, store_id]
-        )
-
-        if(adminResponse.rows.length > 0){
-            return next(new ErrorResponse("User Already An Admin For This Store", 406));
+        const existingAdmin = await Admins.findOne({
+            where: {
+                email,
+                store_id
+            }
+        });
+    
+        if (existingAdmin) {
+            return next(new ErrorResponse("User Already an Admin for This Store", 406));
         }
 
         next();

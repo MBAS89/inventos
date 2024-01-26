@@ -1,12 +1,16 @@
 //error response middleware
 const ErrorResponse = require('../utils/errorResponse')
 
-//db connection
-const db = require('../db');
+//modles
+const Categories = require('../models/inventory/categories');
+const Brands = require('../models/inventory/brands');
+const Products = require('../models/inventory/products');
+
 
 //cloudinaryUtils reusable functions
 const { cloudinaryExtractPublicId, deleteImage } = require('../utils/functions/cloudinary/cloudinaryUtils');
 const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds');
+
 
 
 exports.addCategory = async (req, res, next) => {
@@ -22,19 +26,22 @@ exports.addCategory = async (req, res, next) => {
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
         //INSERT this categorty to the data base 
-        const categoryResponse = await db.query('INSERT INTO categories (image, name, store_id, image_id) VALUES ($1, $2, $3, $4) RETURNING *',
-            [imageUrl, categoryName, storeId, imageId]
-        )
+        const category = await Categories.create({
+            image: imageUrl,
+            name: categoryName,
+            store_id: storeId,
+            image_id: imageId
+        });
 
         //return success response with message
         res.status(201).json({
-            status:"success",
-            message:"Category Added",
-            results:categoryResponse.rows.length,
+            status: "success",
+            message: "Category Added",
+            results: 1,
             data: {
-                category:categoryResponse.rows[0]
+                category
             }
-        })
+        });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
@@ -64,7 +71,11 @@ exports.removeCategory = async (req, res, next) => {
         }
 
         //DELETE CATEGORY FROM DATA BASE WITH THE DISRE ID VALUE
-        await db.query("DELETE FROM categories where category_id = $1", [categoryId])
+        await Categories.destroy({
+            where: {
+                category_id: categoryId
+            }
+        });
 
         //return success response with message
         res.status(200).json({
@@ -87,10 +98,15 @@ exports.editCategory = async (req, res, next) => {
         const { categoryName } = req.body;
 
         //fetch the old image id category 
-        const oldCategoryImageId = await db.query(
-            'SELECT image_id FROM categories where category_id = $1',
-            [categoryId]
-        )
+        const category = await Categories.findOne({
+            where: {
+                category_id: categoryId
+            },
+            attributes: ['image_id']
+        });
+
+        // If the category exists, extract the image ID
+        const oldCategoryImageId = category ? category.image_id : null;
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -98,27 +114,27 @@ exports.editCategory = async (req, res, next) => {
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
         //Edit category in database with new values
-        const categoryResponse = await db.query(
-            "UPDATE categories SET name = $1, image = $2, image_id = $3 WHERE category_id = $4 returning *", 
-            [categoryName, imageUrl, imageId, categoryId]
-        )
+        const updatedCategory = await Categories.update(
+            { name: categoryName, image: imageUrl, image_id: imageId },
+            { returning: true, where: { category_id: categoryId } }
+        );
 
         //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
-        if(!categoryResponse.rows[0]){
+        if(!updatedCategory){
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
         //this will send a request to cloudinary to delete the old image from there and return ok or fail 
-        const result = await deleteImage(oldCategoryImageId.rows[0].image_id)
+        const result = await deleteImage(oldCategoryImageId)
 
         //return success response with message
         res.status(201).json({
             status:"success",
             message:"Category Updated",
             cloudinary:result,
-            results:categoryResponse.rows.length,
+            results:1,
             data: {
-                category:categoryResponse.rows[0]
+                category:updatedCategory
             }
         })
         
@@ -142,17 +158,20 @@ exports.addBrand = async (req, res, next) => {
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
         //INSERT this categorty to the data base 
-        const brandResponse = await db.query('INSERT INTO brands (image, name, store_id, image_id) VALUES ($1, $2, $3, $4) RETURNING *',
-            [imageUrl, brandName, storeId, imageId]
-        )
+        const brand = await Brands.create({
+            image: imageUrl,
+            name: brandName,
+            store_id: storeId,
+            image_id: imageId
+        });
 
         //return success response with message
         res.status(201).json({
             status:"success",
             message:"Brand Added",
-            results:brandResponse.rows.length,
+            results:1,
             data: {
-                brand:brandResponse.rows[0]
+                brand
             }
         })
 
@@ -183,7 +202,11 @@ exports.removeBrand = async (req, res, next) => {
         }
 
         //DELETE BRAND FROM DATA BASE WITH THE DISRE ID VALUE
-        await db.query("DELETE FROM brands where brand_id = $1", [brandId])
+        await Brands.destroy({
+            where: {
+                brand_id: brandId
+            }
+        });
 
         //return success response with message
         res.status(200).json({
@@ -206,10 +229,15 @@ exports.editBrand = async (req, res, next) => {
         const { brandName } = req.body;
 
         //fetch the old image id brand 
-        const oldBrandImageId = await db.query(
-            'SELECT image_id FROM brands where brand_id = $1',
-            [brandId]
-        )
+        const brand = await Brands.findOne({
+            where: {
+                brand_id: brandId
+            },
+            attributes: ['image_id']
+        });
+
+        // If the brand exists, extract the image ID
+        const oldBrandImageId = brand ? brand.image_id : null;
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -221,23 +249,27 @@ exports.editBrand = async (req, res, next) => {
             "UPDATE brands SET name = $1, image = $2, image_id = $3 WHERE brand_id = $4 returning *", 
             [brandName, imageUrl, imageId, brandId]
         )
+        const updatedBrand = await Brands.update(
+            { name: brandName, image: imageUrl, image_id: imageId },
+            { returning: true, where: { brand_id: brandId } }
+        );
 
         //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
-        if(!brandResponse.rows[0]){
+        if(!updatedBrand){
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
         //this will send a request to cloudinary to delete the old image from there and return ok or fail 
-        const result = await deleteImage(oldBrandImageId.rows[0].image_id)
+        const result = await deleteImage(oldBrandImageId)
 
         //return success response with message
         res.status(201).json({
             status:"success",
             message:"Brand Updated",
             cloudinary:result,
-            results:brandResponse.rows.length,
+            results:1,
             data: {
-                brand:brandResponse.rows[0]
+                brand:updatedBrand
             }
         })
         
@@ -274,18 +306,30 @@ exports.addProduct = async (req, res, next) => {
 
 
         //INSERT this Product to the data base and set || null for the optianl fileds 
-        const productResponse = await db.query(
-            'INSERT INTO products (store_id, name, image, image_id, sku, price, retail_price, wholesale_price, sale_price, on_sale, qty, description, category_id, brand_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *',
-            [storeId, productName, imageUrl, imageId, sku, price, retailPrice, wholesalePrice, salePrice || null, onSale || false, qty, description || null, category_id || null, brand_id || null]
-        )
+        const newProduct = await Products.create({
+            store_id: storeId,
+            name: productName,
+            image: imageUrl,
+            image_id: imageId,
+            sku: sku,
+            price: price,
+            retail_price: retailPrice,
+            wholesale_price: wholesalePrice,
+            sale_price: salePrice || null,
+            on_sale: onSale || false,
+            qty: qty,
+            description: description || null,
+            category_id: category_id || null,
+            brand_id: brand_id || null
+        });
 
         //return success response with message
         res.status(201).json({
             status:"success",
             message:"Product Added",
-            results:productResponse.rows.length,
+            results:1,
             data: {
-                product:productResponse.rows[0]
+                product:newProduct
             }
         })
 
@@ -316,7 +360,11 @@ exports.removeProduct = async (req, res, next) => {
         }
 
         //DELETE Product FROM DATA BASE WITH THE DISRE ID VALUE
-        await db.query("DELETE FROM products where product_id = $1", [productId])
+        await Products.destroy({
+            where: {
+                product_id: productId
+            }
+        });
 
         //return success response with message
         res.status(200).json({
@@ -340,10 +388,15 @@ exports.editProduct = async (req, res, next) => {
         const { productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale  } = req.body;
 
         //fetch the old image id For Product 
-        const oldProductImageId = await db.query(
-            'SELECT image_id FROM products where product_id = $1',
-            [productId]
-        )
+        const product = await Brands.findOne({
+            where: {
+                product_id: productId
+            },
+            attributes: ['image_id']
+        });
+
+        // If the category exists, extract the image ID
+        const oldProductImageId = product ? product.image_id : null;
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -373,20 +426,37 @@ exports.editProduct = async (req, res, next) => {
 
 
         //Edit product in database with new values and set || null for the optianl fileds 
-        const productResponse = await db.query(
-            "UPDATE products SET name = $1, image = $2, image_id = $3, sku = $4, price = $5, retail_price = $6, wholesale_price = $7, sale_price = $8, on_sale = $9, qty = $10, description = $11, category_id = $12, brand_id = $13  WHERE product_id = $14 returning *", 
-            [productName, imageUrl, imageId, sku, price, retailPrice, wholesalePrice, salePrice || null, onSale || false, qty, description || null, category_id || null, brand_id || null, productId]
-        )
+        const updatedProduct = await Product.update(
+            {
+                name: productName,
+                image: imageUrl,
+                image_id: imageId,
+                sku: sku,
+                price: price,
+                retail_price: retailPrice,
+                wholesale_price: wholesalePrice,
+                sale_price: salePrice || null,
+                on_sale: onSale || false,
+                qty: qty,
+                description: description || null,
+                category_id: categoryId || null,
+                brand_id: brandId || null
+            },
+            {
+                returning: true,
+                where: { product_id: productId }
+            }
+        );
 
         //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
-        if(!productResponse.rows[0]){
+        if(!updatedProduct){
             //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
             await deleteImage(imageId)
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
         //this will send a request to cloudinary to delete the old image from there and return ok or fail 
-        const result = await deleteImage(oldProductImageId.rows[0].image_id)
+        const result = await deleteImage(oldProductImageId)
 
 
         //return success response with message
@@ -394,9 +464,9 @@ exports.editProduct = async (req, res, next) => {
             status:"success",
             message:"Product Edited",
             cloudinary:result,
-            results:productResponse.rows.length,
+            results:1,
             data: {
-                product:productResponse.rows[0]
+                product:updatedProduct
             }
         })
 

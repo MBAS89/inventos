@@ -1,6 +1,18 @@
 require('dotenv').config()
 const express = require("express")
+const sequelize = require('./config/database');
 const cors = require("cors");
+
+//modles 
+const Stores = require('./models/sotres/stores');
+const Owners = require('./models/sotres/owners');
+const Admins = require('./models/sotres/admins');
+const OwnersStore = require('./models/sotres/ownerStores');
+const Categories = require('./models/inventory/categories');
+const Brands = require('./models/inventory/brands');
+const Products = require('./models/inventory/products');
+
+ 
 
 //custom error handler middllware
 const errorHandler = require("./middleware/error");
@@ -37,6 +49,12 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000
 
 //create an express server
-app.listen(PORT, () => {
-    console.log(`server is running on port ${PORT}`)
-})
+
+
+// Sync Sequelize with the database
+sequelize.sync({ alter:true }).then(() => {
+    console.log('Database synced');
+    app.listen(PORT, () => {
+        console.log(`server is running on port ${PORT}`)
+    })
+});
