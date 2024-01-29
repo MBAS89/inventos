@@ -47,7 +47,7 @@ const Employees = sequelize.define('employees', {
     },
     status: {
         type: DataTypes.ENUM('on-payroll', 'out-payroll'),
-        allowNull: false,
+        defaultValue:'on-payroll'
     },
     employment_date:{
         type:DataTypes.DATE,
@@ -57,7 +57,7 @@ const Employees = sequelize.define('employees', {
         type:DataTypes.DATE,
     },
     work_type: {
-        type: DataTypes.ENUM('full-time', 'part-time', 'temporary', 'remote', 'hybrid', 'contract-based'),
+        type: DataTypes.ENUM('full-time', 'part-time', 'temporary', 'remote', 'hybrid', 'contract-based', 'not-installed'),
         allowNull: false,
     },
     salary_type: {
@@ -67,6 +67,7 @@ const Employees = sequelize.define('employees', {
             key: 'id'
         },
         onDelete: 'CASCADE',
+        allowNull:true
     },
     hourly_rate: DataTypes.DECIMAL,
     yearly_salary: DataTypes.DECIMAL

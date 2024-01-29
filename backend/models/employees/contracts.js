@@ -8,6 +8,20 @@ const Contracts = sequelize.define('contracts', {
         autoIncrement: true,
         allowNull: false,
     },
+    salary_type: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: 'salary_types',
+            key: 'id'
+        },
+        onDelete: 'CASCADE',
+    },
+    status:{
+        type: DataTypes.ENUM('Active', 'Finshed', 'Canceled'),
+        defaultValue:'Active'
+    },
+    hourly_rate: DataTypes.DECIMAL,
+    yearly_salary: DataTypes.DECIMAL,
     details: DataTypes.TEXT,
     start_date: DataTypes.DATE,
     end_date: DataTypes.DATE

@@ -14,7 +14,8 @@ const { addDepartment, editDepartment, removeDepartment } = require('../controll
 const { addPermission, editPermission, removePermission } = require('../controllers/employees/permissions')
 //ROLEPERMISSIONS CONTROLLERS
 const { addRolePermission, removeRolePermission } = require('../controllers/employees/rolePermissions')
-
+//CONTRACTS CONTROLLERS
+const { addContractToEmployee, addContractAndNewEmployee, editContract, removeContract } = require('../controllers/employees/contracts')
 
 //upload image to cloudinary middleware
 const uploadMiddleware = require('../middleware/uploadImageToCloudinary')
@@ -52,5 +53,12 @@ router.delete('/permissions/remove/:permissionId', removePermission)
 //RolePermissions Routes
 router.post('/role-permissions/add', addRolePermission)
 router.delete('/role-permissions/remove/:rolePermissionId', removeRolePermission)
+
+//Contracts Routes
+router.post('/contracts/add-to-employee', addContractToEmployee)
+router.post('/contracts/add-employee-contract', ValidateEmployeesName, uploadMiddleware, addContractAndNewEmployee)
+router.put('/contracts/edit/:contractId', editContract)
+router.delete('/contracts/remove/:contractId', removeContract)
+
 
 module.exports = router
