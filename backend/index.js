@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require("express")
 const sequelize = require('./config/database');
 const cors = require("cors");
+const cron = require('node-cron');
 
 //modles 
 const Stores = require('./models/sotres/stores');
@@ -28,9 +29,8 @@ const RolePermissions = require('./config/associations/employees');
 //custom error handler middllware
 const errorHandler = require("./middleware/error");
 
-
-
-
+//corns funtions
+const contractCron = require('./crons/contractCron');
 
 
 const app = express()
@@ -70,6 +70,15 @@ app.use('/api/v1/store/employees', require('./routes/employees'));
 
 // Error Handler Middleware
 app.use(errorHandler);
+
+
+// Schedule the cron job to run every day at midnight
+cron.schedule('0 0 * * *', () => {
+    contractCron(); // Call the cron job function
+}, {
+    scheduled: true,
+    timezone: "Asia/Jerusalem" // Set your timezone here
+});
 
 
 //porst number that server listen on
