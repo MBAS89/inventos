@@ -3,6 +3,7 @@ const express = require("express")
 const sequelize = require('./config/database');
 const cors = require("cors");
 const cron = require('node-cron');
+const cookieParser = require('cookie-parser')
 
 //modles 
 const Stores = require('./models/sotres/stores');
@@ -34,6 +35,7 @@ const contractCron = require('./crons/contractCron');
 
 
 const app = express()
+app.use(cookieParser())
 
 //doing this to be able to retrive data from req.body and from data
 app.use(cors());
@@ -67,6 +69,7 @@ app.use('/api/v1/store/suppliers', require('./routes/suppliers'));
 
 //Suppliers routes
 app.use('/api/v1/store/employees', require('./routes/employees'));
+
 
 // Error Handler Middleware
 app.use(errorHandler);
