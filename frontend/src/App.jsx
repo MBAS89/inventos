@@ -25,6 +25,9 @@ import { SingleBrand } from "./pages/dashboard/inventory/SingleBrand"
 import { StoreLogin } from "./pages/auth/StoreLogin"
 import { StoreRegister } from "./pages/auth/StoreRegister"
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function App() {
   return (
     <>
@@ -100,6 +103,18 @@ function App() {
           </DashLayout>
         }></Route>
       </Routes>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   )
 }

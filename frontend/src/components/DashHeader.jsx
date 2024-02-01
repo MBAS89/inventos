@@ -2,12 +2,39 @@ import {React,useState} from "react";
 
 //icons
 import { AiOutlineAppstore, AiOutlineSetting } from "react-icons/ai";
-import { IoMdNotificationsOutline } from "react-icons/io";
+import { IoMdNotificationsOutline, IoIosPower  } from "react-icons/io";
 import { MdOutlineDarkMode } from "react-icons/md";
-import { Link, useLocation, NavLink } from "react-router-dom";
+
+//react router dom
+import { Link, useLocation, NavLink, useNavigate } from "react-router-dom";
+
+//redux
+import { authInfoState, clearCredentials } from "../features/slices/authSlice";
+import { useDispatch, useSelector } from 'react-redux'
+import { useLogoutMutation } from "../features/api/auth/authApiSlice";
+
+//react toast 
+import { toast } from 'react-toastify';
 
 export const DashHeader = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  const { authInfo } = useSelector(authInfoState)
+
+  const [logout, {isLoading, error}] = useLogoutMutation()
+
+  const handleLogout = async () => {
+    try {
+        const res = await logout().unwrap()
+        dispatch(clearCredentials())
+        toast.success(res.message)
+        navigate('/')
+    } catch (error) {
+        toast.error(error.data.error)
+    }
+  }
 
   return (
     <header className="bg-white">
@@ -34,6 +61,11 @@ export const DashHeader = () => {
                     <NavLink to="/dashboard" className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
                         <AiOutlineAppstore className="text-[1.3rem]"/>
                     </NavLink>}
+                    {authInfo && 
+                        <div onClick={handleLogout} className="block cursor-pointer shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
+                            <IoIosPower className="text-[1.3rem] font-bold text-red-500"/>
+                        </div>
+                    }
                     <a
                         href="#"
                         className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"
