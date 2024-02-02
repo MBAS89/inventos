@@ -13,9 +13,13 @@ const Stores = require('../models/sotres/stores');
 const Owners = require('../models/sotres/owners');
 const OwnersStore = require('../models/sotres/ownerStores');
 const Employees = require('../models/employees/employees');
+const RolePermissions = require('../models/employees/rolePermission')
+const Permissions = require('../models/employees/permission')
 
 //function to generate Token to auth 
 const { generateToken } = require('../utils/generatToken');
+const Roles = require("../models/employees/roles");
+const Departments = require("../models/employees/department");
 
 
 exports.createStore = async (req, res, next) => {
@@ -129,17 +133,15 @@ exports.storeLogin = async (req, res, next) => {
                 id:owner.id,
                 email:owner.email,
                 name:`${owner.first_name} ${owner.last_name}`,
-                role:"owner"
+                role:"owner",
+                departments:"All"
             }
 
             //calling the generate token funtion this will put token in req.cookie
             generateToken(res, payload)
 
             //return response of the req
-            res.status(201).json({
-                status:"success",
-                message:"Login Successful",
-            })
+            res.status(200).json(payload)
 
 
         //if the logged in is not the store owner we will check if he is an employee of that store 
@@ -149,7 +151,25 @@ exports.storeLogin = async (req, res, next) => {
                 where: {
                     email: email,
                     store_id:store.id
-                }
+                },
+                include: [
+                    {
+                        model: Roles,
+                        attributes: { exclude: ['createdAt', 'updatedAt'] }, 
+                        include: [
+                            {
+                                model: Permissions,
+                                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                                include: [
+                                    {
+                                        model: Departments,
+                                        attributes: { exclude: ['createdAt', 'updatedAt'] }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             })
 
             if(!employee){
@@ -171,6 +191,17 @@ exports.storeLogin = async (req, res, next) => {
                 return next(new ErrorResponse(`You No Longer Work Here Contact Owner`, 401));
             }
 
+            const departments = [];
+
+            // Extract departments from permissions
+            employee.role.permissions.forEach(permission => {
+              const department = permission.department;
+              if (!departments.some(dep => dep.id === department.id)) {
+                departments.push(department);
+              }
+            });
+
+
             //if password pass we will create a payload to put into the token
             const payload = {
                 store_id:store.id,
@@ -178,17 +209,15 @@ exports.storeLogin = async (req, res, next) => {
                 id:employee.id,
                 email:employee.email,
                 name:employee.full_name,
-                role:employee.roleId
+                role:employee.roleId,
+                departments:departments,
             }
 
             //calling the generate token funtion this will put token in req.cookie
             generateToken(res, payload)
 
             //return response of the req
-            res.status(200).json({
-                status:"success",
-                message:"Login Successful",
-            })
+            res.status(200).json(payload)
 
         }
 
