@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-const Input = ({ lable, id, name, type, placeholder, value, onChange, full }) => {
+const Input = ({ lable, id, name, type, placeholder, value, onChange, full, required }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -18,6 +18,7 @@ const Input = ({ lable, id, name, type, placeholder, value, onChange, full }) =>
             placeholder={placeholder}
             value={value}
             onChange={onChange}
+            required={required}
             className="mt-1 w-full pr-10 rounded-md border-[#50B426] bg-white text-sm text-gray-700 shadow-sm focus:border-1 focus:border-[#ffb062] focus:outline-none focus:ring-0"
         />
         {type === 'password' && (
