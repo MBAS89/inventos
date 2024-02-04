@@ -6,10 +6,10 @@ import { AiOutlineCloudUpload } from "react-icons/ai"
 import { LuView } from "react-icons/lu"
 import { MdDeleteForever } from "react-icons/md"
 
-export const DropZone = ({ className }) => {
-    const [file, setFile] = useState(null)
+export const DropZone = ({ className, file, setFile }) => {
     const [error, setError] = useState("")
     const [hover, setHovor] = useState(false)
+
 
     const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
         const pickedFile = acceptedFiles[0]
