@@ -9,6 +9,8 @@ export const Customers = () => {
     const [openPopup, setOpenPopup] = useState(false)
     const [openDeletePopup, setOpenDeletePopup] = useState(false)
 
+    const [selectedCustomers, setSelectedCustomers] = useState([]);
+
     const headItems = [
         {
             title:"Customer Name"
@@ -43,8 +45,8 @@ export const Customers = () => {
     return (
         <div className=' bg-gray-100 h-[calc(100vh-64px)] relative'>
             <SearchComponents placeholder="Search for customer" actionName="Add Customer" setOpenPopup={setOpenPopup} />
-            <TableToolsComponent setOpenDeletePopup={setOpenDeletePopup} />
-            <CustomersTable headItems={headItems} />
+            <TableToolsComponent setOpenDeletePopup={setOpenDeletePopup} selectedCount={selectedCustomers.length} setReset={setSelectedCustomers} />
+            <CustomersTable headItems={headItems} setSelectedCustomers={setSelectedCustomers} selectedCustomers={selectedCustomers} />
             {openPopup && 
                 <AddAndEditCustomersPopup setOpenPopup={setOpenPopup} />
             }

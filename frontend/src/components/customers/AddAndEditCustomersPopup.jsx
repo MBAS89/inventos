@@ -9,7 +9,7 @@ import { DropZone } from '../DropZone'
 
 //redux
 import { useSelector } from 'react-redux'
-import { useAddCustomerMutation } from '../../features/api/customers/customersApiSlice'
+import { useAddCustomerMutation, useReadCustomersQuery } from '../../features/api/customers/customersApiSlice'
 import { authInfoState } from '../../features/slices/authSlice'
 
 //react toastify to show toast for the user
@@ -19,7 +19,6 @@ import { toast } from 'react-toastify'
 import { checkRequiredFields } from '../../functions/checkRequiredFileds'
 
 export const AddAndEditCustomersPopup = ({ setOpenPopup } ) => {
-
     const { customersTypesData } = useSelector((state) => state.customerTypes);
     const { authInfo } = useSelector(authInfoState)
 
@@ -78,8 +77,8 @@ export const AddAndEditCustomersPopup = ({ setOpenPopup } ) => {
                 address:'',
                 customerType:'Please select type'
             })
+            
         } catch (error) {
-            console.log(error)
             toast.error(error.data.error)
         }
     }

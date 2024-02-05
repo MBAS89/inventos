@@ -5,6 +5,22 @@ const CUSTOMERS_URL = '/api/v1/store/customers'
 
 export const customersApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
+        readCustomers: builder.query({
+            query: (data) => ({
+                url: `${CUSTOMERS_URL}/read?storeId=${data.storeId}&page=${data.page}`,
+                method: 'GET',
+            }),
+            transformResponse: (response) => {
+                return response;
+            },
+            providesTags: (result) =>
+            result? [
+                  ...result.customers.map(({ id }) => ({ type: 'Customers', id })),
+                  { type: 'Customers' },
+                ]
+              : [{ type: 'Customers', id }],
+
+        }),
         addCustomer: builder.mutation({
             query: (data) => {
                 const formData = new FormData();
@@ -19,11 +35,13 @@ export const customersApiSlice = apiSlice.injectEndpoints({
                 formData.append('image', data.file.file);
 
                 return {
-                    url: `${CUSTOMERS_URL}/add?cutomerName=${data.fullName}`,
+                    url: `${CUSTOMERS_URL}/add?cutomerName=${data.fullName}&storeId=${data.storeId}`,
                     method: 'POST',
                     body: formData
                 };
-            }
+            },
+            invalidatesTags: ['Customers']
+
         }),
         editCustomer: builder.mutation({
             query: (data) => ({
@@ -51,4 +69,4 @@ export const customersApiSlice = apiSlice.injectEndpoints({
     })
 })
 
-export const { useAddCustomerMutation, useEditCustomerMutation, useRemoveCustomerMutation } = customersApiSlice
+export const { useReadCustomersQuery, useAddCustomerMutation, useEditCustomerMutation, useRemoveCustomerMutation } = customersApiSlice

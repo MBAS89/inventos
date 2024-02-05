@@ -2,21 +2,26 @@ import React, { useState } from 'react'
 
 //icons
 import { SiMicrosoftexcel } from 'react-icons/si';
-import { GrEdit } from 'react-icons/gr';
+import { MdOutlineCancel } from "react-icons/md";
 import { MdOutlineDelete,MdOutlineRemoveRedEye } from "react-icons/md";
 import { FiFilter } from "react-icons/fi";
 import { BsSortDown,BsPencil } from "react-icons/bs";
 import { Link } from 'react-router-dom';
 
 
-export const TableToolsComponent = ({ setOpenDeletePopup }) => {
+export const TableToolsComponent = ({ setOpenDeletePopup, selectedCount, setReset }) => {
     const [openFilter, setOpenFilter] = useState(false)
     const [openSortBy, setOpenSortBy] = useState(false)
 
     return (
     <div className='flex justify-between items-center px-6'>
         <div className='flex items-center gap-6 capitalize'>
-            <span>0 selected</span>
+            <span className='flex items-center gap-1'>
+                {selectedCount} selected 
+                {selectedCount > 0 && 
+                    <MdOutlineCancel onClick={() => setReset([])} className='text-red-700 cursor-pointer hover:scale-110'/>
+                }
+            </span>
             <button className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
                 <SiMicrosoftexcel className='text-[#50B426] text-xl'/>
                 <span>export to excel</span>
