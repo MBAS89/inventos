@@ -21,6 +21,18 @@ export const customersApiSlice = apiSlice.injectEndpoints({
               : [{ type: 'Customers', id }],
 
         }),
+
+        readCustomer: builder.query({
+            query: (data) => ({
+                url: `${CUSTOMERS_URL}/read/single?storeId=${data.storeId}&customerId=${data.customerId}`,
+                method: 'GET',
+            }),
+            transformResponse: (response) => {
+                return response;
+            },
+            providesTags: (result, error, arg) => [{ type: 'Customers', id: arg }]
+
+        }),
         addCustomer: builder.mutation({
             query: (data) => {
                 const formData = new FormData();
@@ -69,4 +81,4 @@ export const customersApiSlice = apiSlice.injectEndpoints({
     })
 })
 
-export const { useReadCustomersQuery, useAddCustomerMutation, useEditCustomerMutation, useRemoveCustomerMutation } = customersApiSlice
+export const { useReadCustomersQuery, useReadCustomerQuery ,useAddCustomerMutation, useEditCustomerMutation, useRemoveCustomerMutation } = customersApiSlice
