@@ -12,13 +12,15 @@ import { authInfoState } from '../../features/slices/authSlice'
 import { useReadCustomersQuery } from '../../features/api/customers/customersApiSlice'
 import { Loader } from '../reusable-components/Loader';
 
-export const CustomersTable = ({ headItems, selectedCustomers, setSelectedCustomers }) => {
+export const CustomersTable = ({ headItems, selectedCustomers, setSelectedCustomers, searchQuery, sortBy }) => {
 
     const { authInfo } = useSelector(authInfoState)
 
+    console.log(sortBy)
+
     const [currentPage, setCurrentPage] = useState(1)
 
-    const {data:cutomers, isLoading, isFetching, isError, error } = useReadCustomersQuery({storeId:authInfo.store_id,page:currentPage},'readCustomers')
+    const {data:cutomers, isLoading, isFetching, isError, error } = useReadCustomersQuery({storeId:authInfo.store_id,page:currentPage, searchQuery:searchQuery, sortBy:sortBy},'readCustomers')
 
     const handleCheckboxChange = (customerId) => {
         setSelectedCustomers(prevSelectedCustomers => {

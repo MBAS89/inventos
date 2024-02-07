@@ -7,12 +7,13 @@ export const customersApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         readCustomers: builder.query({
             query: (data) => ({
-                url: `${CUSTOMERS_URL}/read?storeId=${data.storeId}&page=${data.page}`,
+                url: `${CUSTOMERS_URL}/read?storeId=${data.storeId}&page=${data.page}&sort=${data.sortBy.sort}&column=${data.sortBy.column}&searchQuery=${data.searchQuery}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {
                 return response;
             },
+            providesTags: ['customers'],
             providesTags: (result) =>
             result? [
                   ...result.customers.map(({ id }) => ({ type: 'Customers', id })),
@@ -30,7 +31,7 @@ export const customersApiSlice = apiSlice.injectEndpoints({
             transformResponse: (response) => {
                 return response;
             },
-            providesTags: (result, error, arg) => [{ type: 'Customers', id: arg }]
+            //providesTags: (result, error, arg) => [{ type: 'Customers', id: arg }]
 
         }),
         addCustomer: builder.mutation({
