@@ -15,11 +15,23 @@ const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds'
 const { getOrderOptions } = require('../utils/functions/orderOptions');
 
 
+
+/* *
+ * 
+ * 
+ * 
+ * CATEGORIES CONTROLLERS
+ * 
+ * 
+ * 
+ * */
+
+
 exports.readSingleCategory = async (req, res, next) => {
 
     try {
         const storeId = req.authData.store_id
-        const { categoryId } = req.query;
+        const { categoryId, withProducts, page, limit = 10 } = req.query;
 
         if (!categoryId || !storeId) {
             return next(new ErrorResponse('Category ID and Store ID are required', 400));
@@ -36,14 +48,27 @@ exports.readSingleCategory = async (req, res, next) => {
             return  next(new ErrorResponse('No Category Found!', 404))
         }
 
-        const products = await Products.findAll({
-            where:{
-                store_id: storeId,
-                category_id:category.category_id
-            }
-        })
-    
-        res.status(200).json({ category, products });
+        if(withProducts){
+
+            const totalCount = await Products.count({ where: { store_id: storeId, category_id:category.category_id } });
+
+            const totalPages = Math.ceil(totalCount / limit);
+
+            const currentPage = parseInt(page);
+
+            const products = await Products.findAll({
+                where:{
+                    store_id: storeId,
+                    category_id:category.category_id
+                },
+                limit:parseInt(limit),
+                offset:(currentPage - 1) * parseInt(limit),
+            })
+
+            return res.status(200).json({ category, products,  totalCount, totalPages, currentPage });
+        }else{
+            return res.status(200).json({ category });
+        }
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
@@ -148,20 +173,24 @@ exports.removeCategory = async (req, res, next) => {
         */
         const { imageId } = req.query
 
-        //this will send a request to cloudinary to delete the image from there and return ok or fail 
-        const result = await deleteImage(imageId)
-
         //check if categoryid have value if not throw an error
         if(!categoryId){
             return next(new ErrorResponse("Category ID Is required", 422));
         }
 
         //DELETE CATEGORY FROM DATA BASE WITH THE DISRE ID VALUE
-        await Categories.destroy({
+        const category = await Categories.destroy({
             where: {
                 category_id: categoryId
             }
         });
+
+        if(!category){
+            return next(new ErrorResponse("Something went wrong!", 500));
+        }
+
+        //this will send a request to cloudinary to delete the image from there and return ok or fail 
+        const result = await deleteImage(imageId)
 
         //return success response with message
         res.status(200).json({
@@ -171,8 +200,14 @@ exports.removeCategory = async (req, res, next) => {
         })
         
     } catch (error) {
-        //if there is an error send it to the error middleware to be output in a good way 
-        next(error)
+        if(error.name == 'SequelizeForeignKeyConstraintError'){
+            return next(new ErrorResponse("Category Can't be deleted beacuase it's has products", 406));
+        }else{
+            //if there is an error send it to the error middleware to be output in a good way 
+            next(error)
+        }
+
+
     }
 }
 
@@ -249,20 +284,126 @@ exports.editCategory = async (req, res, next) => {
     }
 }
 
+/* *
+ * 
+ * 
+ * 
+ * BRANDS CONTROLLERS
+ * 
+ * 
+ * 
+ * */
+
+exports.readSingleBrand = async (req, res, next) => {
+
+    try {
+        const storeId = req.authData.store_id
+        const { brandId, withProducts, page, limit = 10 } = req.query;
+
+        if (!brandId || !storeId) {
+            return next(new ErrorResponse('Brand ID and Store ID are required', 400));
+        }
+        
+        const brand = await Brands.findOne({
+            where: { 
+                store_id: storeId,
+                brand_id: brandId
+            }
+        })
+
+        if(!brand){
+            return  next(new ErrorResponse('No Brand Found!', 404))
+        }
+
+        if(withProducts){
+
+            const totalCount = await Products.count({ where: { store_id: storeId, brand_id:brand.brand_id } });
+
+            const totalPages = Math.ceil(totalCount / limit);
+
+            const currentPage = parseInt(page);
+
+            const products = await Products.findAll({
+                where:{
+                    store_id: storeId,
+                    brand_id:brand.brand_id
+                },
+                limit:parseInt(limit),
+                offset:(currentPage - 1) * parseInt(limit),
+            })
+
+            return res.status(200).json({ brand, products,  totalCount, totalPages, currentPage });
+        }else{
+            return res.status(200).json({ brand });
+        }
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.readBrands = async (req, res, next) => {
+
+    try {
+        const storeId = req.authData.store_id
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
+
+        if (!page || !storeId) {
+            return next(new ErrorResponse('Page Number and Store ID are required', 400));
+        }
+        
+        const totalCount = await Brands.count({ where: { store_id: storeId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            store_id: storeId,
+            [Op.or]: [
+                { name: { [Op.iLike]: `%${searchQuery}%` } },
+                { brand_id: searchQuery ? searchQuery : null},
+            ]
+        } : { store_id: storeId };
+
+        const brands = await Brands.findAll({
+            where: whereClause,
+            limit: searchQuery ? null : parseInt(limit),
+            offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
+            order:column && sort ? getOrderOptions(column, sort) : []
+        });
+
+        const brandProductCounts = await Promise.all(brands.map(async brand => {
+            const productCount = await Products.count({ where: { brand_id: brand.brand_id } });
+            return {
+                brandId: brand.brand_id,
+                productCount: productCount
+            };
+        }));
+
+        return res.status(200).json({ totalCount, totalPages, currentPage, brands, brandProductCounts });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 
 exports.addBrand = async (req, res, next) => {
     try {
-
-        //retrive storeId & brandName from req body 
-        const { storeId, brandName } = req.body;
+        //retrive storeId from token 
+        const storeId = req.authData.store_id
+        //retrive brandName from req body 
+        const { brandName } = req.body;
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
         // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
-        //INSERT this categorty to the data base 
+        //INSERT this Brand to the data base 
         const brand = await Brands.create({
             image: imageUrl,
             name: brandName,
@@ -272,13 +413,13 @@ exports.addBrand = async (req, res, next) => {
 
         //return success response with message
         res.status(201).json({
-            status:"success",
-            message:"Brand Added",
-            results:1,
+            status: "success",
+            message: "Brand Added",
+            results: 1,
             data: {
                 brand
             }
-        })
+        });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
@@ -289,7 +430,7 @@ exports.addBrand = async (req, res, next) => {
 exports.removeBrand = async (req, res, next) => {
     try {
 
-        //retrive brandId from req params 
+        //retrive BrandId from req params 
         const { brandId } = req.params
 
         /*
@@ -298,20 +439,24 @@ exports.removeBrand = async (req, res, next) => {
         */
         const { imageId } = req.query
 
-        //this will send a request to cloudinary to delete the image from there and return ok or fail 
-        const result = await deleteImage(imageId)
-
         //check if brandId have value if not throw an error
         if(!brandId){
             return next(new ErrorResponse("Brand ID Is required", 422));
         }
 
         //DELETE BRAND FROM DATA BASE WITH THE DISRE ID VALUE
-        await Brands.destroy({
+        const brand = await Brands.destroy({
             where: {
                 brand_id: brandId
             }
         });
+
+        if(!brand){
+            return next(new ErrorResponse("Something went wrong!", 500));
+        }
+
+        //this will send a request to cloudinary to delete the image from there and return ok or fail 
+        const result = await deleteImage(imageId)
 
         //return success response with message
         res.status(200).json({
@@ -319,10 +464,16 @@ exports.removeBrand = async (req, res, next) => {
             cloudinary:result,
             message:"Brand Deleted",
         })
-
+        
     } catch (error) {
-        //if there is an error send it to the error middleware to be output in a good way 
-        next(error)
+        if(error.name == 'SequelizeForeignKeyConstraintError'){
+            return next(new ErrorResponse("Brand Can't be deleted beacuase it's has products", 406));
+        }else{
+            //if there is an error send it to the error middleware to be output in a good way 
+            next(error)
+        }
+
+
     }
 }
 
@@ -330,48 +481,60 @@ exports.editBrand = async (req, res, next) => {
     try {
         //retrive brandId from req params 
         const { brandId } = req.params
-        //retrive Brand Name from req body 
+        //retrive brandName from req body 
         const { brandName } = req.body;
 
-        //fetch the old image id brand 
+        //fetch the old image id Brand 
         const brand = await Brands.findOne({
             where: {
                 brand_id: brandId
             },
-            attributes: ['image_id']
+            attributes: ['image_id', 'image']
         });
 
-        // If the brand exists, extract the image ID
+        // If the Brand exists, extract the image ID
         const oldBrandImageId = brand ? brand.image_id : null;
 
+        let imageId
+        let imageUrl
         // Access Cloudinary image URL after uploading
-        const imageUrl = req.file.path;
-        // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
-        const imageId = cloudinaryExtractPublicId(imageUrl)
+        if(req.file){
+            imageUrl = req.file.path;
+
+            // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
+            imageId = cloudinaryExtractPublicId(imageUrl)
+        }
 
         //Edit brand in database with new values
-        const brandResponse = await db.query(
-            "UPDATE brands SET name = $1, image = $2, image_id = $3 WHERE brand_id = $4 returning *", 
-            [brandName, imageUrl, imageId, brandId]
-        )
         const updatedBrand = await Brands.update(
-            { name: brandName, image: imageUrl, image_id: imageId },
+            { 
+                name: brandName,
+                image: imageUrl ? imageUrl : brand.image,
+                image_id: imageId 
+            },
             { returning: true, where: { brand_id: brandId } }
         );
 
         //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
         if(!updatedBrand){
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
-        //this will send a request to cloudinary to delete the old image from there and return ok or fail 
-        const result = await deleteImage(oldBrandImageId)
+        let result
+        if(req.file){
+            //this will send a request to cloudinary to delete the old image from there and return ok or fail 
+            result = await deleteImage(oldBrandImageId)
+        }
 
         //return success response with message
         res.status(201).json({
             status:"success",
             message:"Brand Updated",
-            cloudinary:result,
+            cloudinary:result || 'no new Image',
             results:1,
             data: {
                 brand:updatedBrand
@@ -384,7 +547,15 @@ exports.editBrand = async (req, res, next) => {
     }
 }
 
-
+/* *
+ * 
+ * 
+ * 
+ * PRODUCTS CONTROLLERS
+ * 
+ * 
+ * 
+ * */
 
 exports.addProduct = async (req, res, next) => {
     try {

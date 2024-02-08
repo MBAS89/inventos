@@ -5,22 +5,30 @@ const Brands = require('../../../models/inventory/brands');
 const ErrorResponse = require('../../../utils/errorResponse')
 
 
-// Validation middleware for creating and editing a category
+// Validation middleware for creating and editing a Brand
 const validateAddEditBrand = async (req, res, next) => {
     try {
 
-        //retrieve category name from req params to check if the category name is used before uploading to cloudinary
+        //retrieve Brand name from req params to check if the Brand name is used before uploading to cloudinary
         const { brandName } = req.params
+
+        //retrieve store id from rquest authData
+        const storeId = req.authData.store_id
+
+        if(!storeId){
+            return next(new ErrorResponse("Store ID Is required", 422));
+        }
 
         // Check if all fields are present
         if (!brandName) {
             return next(new ErrorResponse("Brand Name Is required", 422));
         }
 
-        // Check if the Category name is already exists
+        // Check if the Brand name is already exists
         const existinBrand = await Brands.findOne({
             where: {
-                name: brandName
+                name: brandName,
+                store_id: storeId
             }
         });
 

@@ -10,7 +10,7 @@ const validateAddEditProduct = require('../middleware/validations/inventory/vali
 const uploadMiddleware = require('../middleware/uploadImageToCloudinary')
 
 //inventory  controllers
-const { addCategory, removeCategory, editCategory, addBrand, removeBrand, editBrand, addProduct, removeProduct, editProduct, readSingleCategory, readCategories } = require('../controllers/inventory')
+const { addCategory, removeCategory, editCategory, addBrand, removeBrand, editBrand, addProduct, removeProduct, editProduct, readSingleCategory, readCategories, readSingleBrand, readBrands } = require('../controllers/inventory')
 const Auth = require('../middleware/auth/authMiddleware')
 
 
@@ -21,6 +21,8 @@ router.post('/category/add/:categoryName', Auth, validateAddEditCategory, upload
 router.delete('/category/remove/:categoryId', Auth, removeCategory)
 router.put('/category/edit/:categoryId/:categoryName', Auth, validateAddEditCategory, uploadMiddleware, editCategory)
 
+router.get('/brand/read/single', Auth, readSingleBrand)
+router.get('/brand/read', Auth, readBrands)
 router.post('/brand/add/:brandName', Auth, validateAddEditBrand, uploadMiddleware, addBrand)
 router.delete('/brand/remove/:brandId', Auth, removeBrand)
 router.put('/brand/edit/:brandId/:brandName', Auth, validateAddEditBrand, uploadMiddleware, editBrand)
