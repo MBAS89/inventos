@@ -68,7 +68,7 @@ function App() {
           <Route path="brands" element={<Brands/>}/>
         </Route> 
         <Route path="/dashboard/inventory/single-product" element={<SingleProduct />}></Route>
-        <Route path="/dashboard/inventory/single-category" element={<SingleCategory />}></Route>
+        <Route path="/dashboard/inventory/single-category/:categoryId" element={<SingleCategory />}></Route>
         <Route path="/dashboard/inventory/single-brand" element={<SingleBrand />}></Route>
         <Route path="/dashboard/customers" element={
           <DashLayout>

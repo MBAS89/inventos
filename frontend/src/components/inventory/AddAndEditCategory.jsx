@@ -16,7 +16,7 @@ export const AddAndEditCategory = ({ setOpenPopup, editMode, selected, setEditMo
     const [addCategory, {isLoading, error}] = useAddCategoryMutation()
 
     const { data, isLoading: isdataLoading } = editMode 
-    ? useReadCategoryQuery({categoryId: selected[Object.keys(selected)[0]] }, 'readCategory')
+    ? useReadCategoryQuery({categoryId: selected[Object.keys(selected)[0]], products:false }, 'readCategory')
     : { data: null, isLoading: false };
 
     const [categoryName, setCategoryName] = useState('')

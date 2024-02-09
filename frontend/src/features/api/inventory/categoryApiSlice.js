@@ -25,7 +25,7 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
 
         readCategory: builder.query({
             query: (data) => ({
-                url: `${INVENTORY_URL}/read/single?categoryId=${data.categoryId}`,
+                url: `${INVENTORY_URL}/read/single?categoryId=${data.categoryId}&withProducts=${data.products}&page=${data.page ? data.page : 1}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {
