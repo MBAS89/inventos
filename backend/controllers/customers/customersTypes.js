@@ -1,6 +1,38 @@
 //modles
 const CustomersTypes = require('../../models/cutomers/customersTypes');
 
+//middleware to handle Erorrs
+const ErrorResponse = require('../../utils/errorResponse');
+
+exports.getCustomerTypes = async (req, res, next) => {
+    try {
+        const { storeId } = req.query
+
+        const customersTypes = await CustomersTypes.findAll({
+            where:{
+                store_id:storeId
+            }
+        })
+
+
+        if(customersTypes.length == 0){
+            return next(new ErrorResponse('No Customers Types Found', 404))
+        }
+
+        //return response of the req
+        res.status(200).json({
+            status:"success",
+            message:"Customers Types Fetched",
+            data: {
+                customersTypes
+            }
+        })
+        
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 exports.addCustomerType = async (req, res, next) => {
 

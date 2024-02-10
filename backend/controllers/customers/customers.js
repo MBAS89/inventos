@@ -1,5 +1,8 @@
+const { Op } = require('sequelize');
+
 //modles
 const Customers = require('../../models/cutomers/cutomers');
+const CustomersTypes = require('../../models/cutomers/customersTypes');
 
 //pcakgae to validate email
 const validator = require('validator');
@@ -8,6 +11,113 @@ const validator = require('validator');
 const { cloudinaryExtractPublicId, deleteImage } = require('../../utils/functions/cloudinary/cloudinaryUtils');
 //reusable functions to check Required Fields
 const { checkRequiredFields } = require('../../utils/functions/checkRequiredFileds');
+
+// a middle ware to handle errors
+const ErrorResponse = require('../../utils/errorResponse');
+const { Invoices } = require('../../models/sales/invoices');
+const { getOrderOptions } = require('../../utils/functions/orderOptions');
+
+exports.getCustomers = async (req, res, next) => {
+    try {
+        const { page, limit = 10, storeId, searchQuery, sort, column } = req.query;
+
+        if (!page || !storeId) {
+            return next(new ErrorResponse('Page Number and Store ID are required', 400));
+        }
+        
+        const totalCount = await Customers.count({ where: { store_id: storeId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            store_id: storeId,
+            [Op.or]: [
+                { full_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { phone_number: { [Op.like]: `%${searchQuery}%` } },
+                { address: { [Op.like]: `%${searchQuery}%` } },
+                { email: { [Op.like]: `%${searchQuery}%` } },
+            ]
+        } : { store_id: storeId };
+
+        const customers = await Customers.findAll({
+            where: whereClause,
+            limit: searchQuery ? undefined : parseInt(limit),
+            offset: searchQuery ? undefined : (currentPage - 1) * parseInt(limit),
+            include: [{
+                model: CustomersTypes,
+                as: 'customerType',
+                attributes: ['type_name', 'id']
+            }],
+            order:column && sort ? getOrderOptions(column, sort) : []
+        });
+        return res.status(200).json({ totalCount, totalPages, currentPage, customers });
+
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.getSingleCustomer = async (req, res, next) => {
+    try {
+        const { storeId, customerId } = req.query;
+
+        if (!customerId || !storeId) {
+            return next(new ErrorResponse('Customer ID and Store ID are required', 400));
+        }
+        
+        const customer = await Customers.findOne({
+            where: { 
+                store_id: storeId,
+                id: customerId
+            },
+            include: [{ 
+                model: CustomersTypes, 
+                as: 'customerType',
+                attributes:['type_name', 'id', 'discount_value']
+            }]
+        })
+
+        if(!customer){
+            return  next(new ErrorResponse('No Customer Found!', 404))
+        }
+
+        const invoices = await Invoices.findAll({
+            where:{
+                store_id: storeId,
+                customerId:customer.id
+            }
+        })
+
+        /*
+        const totalCount = await Customers.count({ where: { store_id: storeId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+    
+        const customers = await Customers.findAll({
+            where: { store_id: storeId },
+            limit: parseInt(limit),
+            offset: (currentPage - 1) * parseInt(limit),
+            include: [{ 
+                model: CustomersTypes, 
+                as: 'customerType',
+                attributes:['type_name', 'id']
+            }]
+        });*/
+    
+        res.status(200).json({ customer, invoices });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
 
 exports.addCustomer = async (req, res, next) => {
 
@@ -32,8 +142,10 @@ exports.addCustomer = async (req, res, next) => {
             return next(new ErrorResponse(validationError, 422));
         }
 
+
         // Check if the email is valid
-        if (!isValidEmail(email)) {
+        const isValidEmail = validator.isEmail(email)
+        if (!isValidEmail) {
             //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
             await deleteImage(imageId)
 
@@ -84,17 +196,24 @@ exports.editCustomer = async (req, res, next) => {
         //retrive customerId from req params 
         const { customerId } =  req.params
         //retrive Customer new values from req body 
-        const { full_name, email, phone_number, address, cutomer_type } = req.body
+        const { full_name, email, phone_number, address, cutomer_type, oldImage } = req.body
 
+        let imageId
+        let imageUrl
         // Access Cloudinary image URL after uploading
-        const imageUrl = req.file.path;
-        // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
-        const imageId = cloudinaryExtractPublicId(imageUrl)
+        if(req.file){
+            imageUrl = req.file.path;
+
+            // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
+            imageId = cloudinaryExtractPublicId(imageUrl)
+        }
 
         //check if customerId Have a value 
         if(!customerId){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
 
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse("Customer ID Required", 422));
@@ -108,6 +227,8 @@ exports.editCustomer = async (req, res, next) => {
             attributes: ['image_id']
         });
 
+
+
         // If the Customer exists, extract the image ID
         const oldCustomerImageId = customer ? customer.image_id : null;
 
@@ -116,17 +237,23 @@ exports.editCustomer = async (req, res, next) => {
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
 
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse(validationError, 422));
         }
 
+        const isValidEmail = validator.isEmail(email)
+
         // Check if the email is valid
-        if (!isValidEmail(email)) {
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+        if (!isValidEmail) {
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             
             //this will tell user email is not accepted 
             return next(new ErrorResponse('Invalid email address', 406));
@@ -137,7 +264,7 @@ exports.editCustomer = async (req, res, next) => {
         const updatedCustomer = await Customers.update(
             {
                 full_name,
-                image: imageUrl,
+                image: imageUrl ? imageUrl : oldImage,
                 image_id: imageId,
                 email,
                 phone_number,
@@ -152,20 +279,24 @@ exports.editCustomer = async (req, res, next) => {
 
         //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
         if(!updatedCustomer){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
-        //this will send a request to cloudinary to delete the old image from there and return ok or fail 
-        const result = await deleteImage(oldCustomerImageId)
-
+        let result
+        if(req.file){
+            //this will send a request to cloudinary to delete the old image from there and return ok or fail 
+            result = await deleteImage(oldCustomerImageId)
+        }
 
         //return success response with message
         res.status(201).json({
             status:"success",
             message:"Customer Edited",
-            cloudinary:result,
+            cloudinary:result || 'no new Image',
             results:1,
             data: {
                 customer:updatedCustomer
@@ -174,6 +305,7 @@ exports.editCustomer = async (req, res, next) => {
 
 
     } catch (error) {
+        console.log(error)
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
     }

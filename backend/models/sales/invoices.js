@@ -42,6 +42,14 @@ const Invoices = sequelize.define('invoices', {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
+    customerId: {
+        type: DataTypes.BIGINT,
+        allowNull: true, 
+        references: {
+            model: 'customers',
+            key: 'id'
+        },
+    },
     store_id: {
         type: DataTypes.INTEGER,
         references: {

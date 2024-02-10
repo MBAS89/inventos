@@ -15,7 +15,6 @@ const Brands = require('./models/inventory/brands');
 const Products = require('./models/inventory/products');
 const { Invoices, InvoiceItems } = require('./models/sales/invoices');
 const CustomersTypes = require('./models/cutomers/customersTypes');
-const Customers = require('./models/cutomers/cutomers')
 const Suppliers = require('./models/suppliers/suppliers');
 const SuppliersTypes = require('./models/suppliers/suppliersType');
 const SalaryTypes = require('./models/employees/salarytypes');
@@ -25,6 +24,7 @@ const Roles = require('./config/associations/employees');
 const Departments = require('./config/associations/employees');
 const Permissions = require('./config/associations/employees');
 const RolePermissions = require('./config/associations/employees');
+const Customers = require('./config/associations/customers')
 
 
 //custom error handler middllware

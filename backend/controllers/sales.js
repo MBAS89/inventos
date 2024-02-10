@@ -13,7 +13,7 @@ exports.createInvoice = async (req, res, next) => {
     try {
         //retrieve values from req.body  
         const { total_amount, items_discount, extra_discount, total_discount, 
-            total_to_pay, total_due, total_paid, status, store_id, items 
+            total_to_pay, total_due, total_paid, status, store_id, items, customerId
         } = req.body
 
         //create invoice
@@ -26,6 +26,7 @@ exports.createInvoice = async (req, res, next) => {
             total_due,
             total_paid,
             status,
+            customerId:customerId || null,
             store_id
         });
 
