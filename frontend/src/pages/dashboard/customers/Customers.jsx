@@ -10,8 +10,9 @@ export const Customers = () => {
     const [openDeletePopup, setOpenDeletePopup] = useState(false)
     const [searchQuery, setsearchQuery] = useState('')
     const [sortBy, setSortBy] = useState('')
+    const [editMode, setEditMode] = useState(false)
 
-    const [selectedCustomers, setSelectedCustomers] = useState([]);
+    const [selectedCustomers, setSelectedCustomers] = useState('');
 
     const headItems = [
         {
@@ -47,13 +48,13 @@ export const Customers = () => {
     return (
         <div className=' bg-gray-100 h-[calc(100vh-64px)] relative'>
             <SearchComponents placeholder="Search for customer" searchQuery={searchQuery} setsearchQuery={setsearchQuery} actionName="Add Customer" setOpenPopup={setOpenPopup} />
-            <TableToolsComponent setSortBy={setSortBy} sortBy={sortBy}  setOpenDeletePopup={setOpenDeletePopup} selected={selectedCustomers} department="Customers" selectedCount={selectedCustomers.length} setReset={setSelectedCustomers} />
+            <TableToolsComponent setEditMode={setEditMode} setOpenPopup={setOpenPopup} setSortBy={setSortBy} sortBy={sortBy}  setOpenDeletePopup={setOpenDeletePopup} selected={selectedCustomers} department="Customers" setReset={setSelectedCustomers} />
             <CustomersTable searchQuery={searchQuery} sortBy={sortBy} headItems={headItems} setSelectedCustomers={setSelectedCustomers} selectedCustomers={selectedCustomers} />
             {openPopup && 
-                <AddAndEditCustomersPopup setOpenPopup={setOpenPopup} />
+                <AddAndEditCustomersPopup selected={selectedCustomers} setEditMode={setEditMode} editMode={editMode} setOpenPopup={setOpenPopup} />
             }
             {openDeletePopup && 
-                <DeletePopup setOpenDeletePopup={setOpenDeletePopup} />
+                <DeletePopup setOpenDeletePopup={setOpenDeletePopup} selected={selectedCustomers} setReset={setSelectedCustomers} department="Customers" />
             }
         </div>
     )

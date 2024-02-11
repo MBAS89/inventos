@@ -9,7 +9,7 @@ import { BsSortDown,BsPencil } from "react-icons/bs";
 import { Link } from 'react-router-dom';
 
 
-export const TableToolsComponent = ({ setOpenDeletePopup, selectedCount, setReset, department, selected, setSortBy, sortBy }) => {
+export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, selected, setSortBy, sortBy, setOpenPopup, setEditMode }) => {
     
     const [openFilter, setOpenFilter] = useState(false)
     const [openSortBy, setOpenSortBy] = useState(false)
@@ -44,28 +44,31 @@ export const TableToolsComponent = ({ setOpenDeletePopup, selectedCount, setRese
     <div className='flex justify-between items-center px-6'>
         <div className='flex items-center gap-6 capitalize'>
             <span className='flex items-center gap-1'>
-                {selectedCount} selected 
-                {selectedCount > 0 && 
-                    <MdOutlineCancel onClick={() => setReset([])} className='text-red-700 cursor-pointer hover:scale-110'/>
+                {selected ? '1' : '0'} selected 
+                {selected && 
+                    <MdOutlineCancel onClick={() => setReset('')} className='text-red-700 cursor-pointer hover:scale-110'/>
                 }
             </span>
             <button className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
                 <SiMicrosoftexcel className='text-[#50B426] text-xl'/>
                 <span>export to excel</span>
             </button>
-            {selectedCount === 1 && 
-                <Link to={`/dashboard/customers/single-customer/${parseInt(selected[0])}`} className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
+            {selected && 
+                <Link to={`/dashboard/customers/single-customer/${selected[Object.keys(selected)[0]]}`} className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
                     <MdOutlineRemoveRedEye className='text-[#50B426] text-xl'/>
                     <span>view</span>
                 </Link>
             }
-            {selectedCount === 1 && 
-                <button className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
+            {selected && 
+                <button onClick={() => {
+                    setOpenPopup(true);
+                    setEditMode(true);
+                }} className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
                     <BsPencil className='text-[#50B426] text-xl'/>
                     <span>edit</span>
                 </button>
             }
-            {selectedCount >= 1 && 
+            {selected  && 
                 <button onClick={() => setOpenDeletePopup(true)} className='flex items-center capitalize gap-1 cursor-pointer hover:scale-105'>
                     <MdOutlineDelete className='text-[#50B426] text-xl'/>
                     <span>delete</span>

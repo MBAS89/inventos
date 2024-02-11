@@ -16,29 +16,18 @@ export const CustomersTable = ({ headItems, selectedCustomers, setSelectedCustom
 
     const { authInfo } = useSelector(authInfoState)
 
-    console.log(sortBy)
-
     const [currentPage, setCurrentPage] = useState(1)
 
     const {data:cutomers, isLoading, isFetching, isError, error } = useReadCustomersQuery({storeId:authInfo.store_id,page:currentPage, searchQuery:searchQuery, sortBy:sortBy},'readCustomers')
 
-    const handleCheckboxChange = (customerId) => {
-        setSelectedCustomers(prevSelectedCustomers => {
-            // Check if the maximum number of items has been reached
-            if (prevSelectedCustomers.length >= 5 && !prevSelectedCustomers.includes(customerId)) {
-                // If maximum reached and the current item is not already selected, return the previous array without modification
-                return prevSelectedCustomers;
-            } else {
-                if (prevSelectedCustomers.includes(customerId)) {
-                    // If already selected, remove it from the array
-                    return prevSelectedCustomers.filter(id => id !== customerId);
-                } else {
-                    // If not selected, add it to the array
-                    return [...prevSelectedCustomers, customerId];
-                }
-            }
-        });
+    const handleCheckboxChange = (customerId, imageId) => {
+        setSelectedCustomers({
+            customerId,
+            imageId
+        })
     };
+
+    console.log(selectedCustomers)
 
 
     return (
@@ -59,8 +48,8 @@ export const CustomersTable = ({ headItems, selectedCustomers, setSelectedCustom
                                         className="h-5 w-5 cursor-pointer rounded border-gray-300 focus:outline-none focus:ring-2 checked:bg-[#50B426] focus:ring-[#50B426]"
                                         type="checkbox"
                                         id={`Row${customer.id}`}
-                                        onChange={() => handleCheckboxChange(customer.id)}
-                                        checked={selectedCustomers.includes(customer.id)}
+                                        onChange={() => handleCheckboxChange(customer.id, customer.image_id)}
+                                        checked={selectedCustomers.customerId == customer.id}
                                     />
                                 </td>
                                 <td className="px-4 py-2 font-medium text-gray-900 flex items-center gap-3">

@@ -31,7 +31,7 @@ export const customersApiSlice = apiSlice.injectEndpoints({
             transformResponse: (response) => {
                 return response;
             },
-            //providesTags: (result, error, arg) => [{ type: 'Customers', id: arg }]
+            providesTags: (result, error, arg) => [{ type: 'Customers', id: arg }]
 
         }),
         addCustomer: builder.mutation({
@@ -57,26 +57,35 @@ export const customersApiSlice = apiSlice.injectEndpoints({
 
         }),
         editCustomer: builder.mutation({
-            query: (data) => ({
-                url: `${CUSTOMERS_URL}/edit/${data.customerId}?cutomerName=${data.fullName}`,
-                method: 'PUT',
-                body:{
-                    storeName:data.storeName,
-                    folderName:data.folderName,
-                    full_name:data.fullName,
-                    email:data.email,
-                    phone_number:data.phone,
-                    address:data.address,
-                    cutomer_type:data.customerType,
-                    image:data.file
-                }
-            })
+            query: (data) => {
+                const formData = new FormData();
+                formData.append('storeName', data.storeName);
+                formData.append('folderName', 'customers');
+                formData.append('full_name', data.fullName);
+                formData.append('email', data.email);
+                formData.append('phone_number', data.phone);
+                formData.append('address', data.address);
+                formData.append('cutomer_type', data.customerType);
+                formData.append('oldImage', data.oldImage);
+                formData.append('total_transactions', data.totalTransaction);
+                formData.append('total_debt', data.totalDebt);
+                formData.append('total_paid', data.totalPaid);
+                formData.append('image', data.file.file);
+
+                return {
+                    url: `${CUSTOMERS_URL}/edit/${data.customerId}?cutomerName=${data.fullName}&storeId=${data.storeId}`,
+                    method: 'PUT',
+                    body: formData
+                };
+            },
+            invalidatesTags: ['Customers']
         }),
         removeCustomer: builder.mutation({
             query: (data) => ({
                 url: `${CUSTOMERS_URL}/remove/${data.customerId}?imageId=${data.imageId}`,
                 method: 'DELETE',
-            })
+            }),
+            invalidatesTags: ['Customers']
         }),
 
     })
