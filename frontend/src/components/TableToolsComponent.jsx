@@ -7,10 +7,17 @@ import { MdOutlineDelete,MdOutlineRemoveRedEye } from "react-icons/md";
 import { FiFilter } from "react-icons/fi";
 import { BsSortDown,BsPencil } from "react-icons/bs";
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useGetCustomersTypesMutation } from '../features/api/customers/customersTypeApiSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { authInfoState } from '../features/slices/authSlice';
+import { setCustomerTypes } from '../features/slices/customerTypesSlice';
 
 
 export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, selected, setSortBy, sortBy, setOpenPopup, setEditMode }) => {
-    
+    const dispatch = useDispatch()
+    const { authInfo } = useSelector(authInfoState)
+
     const [openFilter, setOpenFilter] = useState(false)
     const [openSortBy, setOpenSortBy] = useState(false)
     const [sortElements, setSortElements] = useState([])
@@ -39,6 +46,21 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
         sortElementsFunc()
     },[department])
 
+    const [getCustomersTypes] = useGetCustomersTypesMutation()
+
+
+    const handleCustomerTypes = async () => {
+        console.log('hi')
+        if(department === 'Customers'){
+            try {
+                const res = await getCustomersTypes(authInfo.store_id).unwrap()
+                dispatch(setCustomerTypes({...res.data.customersTypes}))
+            } catch (error) {
+                toast.error(error.data.error)
+            }
+        }
+    }
+
 
     return (
     <div className='flex justify-between items-center px-6'>
@@ -63,6 +85,7 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
                 <button onClick={() => {
                     setOpenPopup(true);
                     setEditMode(true);
+                    handleCustomerTypes();
                 }} className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
                     <BsPencil className='text-[#50B426] text-xl'/>
                     <span>edit</span>
