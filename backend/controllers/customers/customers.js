@@ -195,8 +195,10 @@ exports.editCustomer = async (req, res, next) => {
 
         //retrive customerId from req params 
         const { customerId } =  req.params
+
+        console.log(customerId)
         //retrive Customer new values from req body 
-        const { full_name, email, phone_number, address, cutomer_type, oldImage } = req.body
+        const { full_name, email, phone_number, address, cutomer_type, oldImage, total_transactions, total_debt, total_paid } = req.body
 
         let imageId
         let imageUrl
@@ -207,6 +209,8 @@ exports.editCustomer = async (req, res, next) => {
             // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
             imageId = cloudinaryExtractPublicId(imageUrl)
         }
+
+
 
         //check if customerId Have a value 
         if(!customerId){
@@ -269,7 +273,11 @@ exports.editCustomer = async (req, res, next) => {
                 email,
                 phone_number,
                 address,
-                cutomer_type
+                cutomer_type,
+                total_transactions:total_transactions ? total_transactions : customer.total_transactions,
+                total_debt: total_debt ? total_debt : customer.total_debt,
+                total_paid: total_paid ? total_paid : customer.total_paid,
+
             },
             {
                 returning: true,
