@@ -10,7 +10,89 @@ const Products = require('../models/inventory/products');
 //cloudinaryUtils reusable functions
 const { cloudinaryExtractPublicId, deleteImage } = require('../utils/functions/cloudinary/cloudinaryUtils');
 const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds');
+const { getOrderOptions } = require('../utils/functions/orderOptions');
 
+
+exports.readSingleCategory = async (req, res, next) => {
+
+    try {
+        const { storeId, categoryId } = req.query;
+
+        if (!categoryId || !storeId) {
+            return next(new ErrorResponse('Category ID and Store ID are required', 400));
+        }
+        
+        const category = await Categories.findOne({
+            where: { 
+                store_id: storeId,
+                category_id: categoryId
+            }
+        })
+
+        if(!category){
+            return  next(new ErrorResponse('No Category Found!', 404))
+        }
+
+        const products = await Products.findAll({
+            where:{
+                store_id: storeId,
+                category_id:category.category_id
+            }
+        })
+    
+        res.status(200).json({ category, products });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.readCategories = async (req, res, next) => {
+
+    try {
+        const { page, limit = 10, storeId, searchQuery, sort, column } = req.query;
+
+        if (!page || !storeId) {
+            return next(new ErrorResponse('Page Number and Store ID are required', 400));
+        }
+        
+        const totalCount = await Categories.count({ where: { store_id: storeId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            store_id: storeId,
+            [Op.or]: [
+                { name: { [Op.iLike]: `%${searchQuery}%` } },
+                { category_id: { [Op.like]: `%${searchQuery}%` } },
+            ]
+        } : { store_id: storeId };
+
+        const categories = await Categories.findAll({
+            where: whereClause,
+            limit: searchQuery ? undefined : parseInt(limit),
+            offset: searchQuery ? undefined : (currentPage - 1) * parseInt(limit),
+            order:column && sort ? getOrderOptions(column, sort) : []
+        });
+
+        const categoryProductCounts = await Promise.all(categories.map(async category => {
+            const productCount = await Products.count({ where: { category_id: category.category_id } });
+            return {
+                categoryId: category.category_id,
+                productCount: productCount
+            };
+        }));
+
+        return res.status(200).json({ totalCount, totalPages, currentPage, categories, categoryProductCounts });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 
 exports.addCategory = async (req, res, next) => {

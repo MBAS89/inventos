@@ -11,6 +11,9 @@ const validateAddEditCategory = async (req, res, next) => {
         //retrieve category name from req params to check if the category name is used before uploading to cloudinary
         const { categoryName } = req.params
 
+        //retrieve store id from rquest query
+        const  { storeId } = req.query
+
         // Check if all fields are present
         if (!categoryName) {
             return next(new ErrorResponse("Category Name Is required", 422));
@@ -19,7 +22,8 @@ const validateAddEditCategory = async (req, res, next) => {
         // Check if the Category name is already exists
         const existingCategory = await Categories.findOne({
             where: {
-                name: categoryName
+                name: categoryName, 
+                store_id: storeId
             }
         });
 
