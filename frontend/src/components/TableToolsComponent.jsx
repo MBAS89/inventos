@@ -6,7 +6,7 @@ import { MdOutlineCancel } from "react-icons/md";
 import { MdOutlineDelete,MdOutlineRemoveRedEye } from "react-icons/md";
 import { FiFilter } from "react-icons/fi";
 import { BsSortDown,BsPencil } from "react-icons/bs";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useGetCustomersTypesMutation } from '../features/api/customers/customersTypeApiSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ import { setCustomerTypes } from '../features/slices/customerTypesSlice';
 
 
 export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, selected, setSortBy, sortBy, setOpenPopup, setEditMode }) => {
+    const navigate = useNavigate()
     const dispatch = useDispatch()
     const { authInfo } = useSelector(authInfoState)
 
@@ -40,6 +41,16 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
                         value:{sort:'asc', column:'total_transactions'}
                     }
                 ])
+            }else if(department === 'Categoires'){
+                setSortElements([
+                    {
+                        title:'Ascending',
+                        value:{sort:'asc', column:'name'}
+                    },{
+                        title:'Descending',
+                        value:{sort:'desc', column:'name'}
+                    }
+                ])
             }
         }
     
@@ -50,7 +61,6 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
 
 
     const handleCustomerTypes = async () => {
-        console.log('hi')
         if(department === 'Customers'){
             try {
                 const res = await getCustomersTypes(authInfo.store_id).unwrap()
@@ -58,6 +68,14 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
             } catch (error) {
                 toast.error(error.data.error)
             }
+        }
+    }
+
+    const handleView = () => {
+        if(department === 'Customers'){
+            navigate(`/dashboard/customers/single-customer/${selected[Object.keys(selected)[0]]}`)
+        }else if(department === 'Categoires'){
+            navigate(`/dashboard/inventory/single-category/${selected[Object.keys(selected)[0]]}`)
         }
     }
 
@@ -76,10 +94,10 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
                 <span>export to excel</span>
             </button>
             {selected && 
-                <Link to={`/dashboard/customers/single-customer/${selected[Object.keys(selected)[0]]}`} className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
+                <button onClick={handleView} className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
                     <MdOutlineRemoveRedEye className='text-[#50B426] text-xl'/>
                     <span>view</span>
-                </Link>
+                </button>
             }
             {selected && 
                 <button onClick={() => {

@@ -6,8 +6,8 @@ const INVENTORY_URL = '/api/v1/store/inventory/category'
 export const categoryApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         readCategories: builder.query({
-            query: (data) => ({
-                url: `${INVENTORY_URL}/read?storeId=${data.storeId}&page=${data.page}&sort=${data.sortBy.sort}&column=${data.sortBy.column}&searchQuery=${data.searchQuery}`,
+            query: (data) => ({//
+                url: `${INVENTORY_URL}/read?page=${data.page}&sort=${data.sortBy.sort}&column=${data.sortBy.column}&searchQuery=${data.searchQuery ? data.searchQuery : ''}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {
@@ -25,21 +25,19 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
 
         readCategory: builder.query({
             query: (data) => ({
-                url: `${INVENTORY_URL}/read/single?storeId=${data.storeId}&customerId=${data.customerId}`,
+                url: `${INVENTORY_URL}/read/single?categoryId=${data.categoryId}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {
                 return response;
             },
-            providesTags: (result, error, arg) => [{ type: 'Customers', id: arg }]
+            providesTags: (result, error, arg) => [{ type: 'Categories', id: arg }]
 
         }),
         addCategory: builder.mutation({
             query: (data) => {
                 const formData = new FormData();
-                formData.append('storeName', data.storeName);
                 formData.append('folderName', 'categories');
-                formData.append('store_id', data.storeId);
                 formData.append('categoryName', data.categoryName);
                 formData.append('image', data.file.file);
 
@@ -55,33 +53,24 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
         editCategory: builder.mutation({
             query: (data) => {
                 const formData = new FormData();
-                formData.append('storeName', data.storeName);
-                formData.append('folderName', 'customers');
-                formData.append('full_name', data.fullName);
-                formData.append('email', data.email);
-                formData.append('phone_number', data.phone);
-                formData.append('address', data.address);
-                formData.append('cutomer_type', data.customerType);
-                formData.append('oldImage', data.oldImage);
-                formData.append('total_transactions', data.totalTransaction);
-                formData.append('total_debt', data.totalDebt);
-                formData.append('total_paid', data.totalPaid);
+                formData.append('folderName', 'categories');
+                formData.append('categoryName', data.categoryName);
                 formData.append('image', data.file.file);
 
                 return {
-                    url: `${INVENTORY_URL}/edit/${data.customerId}?cutomerName=${data.fullName}&storeId=${data.storeId}`,
+                    url: `${INVENTORY_URL}/edit/${data.categoryId}/${data.categoryName}`,
                     method: 'PUT',
                     body: formData
                 };
             },
-            invalidatesTags: ['Customers']
+            invalidatesTags: ['Categories']
         }),
         removeCategory: builder.mutation({
             query: (data) => ({
-                url: `${INVENTORY_URL}/remove/${data.customerId}?imageId=${data.imageId}`,
+                url: `${INVENTORY_URL}/remove/${data.categoryId}?imageId=${data.imageId}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Customers']
+            invalidatesTags: ['Categories']
         }),
 
     })
