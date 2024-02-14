@@ -51,10 +51,12 @@ const Auth = async (req, res, next) => {
         const department = 'casher'
 
         //check if this token has been here before by checking the cache
-        const cachedToken = cache.get(req.cookies.jwt)
+        const cachedToken = req.cookies.jwt ? cache.get(req.cookies.jwt) : false
+
         if(cachedToken){
             //If this token has been here before i want to check if it pass or failed in verfiy before
             if(cachedToken.pass && cachedToken.department === department){
+                req.authData =  cachedToken.payload
                 //access accepted
                 return next()
             }else{
@@ -77,6 +79,8 @@ const Auth = async (req, res, next) => {
                 //verify token and set all token value in decoded variable this will hold the key jwt the payload the data and the expiration
                 const decoded = jwt.verify(token, process.env.JWT_SECRT)
 
+                req.authData =  decoded.payload
+
                 //im doing a double check here for safty this i can 
                 //just say if decoded.payload.role === 'owner' and let in but im adding extra layer of scurity
                 //just to make sure info is right you can just say if decoded.payload.role === 'owner' and it will work fine
@@ -91,7 +95,7 @@ const Auth = async (req, res, next) => {
                 //if he is an owner that mean he have all the permissions
                 if(owner){
                     // Set data in cache with TTL and department information and pass value
-                    cache.set(req.cookies.jwt, { pass: true, department: department }, TTL_SECONDS);
+                    cache.set(req.cookies.jwt, { pass: true, department: department, payload:decoded.payload }, TTL_SECONDS);
                     next()
                 }else{
                     //if he is not an owner we will check if he is an employee
@@ -143,7 +147,6 @@ const Auth = async (req, res, next) => {
             return next(new ErrorResponse("Unauthorized Access: No Token", 401)); 
         }
     } catch (error) {
-        console.log(error)
         return next(new ErrorResponse("Unauthorized Access", 401)); 
     }
 

@@ -11,8 +11,12 @@ const validateAddEditCategory = async (req, res, next) => {
         //retrieve category name from req params to check if the category name is used before uploading to cloudinary
         const { categoryName } = req.params
 
-        //retrieve store id from rquest query
-        const  { storeId } = req.query
+        //retrieve store id from rquest authData
+        const storeId = req.authData.store_id
+
+        if(!storeId){
+            return next(new ErrorResponse("Store ID Is required", 422));
+        }
 
         // Check if all fields are present
         if (!categoryName) {

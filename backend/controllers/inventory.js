@@ -1,3 +1,5 @@
+const { Op } = require('sequelize');
+
 //error response middleware
 const ErrorResponse = require('../utils/errorResponse')
 
@@ -16,7 +18,8 @@ const { getOrderOptions } = require('../utils/functions/orderOptions');
 exports.readSingleCategory = async (req, res, next) => {
 
     try {
-        const { storeId, categoryId } = req.query;
+        const storeId = req.authData.store_id
+        const { categoryId } = req.query;
 
         if (!categoryId || !storeId) {
             return next(new ErrorResponse('Category ID and Store ID are required', 400));
@@ -51,7 +54,8 @@ exports.readSingleCategory = async (req, res, next) => {
 exports.readCategories = async (req, res, next) => {
 
     try {
-        const { page, limit = 10, storeId, searchQuery, sort, column } = req.query;
+        const storeId = req.authData.store_id
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
 
         if (!page || !storeId) {
             return next(new ErrorResponse('Page Number and Store ID are required', 400));
@@ -67,14 +71,14 @@ exports.readCategories = async (req, res, next) => {
             store_id: storeId,
             [Op.or]: [
                 { name: { [Op.iLike]: `%${searchQuery}%` } },
-                { category_id: { [Op.like]: `%${searchQuery}%` } },
+                { category_id: searchQuery ? searchQuery : null},
             ]
         } : { store_id: storeId };
 
         const categories = await Categories.findAll({
             where: whereClause,
-            limit: searchQuery ? undefined : parseInt(limit),
-            offset: searchQuery ? undefined : (currentPage - 1) * parseInt(limit),
+            limit: searchQuery ? null : parseInt(limit),
+            offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
             order:column && sort ? getOrderOptions(column, sort) : []
         });
 
@@ -98,9 +102,10 @@ exports.readCategories = async (req, res, next) => {
 exports.addCategory = async (req, res, next) => {
 
     try {
-
-        //retrive storeId & categoryName from req body 
-        const { storeId, categoryName } = req.body;
+        //retrive storeId from token 
+        const storeId = req.authData.store_id
+        //retrive categoryName from req body 
+        const { categoryName } = req.body;
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -132,7 +137,6 @@ exports.addCategory = async (req, res, next) => {
 }
 
 exports.removeCategory = async (req, res, next) => {
-
    try {
 
         //retrive categoryId from req params 
@@ -165,7 +169,7 @@ exports.removeCategory = async (req, res, next) => {
             cloudinary:result,
             message:"Category Deleted",
         })
-
+        
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
@@ -173,47 +177,66 @@ exports.removeCategory = async (req, res, next) => {
 }
 
 exports.editCategory = async (req, res, next) => {
+
     try {
         //retrive categoryId from req params 
         const { categoryId } = req.params
         //retrive categoryId from req body 
         const { categoryName } = req.body;
 
+
+
         //fetch the old image id category 
         const category = await Categories.findOne({
             where: {
                 category_id: categoryId
             },
-            attributes: ['image_id']
+            attributes: ['image_id', 'image']
         });
 
         // If the category exists, extract the image ID
         const oldCategoryImageId = category ? category.image_id : null;
 
+        let imageId
+        let imageUrl
         // Access Cloudinary image URL after uploading
-        const imageUrl = req.file.path;
-        // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
-        const imageId = cloudinaryExtractPublicId(imageUrl)
+        if(req.file){
+            imageUrl = req.file.path;
+
+            // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
+            imageId = cloudinaryExtractPublicId(imageUrl)
+        }
 
         //Edit category in database with new values
         const updatedCategory = await Categories.update(
-            { name: categoryName, image: imageUrl, image_id: imageId },
+            { 
+                name: categoryName,
+                image: imageUrl ? imageUrl : category.image,
+                image_id: imageId 
+            },
             { returning: true, where: { category_id: categoryId } }
         );
 
         //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
         if(!updatedCategory){
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
-        //this will send a request to cloudinary to delete the old image from there and return ok or fail 
-        const result = await deleteImage(oldCategoryImageId)
+        let result
+        if(req.file){
+            //this will send a request to cloudinary to delete the old image from there and return ok or fail 
+            result = await deleteImage(oldCategoryImageId)
+        }
 
         //return success response with message
         res.status(201).json({
             status:"success",
             message:"Category Updated",
-            cloudinary:result,
+            cloudinary:result || 'no new Image',
             results:1,
             data: {
                 category:updatedCategory
