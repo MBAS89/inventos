@@ -7,7 +7,7 @@ export const SingleCategory = () => {
     <div className='bg-slate-200 min-h-screen pb-10'>
         <DashHeader/>
         <div>
-            <CategoryProfile page='Category'/>
+            <CategoryProfile page="Category" />
         </div>
     </div>
   )

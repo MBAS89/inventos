@@ -8,9 +8,7 @@ import { SearchComponents } from '../../components/SearchComponents'
 import {TableToolsComponent} from '../../components/TableToolsComponent'
 import { AddAndEditCategory } from './AddAndEditCategory'
 import { DeletePopup } from '../../components/DeletePopup'
-import { authInfoState } from '../../features/slices/authSlice'
 import { useReadCategoriesQuery } from '../../features/api/inventory/categoryApiSlice'
-import { useSelector } from 'react-redux'
 import { Loader } from '../reusable-components/Loader'
 
 export const Categories = () => {
@@ -21,11 +19,9 @@ export const Categories = () => {
     const [editMode, setEditMode] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState('');
 
-    const { authInfo } = useSelector(authInfoState)
-
     const [currentPage, setCurrentPage] = useState(1)
     
-    const {data:categories, isLoading, isFetching, isError, error } = useReadCategoriesQuery({storeId:authInfo.store_id,page:currentPage, searchQuery:searchQuery, sortBy:sortBy},'readCustomers')
+    const {data:categories, isLoading, isFetching, isError, error } = useReadCategoriesQuery({page:currentPage, searchQuery:searchQuery, sortBy:sortBy},'readCustomers')
     
     const handleCheckboxChange = (categoryId, imageId) => {
         setSelectedCategory({

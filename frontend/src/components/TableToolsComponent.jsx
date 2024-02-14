@@ -41,7 +41,7 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
                         value:{sort:'asc', column:'total_transactions'}
                     }
                 ])
-            }else if(department === 'Categoires'){
+            }else if(department === 'Categoires' || department === 'Brands'){
                 setSortElements([
                     {
                         title:'Ascending',
@@ -76,6 +76,8 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
             navigate(`/dashboard/customers/single-customer/${selected[Object.keys(selected)[0]]}`)
         }else if(department === 'Categoires'){
             navigate(`/dashboard/inventory/single-category/${selected[Object.keys(selected)[0]]}`)
+        }else if(department === "Brands"){
+            navigate(`/dashboard/inventory/single-brand/${selected[Object.keys(selected)[0]]}`)
         }
     }
 

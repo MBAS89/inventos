@@ -5,13 +5,10 @@ import { AiOutlineCloseCircle } from "react-icons/ai"
 import { BiLoaderCircle } from "react-icons/bi";
 
 import { DropZone } from '../DropZone'
-import { useSelector } from 'react-redux'
-import { authInfoState } from '../../features/slices/authSlice'
 import { useAddCategoryMutation, useEditCategoryMutation, useReadCategoryQuery } from '../../features/api/inventory/categoryApiSlice'
 import { toast } from 'react-toastify'
 
 export const AddAndEditCategory = ({ setOpenPopup, editMode, selected, setEditMode, setSelected }) => {
-    const { authInfo } = useSelector(authInfoState)
 
     const [addCategory, {isLoading, error}] = useAddCategoryMutation()
 
