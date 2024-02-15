@@ -554,6 +554,36 @@ exports.editBrand = async (req, res, next) => {
  * 
  * 
  * */
+exports.readBrandsAndCategories = async (req, res, next) => {
+    try {
+        const storeId = req.authData.store_id
+
+        if(!storeId){
+            return next(new ErrorResponse('Store ID are required', 400));
+        }
+
+        const brands = await Brands.findAll({
+            where:{
+                store_id:storeId
+            },
+            attributes:['brand_id', 'name']
+        })
+
+        const categories = await Categories.findAll({
+            where:{
+                store_id:storeId
+            },
+            attributes:['category_id', 'name']
+        })
+
+        return res.status(200).json({ brands, categories });
+
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 exports.readProducts = async (req, res, next) => {
 
@@ -665,8 +695,8 @@ exports.addProduct = async (req, res, next) => {
             price: price,
             retail_price: retailPrice,
             wholesale_price: wholesalePrice,
-            unit,
-            unit_catergory,
+            unit: unit || null,
+            unit_catergory: unit_catergory || null,
             sale_price: salePrice || null,
             on_sale: onSale || false,
             qty: qty,
