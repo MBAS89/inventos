@@ -7,38 +7,6 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 export const Inventory = () => {
     
     const location = useLocation()
-    const headItems = [
-        {
-            title:"product info"
-        },
-        {
-            title:"Sku"
-        },
-        {
-            title:"qty"
-        },
-        {
-            title:"price"
-        },
-        {
-            title:"retail price"
-        },
-        {
-            title:"wholesale price"
-        },
-        {
-            title:"category"
-        },
-        {
-            title:"brand"
-        },
-        {
-            title:"created date"
-        },
-        {
-            title:"updated date"
-        }
-    ]
 
     return (
     <div className=' bg-gray-100 h-[calc(100vh-64px)]'>
