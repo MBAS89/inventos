@@ -27,40 +27,62 @@ const Products = sequelize.define('products', {
         type: DataTypes.TEXT,
         allowNull: false,
     },
-    price: {
+    unit:{
+        type: DataTypes.STRING(10),
+        allowNull: true,
+    },
+    unit_catergory:{
+        type: DataTypes.STRING(30),
+        allowNull: true,
+    },
+    unit_value:{
+        type: DataTypes.DECIMAL,
+        allowNull: true,
+    },
+    cost_unit: {
         type: DataTypes.DECIMAL,
         allowNull: false,
     },
-    retail_price: {
+    retail_price_unit: {
         type: DataTypes.DECIMAL,
         allowNull: false,
     },
-    wholesale_price: {
+    wholesale_price_unit: {
         type: DataTypes.DECIMAL,
         allowNull: false,
     },
-    sale_price: {
+    pieces_per_unit:{
+        type: DataTypes.DECIMAL,
+        allowNull: false,
+    },
+    cost_piece:{
+        type: DataTypes.DECIMAL,
+        allowNull: true,
+    },
+    retail_price_piece:{
+        type: DataTypes.DECIMAL,
+        allowNull: true,
+    },
+    wholesale_price_piece:{
+        type: DataTypes.DECIMAL,
+        allowNull: true,
+    },
+    qty: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    sale_price_unit: {
+        type: DataTypes.DECIMAL,
+    },
+    sale_price_piece: {
         type: DataTypes.DECIMAL,
     },
     on_sale: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
-    qty: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    unit:{//pack
-        type: DataTypes.STRING(10),
-        allowNull: true,
-    },
-    unit_catergory:{//other
-        type: DataTypes.STRING(30),
-        allowNull: true,
-    },
-    unit_value:{//2
-        type: DataTypes.DECIMAL,
-        allowNull: true,
+    unit_of_measurement:{
+        type: DataTypes.ARRAY(DataTypes.JSONB),
     },
     description: {
         type: DataTypes.TEXT,

@@ -13,6 +13,7 @@ const Products = require('../models/inventory/products');
 const { cloudinaryExtractPublicId, deleteImage } = require('../utils/functions/cloudinary/cloudinaryUtils');
 const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds');
 const { getOrderOptions } = require('../utils/functions/orderOptions');
+const { generateUniqueSKU } = require('../utils/functions/genrateSku');
 
 
 
@@ -665,7 +666,11 @@ exports.addProduct = async (req, res, next) => {
         const storeId = req.authData.store_id
 
         //retrive product values from req body 
-        const { productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale, unit, unit_catergory  } = req.body;
+        const { name, sku, unit, unit_catergory, unit_value, cost_unit, 
+            retail_price_unit, wholesale_price_unit, pieces_per_unit, cost_piece, 
+            retail_price_piece, wholesale_price_piece, qty, sale_price_unit, sale_price_piece,
+            on_sale, unit_of_measurement, description, category_id, brand_id
+        } = req.body;
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -673,7 +678,11 @@ exports.addProduct = async (req, res, next) => {
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
         //Check if all Required Fileds are there
-        const requiredFields = ['storeId', 'productName', 'sku', 'price', 'retailPrice', 'wholesalePrice', 'qty', 'unit', 'unit_catergory'];
+        const requiredFields = ['storeId', 'name', 'sku', 'unit', 'unit_catergory',
+            'cost_unit', 'retail_price_unit', 'wholesale_price_unit','pieces_per_unit',
+            'qty'
+        ];
+
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
@@ -688,18 +697,25 @@ exports.addProduct = async (req, res, next) => {
         //INSERT this Product to the data base and set || null for the optianl fileds 
         const newProduct = await Products.create({
             store_id: storeId,
-            name: productName,
+            name,
             image: imageUrl,
             image_id: imageId,
-            sku: sku,
-            price: price,
-            retail_price: retailPrice,
-            wholesale_price: wholesalePrice,
-            unit: unit || null,
-            unit_catergory: unit_catergory || null,
-            sale_price: salePrice || null,
-            on_sale: onSale || false,
-            qty: qty,
+            sku,
+            unit,
+            unit_catergory,
+            unit_value: unit_value || 1,
+            cost_unit,
+            retail_price_unit,
+            wholesale_price_unit,
+            pieces_per_unit,
+            cost_piece: cost_piece || null,
+            retail_price_piece: retail_price_piece || null,
+            wholesale_price_piece: wholesale_price_piece || null,
+            qty,
+            sale_price_unit: sale_price_unit || null,
+            sale_price_piece: sale_price_piece || null,
+            on_sale: on_sale || false,
+            unit_of_measurement,
             description: description || null,
             category_id: category_id || null,
             brand_id: brand_id || null
@@ -875,3 +891,18 @@ exports.editProduct = async (req, res, next) => {
         next(error)
     }
 }
+
+exports.generateSku = async (req, res, next) => {
+    try {
+        const storeId = req.authData.store_id
+        const newSKU = await generateUniqueSKU(storeId);
+        
+        //return success response with message
+        res.status(200).json({newSKU})
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
