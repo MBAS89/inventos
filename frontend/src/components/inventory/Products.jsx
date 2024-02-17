@@ -28,7 +28,6 @@ export const Products = () => {
             imageId
         })
     };
-    
 
     const headItems = [
         {
@@ -41,19 +40,31 @@ export const Products = () => {
             title:"qty"
         },
         {
-            title:"price"
+            title:"unit cost"
         },
         {
-            title:"retail price"
+            title:"unit retail price"
         },
         {
-            title:"wholesale price"
+            title:"unit wholesale price"
+        },
+        {
+            title:"piece cost"
+        },
+        {
+            title:"piece retail price"
+        },
+        {
+            title:"piece wholesale price"
         },
         {
             title:"on sale"
         },
         {
-            title:"sale price"
+            title:"unit sale price"
+        },
+        {
+            title:"piece sale price"
         },
         {   
             title:"category"
@@ -85,6 +96,7 @@ export const Products = () => {
         }
     } 
 
+
   return (
     <div>
         <SearchComponents placeholder="Search for product" searchQuery={searchQuery} setsearchQuery={setsearchQuery} actionName="Add Prodcut" setOpenPopup={setOpenPopup}/>
@@ -102,7 +114,13 @@ export const Products = () => {
                             {products.products.map((product) => (
                                 <tr key={product.product_id}>
                                     <td className="px-4 py-2">
-                                        <input className="h-5 w-5 rounded border-gray-300" type="checkbox" id="Row1"/>
+                                        <input
+                                            className="h-5 w-5 cursor-pointer rounded border-gray-300 focus:outline-none focus:ring-2 checked:bg-[#50B426] focus:ring-[#50B426]"
+                                            type="checkbox"
+                                            id={`Row${product.product_id}}`}
+                                            onChange={() => handleCheckboxChange(product.product_id, product.image_id)}
+                                            checked={selectedProduct.productId == product.product_id}
+                                        />
                                     </td>
                                     <td className="px-4 py-2 font-medium text-gray-900 flex items-center gap-3">
                                         <div className=' bg-gray-100 p-1 rounded-md w-[20%] flex items-center justify-center'>
@@ -114,21 +132,33 @@ export const Products = () => {
                                     </td>
                                     <td className="px-4 py-2 text-gray-700">{product.sku}</td>
                                     <td className="px-4 py-2 text-gray-700">{product.qty}</td>
-                                    <td className="px-4 py-2 text-[#0070E0] font-bold">${product.price}</td>
-                                    <td className="px-4 py-2 text-[#50B426] font-bold">${product.retail_price}</td>
-                                    <td className="px-4 py-2 font-bold text-[#4454DC]">${product.wholesale_price}</td>
+                                    <td className="px-4 py-2 text-[#0070E0] font-bold">${product.cost_unit}</td>
+                                    <td className="px-4 py-2 text-[#50B426] font-bold">${product.retail_price_unit}</td>
+                                    <td className="px-4 py-2 font-bold text-[#4454DC]">${product.wholesale_price_unit}</td>
+                                    <td className="px-4 py-2 text-[#0070E0] font-bold">
+                                        {product.wholesale_price_piece ? `$${parseFloat(product.cost_piece).toFixed(2)}` : '-'}
+                                    </td>
+                                    <td className="px-4 py-2 text-[#50B426] font-bold">
+                                        {product.wholesale_price_piece ? `$${parseFloat(product.retail_price_piece).toFixed(2)}` : '-'}
+                                    </td>
+                                    <td className="px-4 py-2 font-bold text-[#4454DC]">
+                                        {product.wholesale_price_piece ? `$${parseFloat(product.wholesale_price_piece).toFixed(2)}` : '-'}
+                                    </td>
                                     <td className="px-4 py-2 text-gray-700">
                                         {handleOnSaleStatus(product.on_sale)}
                                     </td>
-                                    <td className="px-4 py-2 font-bold text-orange-300">${product.sale_price ? product.sale_price : 0}</td>
+                                    <td className="px-4 py-2 font-bold text-orange-300">${product.on_sale ? product.sale_price_unit : '-'}</td>
+                                    <td className="px-4 py-2 font-bold text-orange-300">
+                                        {product.wholesale_price_piece && product.on_sale ? `$${parseFloat(product.sale_price_piece).toFixed(2)}` : '-'}
+                                    </td>
                                     <td className="px-4 py-2 text-gray-700">
                                         <span className="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-sm text-purple-700">
-                                        {/*{item.category}*/}
+                                            {product.category ?  product.category.name : 'no category'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-gray-700">
                                         <span className="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-sm text-purple-700">
-                                        {/*{item.brand}*/}
+                                            {product.brand ?  product.brand.name : 'no brand'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-gray-700">{format(parseISO(product.createdAt), "dd/MM/yyyy h:mmaaa")}</td>

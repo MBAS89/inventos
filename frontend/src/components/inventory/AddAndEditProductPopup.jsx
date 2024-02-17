@@ -7,11 +7,13 @@ import { CiBarcode } from "react-icons/ci";
 import { BiLoaderCircle } from "react-icons/bi";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { BiSolidTrashAlt } from "react-icons/bi";
+import { MdAutoFixHigh } from "react-icons/md";
+
 
 
 
 import { DropZone } from '../DropZone'
-import { useAddProductMutation, useGenerateSkuMutation, useReadBrandsAndCategoriesQuery, useReadProductQuery } from '../../features/api/inventory/productApiSlice'
+import { useAddProductMutation, useEditProductMutation, useGenerateSkuMutation, useReadBrandsAndCategoriesQuery, useReadProductQuery } from '../../features/api/inventory/productApiSlice'
 
 import { allUnitsBasedOnCategory } from 'uniti-price-tool'
 import { toast } from 'react-toastify';
@@ -19,10 +21,6 @@ import { TableHead } from '../TableHead';
 import { checkRequiredFields } from '../../functions/checkRequiredFileds';
 
 export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEditMode, setSelected }) => {       
-
-    const { data, isLoading: isdataLoading } = editMode 
-    ? useReadProductQuery({productId: selected[Object.keys(selected)[0]]}, 'readProduct')
-    : { data: null, isLoading: false };
 
     const { data:brandsAndCategories, isSuccess } = useReadBrandsAndCategoriesQuery()
 
@@ -117,15 +115,22 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
     const [genrateDisabled, setGenrateDisabled] = useState(false)
     const [countdown, setCountdown] = useState(60); 
 
-    const handleGenrateSku = async () => {
+    const handleGenrateSku = (main) => async () => {
         try {
             const res = await generateSku().unwrap()
             toast.success('SKU Generated')
 
-            setProductData((prevState) => ({
-                ...prevState,
-                sku: res.newSKU,
-            }));
+            if(main){
+                setProductData((prevState) => ({
+                    ...prevState,
+                    sku: res.newSKU,
+                }));
+            }else{
+                setCustomUnitData((prevState) => ({
+                    ...prevState,
+                    sku: res.newSKU,
+                }));
+            }
 
             setGenrateDisabled(true)
 
@@ -167,7 +172,10 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
     const handleAddCustomUnit = () => {
         setProductData(prevState => ({
             ...prevState,
-            unitOfMeasurement: [...prevState.unitOfMeasurement, customUnitData]
+            unitOfMeasurement: [
+                ...(prevState?.unitOfMeasurement || []),
+                customUnitData
+            ]
         }));
 
         setCustomUnitData({
@@ -273,15 +281,128 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
     }
 
 
+    const { data, isLoading: isdataLoading } = editMode 
+    ? useReadProductQuery({productId: selected[Object.keys(selected)[0]]}, 'readProduct')
+    : { data: null, isLoading: false };
+
+    useEffect(() => {
+        if(data){    
+            setFile(perviousState => ({
+                ...perviousState,
+                imageUrl:data.product.image
+            }))
+    
+            setProductData(perviousState => ({
+                ...perviousState,
+                productName:data.product.name,
+                sku:data.product.sku,
+                unit:data.product.unit,
+                unitCatergory:data.product.unit_catergory,
+                unitValue:data.product.unit_value,
+                costUnit:data.product.cost_unit,
+                retailUnitPrice:data.product.retail_price_unit,
+                wholesaleUnitPrice:data.product.wholesale_price_unit,
+                piecesPerUnit:data.product.pieces_per_unit,
+                unitOfMeasurement:data.product.unit_of_measurement,
+                pieceCost:data.product.cost_piece,
+                retailPiece:data.product.retail_price_piece,
+                wholesalePiece:data.product.wholesale_price_piece,
+                qty:data.product.qty,
+                unitSalePrice:data.product.sale_price_unit,
+                pieceSalePrice:data.product.sale_price_piece,
+                onSale:data.product.on_sale,
+                description:data.product.description,
+                brand:data.product.brand_id,
+                category:data.product.store_id
+            }))
+        }
+    },[editMode, data])
+
+    const [editProduct, {isLoading:isEditLoading , error:editError}] = useEditProductMutation()
+
+    const handleEditProduct = async (e) => {
+        e.preventDefault()
+
+        const requiredFileds = ['productName', 'sku', 'unit', 'unitCatergory','costUnit', 
+            'retailUnitPrice', 'wholesaleUnitPrice','qty' 
+        ]
+
+        const notEmpty = checkRequiredFields(productData, requiredFileds)
+
+        if(notEmpty || !file){
+            return toast.error(notEmpty || 'Missing Image Please Upload image!')
+        }
+
+        const payload = {
+            file,
+            productName,
+            sku,
+            unit,
+            unitCatergory,
+            unitValue,
+            costUnit,
+            retailUnitPrice,
+            wholesaleUnitPrice,
+            piecesPerUnit,
+            unitOfMeasurement,
+            pieceCost,
+            retailPiece,
+            wholesalePiece,
+            qty,
+            unitSalePrice,
+            pieceSalePrice,
+            onSale,
+            description,
+            brand,
+            category,
+            productId:data.product.product_id
+        }
+
+
+        try {
+            const res = await editProduct(payload).unwrap()
+            toast.success(res.message)
+            setFile(null)
+            setProductData({
+                productName:'',
+                sku:'',
+                unit:'',
+                unitCatergory:'',
+                unitValue:'',
+                costUnit:'',
+                retailUnitPrice:'',
+                wholesaleUnitPrice:'',
+                piecesPerUnit:'',
+                unitOfMeasurement:[],
+                pieceCost:'',
+                retailPiece:'',
+                wholesalePiece:'',
+                qty:'',
+                unitSalePrice:'',
+                pieceSalePrice:'',
+                onSale:false,
+                description:'',
+                brand:'',
+                category:''
+            })
+            setEditMode(false)
+            setOpenPopup(false); 
+            setSelected('')
+        } catch (error) {
+            toast.error(error.data.error)
+        }
+    }
 
 
     return (
         <section className="overflow-auto bg-white left-[20%] top-[7%] h-[50rem] w-[70rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
             <div className='relative w-full bg-black'>
-                <AiOutlineCloseCircle onClick={() => setOpenPopup(false)} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
+                <AiOutlineCloseCircle onClick={() => {setOpenPopup(false); setEditMode(false)}} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
             </div>
-            <h2 className='text-[2.5rem] font-bold text-center text-gray-500 capitalize mt-12'>Add Product</h2>
-            <form onSubmit={handleAddProdcut} className='flex flex-col gap-10 w-[70%] mx-auto mt-5'>
+            <h2 className='text-[2.5rem] font-bold text-center text-gray-500 capitalize mt-12'>
+                {editMode ?'Edit Product' :'Add Product'}
+            </h2>
+            <form onSubmit={editMode ? handleEditProduct : handleAddProdcut} className='flex flex-col gap-10 w-[70%] mx-auto mt-5'>
                 <DropZone setFile={setFile} file={file} className="border-[2px] border-dashed py-8 border-[#50B426] cursor-pointer w-[60%] text-center px-2" />
                 <label htmlFor="productName" className="relative block overflow-hidden rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
                     <input value={productName} onChange={onChange} type="text" id="productName" placeholder='' name="productName"  className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
@@ -297,7 +418,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                         </span>
                     </label>
                     <div className={`flex items-center gap-2 w-[30%]`}>
-                        <button disabled={genrateDisabled} type="button" onClick={handleGenrateSku} className={` ${!sku ? 'w-[100%]' : 'w-[90%]'} ${genrateDisabled ? 'bg-gray-300' : 'bg-[#50B426] hover:bg-[#80e057]' }  flex gap-1 items-center  text-white p-4 rounded-md`}>
+                        <button disabled={genrateDisabled} type="button" onClick={handleGenrateSku(true)} className={` ${!sku ? 'w-[100%]' : 'w-[90%]'} ${genrateDisabled ? 'bg-gray-300' : 'bg-[#50B426] hover:bg-[#80e057]' }  flex gap-1 items-center  text-white p-4 rounded-md`}>
                             {generateSkuLoading &&
                                 <BiLoaderCircle className='text-[1.4rem] animate-spin'/>
                             }
@@ -390,20 +511,20 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                 {showPieceFileds && (
                     <div className='flex items-center w-full gap-4'>
                         <label htmlFor="piecesPerUnit" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                            <input value={piecesPerUnit} onChange={onChange} type="number" id="piecesPerUnit" name='piecesPerUnit' placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                            <input value={piecesPerUnit ? piecesPerUnit : ''} onChange={onChange} type="number" id="piecesPerUnit" name='piecesPerUnit' placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                             <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                                 Pieces Per Unit
                             </span>
                         </label>
                         <label htmlFor="pieceCost" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                            <input value={pieceCost} onChange={onChange} type="number" id="pieceCost" name='pieceCost' placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                            <input  value={pieceCost ? pieceCost : ''} onChange={onChange} type="number" id="pieceCost" name='pieceCost' placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                             <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                                 Piece Cost
                             </span>
                         </label>
                         <div className='w-full flex flex-col justify-center items-center'>
                             <label htmlFor="retailPiece" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                                <input value={retailPiece} onChange={onChange} type="number" id="retailPiece" name='retailPiece'  placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                                <input value={retailPiece ? retailPiece : ''} onChange={onChange} type="number" id="retailPiece" name='retailPiece'  placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                                 <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                                     Retail Piece
                                 </span>
@@ -411,7 +532,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                         </div>
                         <div className='w-full flex flex-col justify-center items-center'>
                             <label htmlFor="wholesalePiece" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                                <input value={wholesalePiece} onChange={onChange} type="number" id="wholesalePiece" name='wholesalePiece'  placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                                <input value={wholesalePiece ? wholesalePiece : ''} onChange={onChange} type="number" id="wholesalePiece" name='wholesalePiece'  placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                                 <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                                     Wholesale Piece
                                 </span>
@@ -427,7 +548,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                         </span>
                     </label>
                     <label htmlFor="unitSalePrice" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input disabled={!onSale} value={unitSalePrice} onChange={onChange} type="number" id="unitSalePrice" name='unitSalePrice' placeholder=''  className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input disabled={!onSale} value={unitSalePrice ? unitSalePrice : ''} onChange={onChange} type="number" id="unitSalePrice" name='unitSalePrice' placeholder=''  className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Unit Sale Price	
                         </span>
@@ -435,7 +556,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                     {showPieceFileds && (
                         <div className='w-full flex flex-col justify-center items-center'>
                             <label htmlFor="pieceSalePrice" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                                <input disabled={!onSale} value={pieceSalePrice} onChange={onChange} type="number" id="pieceSalePrice" name='pieceSalePrice'  placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                                <input disabled={!onSale} value={pieceSalePrice ? pieceSalePrice : ''} onChange={onChange} type="number" id="pieceSalePrice" name='pieceSalePrice'  placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                                 <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                                     Piece Sale Price
                                 </span>
@@ -475,7 +596,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                         </select>
                     </div>
                 </div>
-                <div>
+                <div className='border-b-2 border-gray-300 pb-5'>
                     <div className='border-gray-300 border-t-2 flex justify-between'>
                         <h4 className='text-[#50B426] mt-2'>Custom Unit Measurement</h4>
                         {showCustomUnitsFileds ? (
@@ -494,12 +615,21 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                                         Name 
                                     </span>
                                 </label>
-                                <label htmlFor="customUnitSku" className="relative bg-white block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                                    <input value={customUnitData.sku} onChange={onCustomChange} type="text" id="customUnitSku" name='sku' placeholder=''  className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
-                                    <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
-                                        SKU	
-                                    </span>
-                                </label>
+                                <div className='w-full flex items-center'>
+                                    <label htmlFor="customUnitSku" className="relative bg-white block w-[60%] overflow-hidden  rounded-tl-md rounded-bl-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                                        <input value={customUnitData.sku} onChange={onCustomChange} type="text" id="customUnitSku" name='sku' placeholder=''  className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                                        <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
+                                            SKU	
+                                        </span>
+                                    </label>
+                                    <button type='button' onClick={handleGenrateSku(false)} className={`p-5 ${genrateDisabled ? 'bg-gray-300' : 'bg-[#50B426] hover:bg-[#80e057]' } rounded-tr-md rounded-br-md w-[40%] flex items-center justify-center`}>
+                                    {!generateSkuLoading ? 
+                                        genrateDisabled ? 
+                                            `(${countdown}) ` : <MdAutoFixHigh className='text-[1.5rem] cursor-pointer hover:scale-110 text-white'/> 
+                                        : <BiLoaderCircle className='text-[1.4rem] animate-spin'/>
+                                    } 
+                                    </button>
+                                </div>
                                 <label htmlFor="custonUnitPecies" className="relative bg-white block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
                                     <input value={customUnitData.pieces} onChange={onCustomChange} type="number" id="custonUnitPecies" name='pieces' placeholder=''  className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                                     <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
@@ -512,6 +642,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                             </div>
                         </div>
                     }
+                    {unitOfMeasurement && unitOfMeasurement.length >= 1 ?
                     <div className=' bg-slate-300 text-center'>
                         <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm rounded-md mt-4">
                             <thead>
@@ -522,7 +653,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 w-full">
-                                {unitOfMeasurement.map((unit, index) => (
+                                {unitOfMeasurement && unitOfMeasurement.map((unit, index) => (
                                     <tr key={index} className='cursor-pointer hover:bg-slate-100'>
                                         <td className="px-4 py-2 text-[#0070E0] font-bold">
                                             {unit.name}
@@ -541,12 +672,17 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                             </tbody>
                         </table>
                     </div>
+                    :(
+                        <div className='w-full text-center mt-3 text-gray-300'>
+                            No Custom Unit Measurement For This Product 
+                        </div>
+                    )}
                 </div>
                 <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
                     <textarea value={description} onChange={onChange} id="description" name='description' className="w-full resize-none border-none align-top focus:ring-0 sm:text-sm p-3 focus:outline-none" rows="4" placeholder="Specifications..."></textarea>
                 </div>
-                <button type='submit' disabled={isLoading} className="inline-block mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">
-                    {isLoading && <BiLoaderCircle className='text-[1.4rem] animate-spin'/>} Add Product
+                <button type='submit' disabled={isLoading} className="flex items-center gap-2 justify-center mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">
+                    {(isLoading || isEditLoading) && <BiLoaderCircle className='text-[1.4rem] animate-spin'/>} {editMode ?'Edit Product' :'Add Product'}
                 </button>
             </form>
         </section>

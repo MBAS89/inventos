@@ -6,7 +6,7 @@ const PRODUCT_URL = '/api/v1/store/inventory/product'
 export const productsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         readProducts: builder.query({
-            query: (data) => ({//
+            query: (data) => ({
                 url: `${PRODUCT_URL}/read?page=${data.page}&sort=${data.sortBy.sort}&column=${data.sortBy.column}&searchQuery=${data.searchQuery ? data.searchQuery : ''}`,
                 method: 'GET',
             }),
@@ -54,7 +54,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
                 formData.append('sale_price_unit', data.unitSalePrice);
                 formData.append('sale_price_piece', data.pieceSalePrice);
                 formData.append('on_sale', data.onSale);
-                formData.append('unit_of_measurement', data.unitOfMeasurement);
+                formData.append('unit_of_measurement', JSON.stringify(data.unitOfMeasurement));
                 formData.append('description', data.description);
                 formData.append('category_id', data.category);
                 formData.append('brand_id', data.brand);
@@ -89,14 +89,14 @@ export const productsApiSlice = apiSlice.injectEndpoints({
                 formData.append('sale_price_unit', data.unitSalePrice);
                 formData.append('sale_price_piece', data.pieceSalePrice);
                 formData.append('on_sale', data.onSale);
-                formData.append('unit_of_measurement', data.unitOfMeasurement);
+                formData.append('unit_of_measurement', JSON.stringify(data.unitOfMeasurement));
                 formData.append('description', data.description);
                 formData.append('category_id', data.category);
                 formData.append('brand_id', data.brand);
                 formData.append('image', data.file.file);
 
                 return {
-                    url: `${INVENTORY_URL}/edit/${data.productId}/${data.productName}`,
+                    url: `${PRODUCT_URL}/edit/${data.productId}/${data.productName}`,
                     method: 'PUT',
                     body: formData
                 };
