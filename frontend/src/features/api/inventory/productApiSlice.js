@@ -38,17 +38,26 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             query: (data) => {
                 const formData = new FormData();
                 formData.append('folderName', 'products');
-                formData.append('productName', data.productName);
+                formData.append('name', data.productName);
                 formData.append('sku', data.sku);
-                formData.append('price', data.price);
-                formData.append('retailPrice', data.retailPrice);
-                formData.append('wholesalePrice', data.wholesalePrice);
-                formData.append('qty', data.qty);
-                formData.append('description', data.description);
-                formData.append('salePrice', data.salePrice);
-                formData.append('onSale', data.onSale);
                 formData.append('unit', data.unit);
                 formData.append('unit_catergory', data.unitCatergory);
+                formData.append('unit_value', data.unitValue);
+                formData.append('cost_unit', data.costUnit);
+                formData.append('retail_price_unit', data.retailUnitPrice);
+                formData.append('wholesale_price_unit', data.wholesaleUnitPrice);
+                formData.append('pieces_per_unit', data.piecesPerUnit);
+                formData.append('cost_piece', data.pieceCost);
+                formData.append('retail_price_piece', data.retailPiece);
+                formData.append('wholesale_price_piece', data.wholesalePiece);
+                formData.append('qty', data.qty);
+                formData.append('sale_price_unit', data.unitSalePrice);
+                formData.append('sale_price_piece', data.pieceSalePrice);
+                formData.append('on_sale', data.onSale);
+                formData.append('unit_of_measurement', data.unitOfMeasurement);
+                formData.append('description', data.description);
+                formData.append('category_id', data.category);
+                formData.append('brand_id', data.brand);
                 formData.append('image', data.file.file);
 
                 return {
@@ -64,17 +73,26 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             query: (data) => {
                 const formData = new FormData();
                 formData.append('folderName', 'products');
-                formData.append('productName', data.productName);
+                formData.append('name', data.productName);
                 formData.append('sku', data.sku);
-                formData.append('price', data.price);
-                formData.append('retailPrice', data.retailPrice);
-                formData.append('wholesalePrice', data.wholesalePrice);
-                formData.append('qty', data.qty);
-                formData.append('description', data.description);
-                formData.append('salePrice', data.salePrice);
-                formData.append('onSale', data.onSale);
                 formData.append('unit', data.unit);
                 formData.append('unit_catergory', data.unitCatergory);
+                formData.append('unit_value', data.unitValue);
+                formData.append('cost_unit', data.costUnit);
+                formData.append('retail_price_unit', data.retailUnitPrice);
+                formData.append('wholesale_price_unit', data.wholesaleUnitPrice);
+                formData.append('pieces_per_unit', data.piecesPerUnit);
+                formData.append('cost_piece', data.pieceCost);
+                formData.append('retail_price_piece', data.retailPiece);
+                formData.append('wholesale_price_piece', data.wholesalePiece);
+                formData.append('qty', data.qty);
+                formData.append('sale_price_unit', data.unitSalePrice);
+                formData.append('sale_price_piece', data.pieceSalePrice);
+                formData.append('on_sale', data.onSale);
+                formData.append('unit_of_measurement', data.unitOfMeasurement);
+                formData.append('description', data.description);
+                formData.append('category_id', data.category);
+                formData.append('brand_id', data.brand);
                 formData.append('image', data.file.file);
 
                 return {
@@ -100,9 +118,16 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             transformResponse: (response) => {
                 return response;
             },
-        })
+        }),
+        generateSku: builder.mutation({
+            query: (data) => ({
+                url: `${PRODUCT_URL}/generate-sku`,
+                method: 'GET',
+            }),
+            invalidatesTags: ['Products']
+        }),
 
     })
 })
 
-export const { useAddProductMutation, useEditProductMutation, useRemoveProductMutation, useReadProductsQuery, useReadProductQuery, useReadBrandsAndCategoriesQuery } = productsApiSlice
+export const { useAddProductMutation, useEditProductMutation, useRemoveProductMutation, useReadProductsQuery, useReadProductQuery, useReadBrandsAndCategoriesQuery, useGenerateSkuMutation } = productsApiSlice
