@@ -10,9 +10,6 @@ const Stores = require('./models/sotres/stores');
 const Owners = require('./models/sotres/owners');
 const Admins = require('./models/sotres/admins');
 const OwnersStore = require('./models/sotres/ownerStores');
-const Categories = require('./models/inventory/categories');
-const Brands = require('./models/inventory/brands');
-const Products = require('./models/inventory/products');
 const { Invoices, InvoiceItems } = require('./models/sales/invoices');
 const CustomersTypes = require('./models/cutomers/customersTypes');
 const Suppliers = require('./models/suppliers/suppliers');
@@ -25,7 +22,9 @@ const Departments = require('./config/associations/employees');
 const Permissions = require('./config/associations/employees');
 const RolePermissions = require('./config/associations/employees');
 const Customers = require('./config/associations/customers')
-
+const Categories = require('./config/associations/inventory')
+const Products = require('./config/associations/inventory')
+const Brands = require('./config/associations/inventory');
 
 //custom error handler middllware
 const errorHandler = require("./middleware/error");

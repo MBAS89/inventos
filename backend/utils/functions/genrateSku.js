@@ -10,10 +10,11 @@ const generateUniqueSKU = async (storeId) => {
       newSKU = generateRandomSKU();
   
       // Check if the generated SKU already exists in the database
-      const existingProduct = await Products.findOne({ where: { sku: newSKU, store_id:storeId } });
+      const existingProduct = await Products.findOne({ where: {store_id: storeId, sku:newSKU}  });
   
+      const sku =  existingProduct?.unit_of_measurement.find(item => item.sku === newSKU);
       // If no product with the generated SKU exists, mark it as unique
-      if (!existingProduct) {
+      if (!existingProduct && !sku) {
         isUnique = true;
       }
     }

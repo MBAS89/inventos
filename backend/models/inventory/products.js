@@ -110,4 +110,5 @@ const Products = sequelize.define('products', {
     },
 });
 
+
 module.exports = Products;

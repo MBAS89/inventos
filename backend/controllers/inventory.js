@@ -608,7 +608,6 @@ exports.readProducts = async (req, res, next) => {
                 { name: { [Op.iLike]: `%${searchQuery}%` } },
                 { sku: { [Op.iLike]: `%${searchQuery}%` } },
                 { description: { [Op.iLike]: `%${searchQuery}%` } },
-                { product_id: searchQuery ? searchQuery : null},
             ]
         } : { store_id: storeId };
 
@@ -616,7 +615,11 @@ exports.readProducts = async (req, res, next) => {
             where: whereClause,
             limit: searchQuery ? null : parseInt(limit),
             offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
-            order:column && sort ? getOrderOptions(column, sort) : []
+            order:column && sort ? getOrderOptions(column, sort) : [],
+            include: [
+                { model: Categories, attributes: ['name'] }, // Include category name
+                { model: Brands, attributes: ['name'] } // Include brand name
+            ]
         });
 
 
@@ -672,14 +675,22 @@ exports.addProduct = async (req, res, next) => {
             on_sale, unit_of_measurement, description, category_id, brand_id
         } = req.body;
 
+
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
         // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
+        if(!storeId){
+            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+            await deleteImage(imageId)
+
+            return next(new ErrorResponse('Store ID is required', 422));
+        }
+
         //Check if all Required Fileds are there
-        const requiredFields = ['storeId', 'name', 'sku', 'unit', 'unit_catergory',
-            'cost_unit', 'retail_price_unit', 'wholesale_price_unit','pieces_per_unit',
+        const requiredFields = ['name', 'sku', 'unit', 'unit_catergory',
+            'cost_unit', 'retail_price_unit', 'wholesale_price_unit',
             'qty'
         ];
 
@@ -693,6 +704,7 @@ exports.addProduct = async (req, res, next) => {
             return next(new ErrorResponse(validationError, 422));
         }
 
+        const unit_of_measurement_json = unit_of_measurement ? JSON.parse(unit_of_measurement) : null;
 
         //INSERT this Product to the data base and set || null for the optianl fileds 
         const newProduct = await Products.create({
@@ -707,7 +719,7 @@ exports.addProduct = async (req, res, next) => {
             cost_unit,
             retail_price_unit,
             wholesale_price_unit,
-            pieces_per_unit,
+            pieces_per_unit: pieces_per_unit || 1,
             cost_piece: cost_piece || null,
             retail_price_piece: retail_price_piece || null,
             wholesale_price_piece: wholesale_price_piece || null,
@@ -715,7 +727,7 @@ exports.addProduct = async (req, res, next) => {
             sale_price_unit: sale_price_unit || null,
             sale_price_piece: sale_price_piece || null,
             on_sale: on_sale || false,
-            unit_of_measurement,
+            unit_of_measurement:unit_of_measurement_json,
             description: description || null,
             category_id: category_id || null,
             brand_id: brand_id || null
@@ -786,7 +798,12 @@ exports.editProduct = async (req, res, next) => {
         //retrive productId from req params 
         const { productId } =  req.params
         //retrive product values from req body 
-        const { productName, sku, price, retailPrice, wholesalePrice, qty, description, category_id, brand_id, salePrice, onSale, unit, unit_catergory } = req.body;
+        const { name, sku, unit, unit_catergory, unit_value, cost_unit, 
+            retail_price_unit, wholesale_price_unit, pieces_per_unit, cost_piece, 
+            retail_price_piece, wholesale_price_piece, qty, sale_price_unit, sale_price_piece,
+            on_sale, unit_of_measurement, description, category_id, brand_id
+        } = req.body;
+
 
         let imageId
         let imageUrl
@@ -820,7 +837,10 @@ exports.editProduct = async (req, res, next) => {
         const oldProductImageId = product ? product.image_id : null;
 
         //Check if all Required Fileds are there
-        const requiredFields = ['productName', 'sku', 'price', 'retailPrice', 'wholesalePrice', 'qty', 'unit', 'unit_catergory'];
+        const requiredFields = ['name', 'sku', 'unit', 'unit_catergory',
+            'cost_unit', 'retail_price_unit', 'wholesale_price_unit',
+            'qty'
+        ];
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
@@ -832,25 +852,32 @@ exports.editProduct = async (req, res, next) => {
             return next(new ErrorResponse(validationError, 422));
         }
 
-
+        const unit_of_measurement_json = unit_of_measurement ? JSON.parse(unit_of_measurement) : null;
         //Edit product in database with new values and set || null for the optianl fileds 
         const updatedProduct = await Products.update(
             {
-                name: productName,
+                name,
                 image: imageUrl,
                 image_id: imageId,
-                sku: sku,
-                price: price,
-                retail_price: retailPrice,
-                wholesale_price: wholesalePrice,
+                sku,
                 unit,
                 unit_catergory,
-                sale_price: salePrice || null,
-                on_sale: onSale || false,
-                qty: qty,
-                description: description || null,
-                category_id: category_id || null,
-                brand_id: brand_id || null
+                unit_value: unit_value || 1,
+                cost_unit,
+                retail_price_unit,
+                wholesale_price_unit,
+                pieces_per_unit: pieces_per_unit || 1,
+                cost_piece: cost_piece ? cost_piece === 'null' ? null: cost_piece : null,
+                retail_price_piece: retail_price_piece ? retail_price_piece === 'null' ? null: retail_price_piece : null,
+                wholesale_price_piece: wholesale_price_piece ? wholesale_price_piece === 'null' ? null: wholesale_price_piece : null,
+                qty,
+                sale_price_unit: sale_price_unit ? sale_price_unit === 'null' ? null: sale_price_unit : null,
+                sale_price_piece: sale_price_unit ? sale_price_unit === 'null' ? null: sale_price_unit : null,
+                on_sale: on_sale || false,
+                unit_of_measurement:unit_of_measurement_json,
+                description: description ? description === 'null' ? null: description : null,
+                category_id: category_id ? category_id === 'null' ? null: category_id : null,
+                brand_id: brand_id ? brand_id === 'null' ? null: brand_id : null,
             },
             {
                 returning: true,
@@ -886,7 +913,6 @@ exports.editProduct = async (req, res, next) => {
         })
 
     } catch (error) {
-        console.log(error)
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
     }
