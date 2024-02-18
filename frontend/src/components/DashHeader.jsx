@@ -37,7 +37,7 @@ export const DashHeader = () => {
   }
 
   return (
-    <header className="bg-white">
+    <header className="bg-white z-20">
         <div className="mx-auto max-w-screen-full px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
                 <div className="flex-1 md:flex md:items-center md:gap-12">
@@ -72,12 +72,9 @@ export const DashHeader = () => {
                     >
                         <IoMdNotificationsOutline className="text-[1.3rem] "/>
                     </a>
-                    <a
-                        href="#"
-                        className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"
-                    >
+                    <NavLink to="/dashboard/settings" className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
                         <AiOutlineSetting className="text-[1.3rem]"/>
-                    </a>
+                    </NavLink>
                     <a
                         href="#"
                         className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200"

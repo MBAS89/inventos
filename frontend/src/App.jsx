@@ -27,6 +27,9 @@ import { StoreRegister } from "./pages/auth/StoreRegister"
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { SettingsHome } from "./pages/dashboard/settings/Settings"
+import { SettingsLayout } from "./components/settings/SettingsLayout"
+import { Permissions } from "./pages/dashboard/settings/Permissions"
 
 function App() {
   return (
@@ -102,6 +105,21 @@ function App() {
             <Invoices/>
           </DashLayout>
         }></Route>
+        <Route path="/dashboard/settings/permissions" element={
+          <DashLayout>
+            <SettingsLayout>
+              <Permissions />
+            </SettingsLayout>
+          </DashLayout>
+        }></Route>
+        <Route path="/dashboard/settings" element={
+          <DashLayout>
+            <SettingsLayout>
+              <SettingsHome />
+            </SettingsLayout>
+          </DashLayout>
+        }>
+        </Route>
       </Routes>
       <ToastContainer
         position="bottom-right"
