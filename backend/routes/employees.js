@@ -7,9 +7,9 @@ const { addSalaryTypes, editSalaryTypes, removeSalaryTypes } = require('../contr
 //EMPLOYEE CONTROLLERS
 const { addEmployee, editEmployee, removeEmployee } = require('../controllers/employees/employee')
 //ROLES CONTROLLERS
-const { addRole, editRole, removeRole } = require('../controllers/employees/roles')
+const { addRole, editRole, removeRole, readRoles } = require('../controllers/employees/roles')
 //DEPARTMENTS CONTROLLERS
-const { addDepartment, editDepartment, removeDepartment } = require('../controllers/employees/departments')
+const { addDepartment, editDepartment, removeDepartment, readDepartments } = require('../controllers/employees/departments')
 //PERMISSIONS CONTROLLERS
 const { addPermission, editPermission, removePermission } = require('../controllers/employees/permissions')
 //ROLEPERMISSIONS CONTROLLERS
@@ -36,11 +36,13 @@ router.put('/edit/:employeeId', ValidateEmployeesName, uploadMiddleware, editEmp
 router.delete('/remove/:employeeId', ValidateEmployeesName, uploadMiddleware, removeEmployee)
 
 //Roles Routes
+router.get('/roles/read', readRoles)
 router.post('/roles/add', ValidateRoleName, addRole)
 router.put('/roles/edit/:roleId', ValidateRoleName, editRole)
 router.delete('/roles/remove/:roleId', removeRole)
 
 //Departments Routes
+router.get('/departments/read', readDepartments)
 router.post('/departments/add', addDepartment)
 router.put('/departments/edit/:departmentId', editDepartment)
 router.delete('/departments/remove/:departmentId', removeDepartment)

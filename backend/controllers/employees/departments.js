@@ -3,6 +3,25 @@ const ErrorResponse = require('../../utils/errorResponse')
 
 //modles
 const Departments = require('../../models/employees/department')
+const Permissions = require('../../models/employees/permission')
+
+exports.readDepartments = async (req, res, next) => {
+    try {
+        const departments = await Departments.findAll({
+            attributes: {
+                exclude: ['createdAt', 'updatedAt']
+            },
+            include: [
+                { model: Permissions, attributes:{ exclude: ['createdAt', 'updatedAt'] }},
+            ]
+        })
+
+        return res.status(200).json({ departments })
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 exports.addDepartment = async (req, res, next) => {
     try {

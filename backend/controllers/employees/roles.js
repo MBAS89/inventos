@@ -3,7 +3,28 @@ const ErrorResponse = require('../../utils/errorResponse')
 
 //modles
 const Roles = require('../../models/employees/roles')
+const RolePermissions = require('../../models/employees/rolePermission');
+const Permissions = require('../../models/employees/permission');
 
+exports.readRoles= async (req, res, next) => {
+    try {
+        const roles = await Roles.findAll({
+            attributes: { exclude: ['createdAt', 'updatedAt'] },
+            include: [{
+              model: Permissions,
+              attributes: { exclude: ['createdAt', 'updatedAt'] },
+              through: {
+                attributes: { exclude: ['createdAt', 'updatedAt'] }
+              }
+            }]
+        });
+
+        return res.status(200).json({ roles })
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 exports.addRole = async (req, res, next) => {
     try {
