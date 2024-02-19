@@ -3,12 +3,20 @@ const ErrorResponse = require('../../utils/errorResponse')
 
 //modles
 const Roles = require('../../models/employees/roles')
-const RolePermissions = require('../../models/employees/rolePermission');
 const Permissions = require('../../models/employees/permission');
 
 exports.readRoles= async (req, res, next) => {
     try {
+        const { store_id } = req.authData
+
+        //check if store ID is there 
+        if(!store_id){
+            //if it dose not have a value send a responese with this error message 
+            return next(new ErrorResponse("Store ID is required", 406))
+        }
+
         const roles = await Roles.findAll({
+            where:{ store_id },
             attributes: { exclude: ['createdAt', 'updatedAt'] },
             include: [{
               model: Permissions,
@@ -16,8 +24,11 @@ exports.readRoles= async (req, res, next) => {
               through: {
                 attributes: { exclude: ['createdAt', 'updatedAt'] }
               }
-            }]
+            }],
+            order: [['id', 'ASC']] 
         });
+
+        
 
         return res.status(200).json({ roles })
     } catch (error) {
@@ -28,10 +39,10 @@ exports.readRoles= async (req, res, next) => {
 
 exports.addRole = async (req, res, next) => {
     try {
-        const { roleName, storeId } = req.body
-
+        const { roleName } = req.body
+        const { store_id } = req.authData
         //check if role Name or store Id has a value
-        if(!roleName || !storeId){
+        if(!roleName || !store_id){
             //if it dose not have a value send a responese with this error message 
             return next(new ErrorResponse("Role name And Store ID is required", 406))
         }
@@ -41,7 +52,7 @@ exports.addRole = async (req, res, next) => {
         //create a Role
         const role = await Roles.create({
             name:lowercaseRoleName,
-            store_id:storeId
+            store_id:store_id
         })
 
         //check if creating a Role did not wrok 

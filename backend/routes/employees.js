@@ -23,6 +23,8 @@ const uploadMiddleware = require('../middleware/uploadImageToCloudinary')
 const ValidateEmployeesName = require('../middleware/validations/employees/ValidateEmployeesName')
 const ValidateRoleName = require('../middleware/validations/employees/ValidateRoleName')
 
+const Auth = require('../middleware/auth/authMiddleware')
+
 //Routes
 
 //Salary Types Routes
@@ -36,9 +38,9 @@ router.put('/edit/:employeeId', ValidateEmployeesName, uploadMiddleware, editEmp
 router.delete('/remove/:employeeId', ValidateEmployeesName, uploadMiddleware, removeEmployee)
 
 //Roles Routes
-router.get('/roles/read', readRoles)
-router.post('/roles/add', ValidateRoleName, addRole)
-router.put('/roles/edit/:roleId', ValidateRoleName, editRole)
+router.get('/roles/read', Auth, readRoles)
+router.post('/roles/add', Auth, ValidateRoleName, addRole)
+router.put('/roles/edit/:roleId', Auth, ValidateRoleName, editRole)
 router.delete('/roles/remove/:roleId', removeRole)
 
 //Departments Routes

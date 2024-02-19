@@ -1,5 +1,6 @@
 //error response middleware
 const ErrorResponse = require('../../utils/errorResponse')
+const sequelize = require('../../config/database');
 
 //modles
 const Departments = require('../../models/employees/department')
@@ -12,9 +13,16 @@ exports.readDepartments = async (req, res, next) => {
                 exclude: ['createdAt', 'updatedAt']
             },
             include: [
-                { model: Permissions, attributes:{ exclude: ['createdAt', 'updatedAt'] }},
+                { 
+                    model: Permissions, 
+                    attributes:{ exclude: ['createdAt', 'updatedAt'] }
+                },
             ]
         })
+
+        departments.forEach((department) => {
+            department.permissions.sort((a, b) => a.name.localeCompare(b.name));
+        });
 
         return res.status(200).json({ departments })
     } catch (error) {

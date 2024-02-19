@@ -8,10 +8,11 @@ const ErrorResponse = require('../../../utils/errorResponse')
 const ValidateRoleName = async (req, res, next) => {
     try {
         //retrieve Rle name from req query to check if the Role name is used before in the same store 
-        const { roleName, storeId } = req.body
+        const { roleName } = req.body
+        const { store_id } = req.authData
 
         // Check if all fields are present
-        if (!roleName || !storeId) {
+        if (!roleName || !store_id) {
             return next(new ErrorResponse("Role Name And Store ID Is required", 422));
         }
 
@@ -19,7 +20,7 @@ const ValidateRoleName = async (req, res, next) => {
         const existingRole = await Roles.findOne({
             where: {
                 name: roleName,
-                store_id: storeId
+                store_id: store_id
             }
         });
 
