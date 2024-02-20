@@ -70,7 +70,8 @@ const Employees = sequelize.define('employees', {
         allowNull:true
     },
     hourly_rate: DataTypes.DECIMAL,
-    yearly_salary: DataTypes.DECIMAL
+    yearly_salary: DataTypes.DECIMAL,
+    monthly_salary:DataTypes.DECIMAL
 });
 
 module.exports = Employees;

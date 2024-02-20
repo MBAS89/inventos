@@ -74,13 +74,16 @@ app.use('/api/v1/store/employees', require('./routes/employees'));
 app.use(errorHandler);
 
 
-// Schedule the cron job to run every day at midnight
-cron.schedule('0 0 * * *', () => {
-    contractCron(); // Call the cron job function
-}, {
-    scheduled: true,
-    timezone: "Asia/Jerusalem" // Set your timezone here
-});
+
+if (process.env.NODE_ENV !== 'testing') {
+    // Schedule the cron job only if testing is not false
+    cron.schedule('0 0 * * *', () => {
+        contractCron(); // Call the cron job function
+    }, {
+        scheduled: true,
+        timezone: "Asia/Jerusalem" // Set your timezone here
+    });
+}
 
 
 //porst number that server listen on
@@ -88,9 +91,13 @@ const PORT = process.env.PORT || 5000
 
 // Sync Sequelize with the database
 sequelize.sync({ alter: true }).then(() => {
-    console.log('Database synced');
+    process.env.PORT !== 'testing' && console.log('Database synced');
     //create an express server
     app.listen(PORT, () => {
-        console.log(`server is running on port ${PORT}`)
+        process.env.PORT !== 'testing' && console.log(`server is running on port ${PORT}`)
     })
 });
+
+
+
+module.exports = app
