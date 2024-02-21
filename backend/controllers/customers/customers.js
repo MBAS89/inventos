@@ -92,24 +92,6 @@ exports.getSingleCustomer = async (req, res, next) => {
             }
         })
 
-        /*
-        const totalCount = await Customers.count({ where: { store_id: storeId } });
-
-        const totalPages = Math.ceil(totalCount / limit);
-    
-        const currentPage = parseInt(page);
-    
-        const customers = await Customers.findAll({
-            where: { store_id: storeId },
-            limit: parseInt(limit),
-            offset: (currentPage - 1) * parseInt(limit),
-            include: [{ 
-                model: CustomersTypes, 
-                as: 'customerType',
-                attributes:['type_name', 'id']
-            }]
-        });*/
-    
         res.status(200).json({ customer, invoices });
 
     } catch (error) {

@@ -75,7 +75,7 @@ app.use(errorHandler);
 
 
 
-if (process.env.NODE_ENV !== 'testing') {
+if (process.env.NODE_ENV !== 'test') {
     // Schedule the cron job only if testing is not false
     cron.schedule('0 0 * * *', () => {
         contractCron(); // Call the cron job function
@@ -91,10 +91,10 @@ const PORT = process.env.PORT || 5000
 
 // Sync Sequelize with the database
 sequelize.sync({ alter: true }).then(() => {
-    process.env.PORT !== 'testing' && console.log('Database synced');
+    process.env.NODE_ENV !== 'test' && console.log('Database synced');
     //create an express server
     app.listen(PORT, () => {
-        process.env.PORT !== 'testing' && console.log(`server is running on port ${PORT}`)
+        process.env.NODE_ENV !== 'test' && console.log(`server is running on port ${PORT}`)
     })
 });
 
