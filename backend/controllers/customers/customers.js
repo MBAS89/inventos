@@ -105,7 +105,8 @@ exports.addCustomer = async (req, res, next) => {
 
     try {
         //retrive Customer values from req body 
-        const { store_id, full_name, email, phone_number, address, cutomer_type } = req.body
+        const store_id = req.authData.store_id
+        const { full_name, email, phone_number, address, cutomer_type } = req.body
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -135,7 +136,7 @@ exports.addCustomer = async (req, res, next) => {
             return next(new ErrorResponse('Invalid email address', 406));
         }
 
-        //INSERT this Product to the data base and set || null for the optianl fileds 
+        //INSERT this Customer to Data base 
         const customer = await Customers.create({
             store_id,
             full_name,

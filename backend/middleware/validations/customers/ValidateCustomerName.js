@@ -9,7 +9,8 @@ const ValidateCustomerName = async (req, res, next) => {
     try {
 
         //retrieve Customer name from req query to check if the Customer name is used before uploading to cloudinary
-        const { cutomerName, storeId } = req.query
+        const storeId = req.authData.store_id
+        const { cutomerName } = req.query
 
         // Check if all fields are present
         if (!cutomerName) {

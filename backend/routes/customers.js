@@ -11,6 +11,8 @@ const uploadMiddleware = require('../middleware/uploadImageToCloudinary')
 //custom store validatitor middleware
 const ValidateAddEditRemoveCustomerType = require('../middleware/validations/customers/ValidateAddEditRemoveCustomerType')
 const ValidateCustomerName = require('../middleware/validations/customers/ValidateCustomerName')
+const Auth = require('../middleware/auth/authMiddleware')
+
 
 
 
@@ -24,7 +26,7 @@ router.delete('/types/remove/:typeId', ValidateAddEditRemoveCustomerType, remove
 //customers routes
 router.get('/read/single', getSingleCustomer)
 router.get('/read', getCustomers)
-router.post('/add', ValidateCustomerName, uploadMiddleware, addCustomer)
+router.post('/add', Auth, ValidateCustomerName, uploadMiddleware, addCustomer)
 router.put('/edit/:customerId', ValidateCustomerName, uploadMiddleware, editCustomer)
 router.delete('/remove/:customerId', removeCustomer)
 
