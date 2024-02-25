@@ -114,7 +114,7 @@ exports.addCustomer = async (req, res, next) => {
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
         //Check if all Required Fileds are there
-        const requiredFields = ['store_id', 'full_name', 'email', 'phone_number', 'address', 'cutomer_type'];
+        const requiredFields = ['full_name', 'email', 'phone_number', 'address', 'cutomer_type'];
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
@@ -168,7 +168,7 @@ exports.addCustomer = async (req, res, next) => {
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error)
+        return next(new ErrorResponse("Something Went Wrong", 500));
     }
 }
 
@@ -179,7 +179,6 @@ exports.editCustomer = async (req, res, next) => {
         //retrive customerId from req params 
         const { customerId } =  req.params
 
-        console.log(customerId)
         //retrive Customer new values from req body 
         const { full_name, email, phone_number, address, cutomer_type, oldImage, total_transactions, total_debt, total_paid } = req.body
 
@@ -296,9 +295,8 @@ exports.editCustomer = async (req, res, next) => {
 
 
     } catch (error) {
-        console.log(error)
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error)
+        return next(new ErrorResponse("Something Went Wrong", 500));
     }
 }
 

@@ -27,7 +27,7 @@ router.delete('/types/remove/:typeId', ValidateAddEditRemoveCustomerType, remove
 router.get('/read/single', getSingleCustomer)
 router.get('/read', getCustomers)
 router.post('/add', Auth, ValidateCustomerName, uploadMiddleware, addCustomer)
-router.put('/edit/:customerId', ValidateCustomerName, uploadMiddleware, editCustomer)
+router.put('/edit/:customerId', Auth, ValidateCustomerName, uploadMiddleware, editCustomer)
 router.delete('/remove/:customerId', removeCustomer)
 
 module.exports = router
