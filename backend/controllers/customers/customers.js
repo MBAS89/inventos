@@ -322,11 +322,21 @@ exports.removeCustomer = async (req, res, next) => {
 
 
         //DELETE Customer FROM DATA BASE WITH THE DISRE ID VALUE
-        await Customers.destroy({
+        const customer = await Customers.destroy({
             where: {
                 id: customerId
             }
         });
+
+        if(!customer){
+            if(customer == 0){
+                //if there is an error send it to the error middleware to be output in a good way 
+                return next(new ErrorResponse("Customer Not Found", 404));
+            }else{
+                //if there is an error send it to the error middleware to be output in a good way 
+                return next(new ErrorResponse("Something Went Wrong", 500));
+            }
+        }
 
         //return success response with message
         res.status(200).json({
@@ -338,6 +348,6 @@ exports.removeCustomer = async (req, res, next) => {
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error)
+        return next(new ErrorResponse("Something Went Wrong", 500));
     }
 }
