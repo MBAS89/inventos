@@ -12,6 +12,7 @@ import { useRemoveInvoiceMutation } from '../features/api/sales/innerInvoicesApi
 import { useRemoveSupplierMutation } from '../features/api/suppliers/suppliersApiSlice';
 import { useRemoveOuterInvoiceMutation } from '../features/api/sales/outerInvoicesApiSlice';
 import { useRemoveCouponMutation } from '../features/api/inventory/couponsApiSlice';
+import { useRemoveExpenseMutation } from '../features/api/expenses/expensesApiSlice';
 
 export const DeletePopup = ({ setOpenDeletePopup, selected, department, setReset }) => {
 
@@ -24,7 +25,9 @@ export const DeletePopup = ({ setOpenDeletePopup, selected, department, setReset
     const [removeSupplier, {isLoading:isSupplierLoading}] = useRemoveSupplierMutation()
     const [removeOuterInvoice, {isLoading:isOuterInvoiceLoading}] = useRemoveOuterInvoiceMutation()
     const [removeCoupon, {isLoading:isCouponLoading}] = useRemoveCouponMutation()
+    const [removeExpense, {isLoading:isExpenseLoading}] = useRemoveExpenseMutation()
 
+    console.log(selected)
     const handleDelete = async () => {
         if(department === 'Customers'){
             try {
@@ -116,6 +119,16 @@ export const DeletePopup = ({ setOpenDeletePopup, selected, department, setReset
             } catch (error) {
                 toast.error(error.data.error)
             }
+        }else if(department === "Expenses"){
+            try {
+                
+                const res = await removeExpense(selected).unwrap()
+                setReset('')
+                setOpenDeletePopup(false)
+                toast.success(res.message)    
+            } catch (error) {
+                toast.error(error.data.error)
+            }
         }
     }
 
@@ -126,12 +139,12 @@ export const DeletePopup = ({ setOpenDeletePopup, selected, department, setReset
                 <p className="mt-2 text-sm text-gray-500">Deleting anything may affect in losing important data</p>
                 <div className="mt-4 flex gap-2 justify-center">
                     <button 
-                        disabled={isLoading || isCategoryLoading || isBrandLoading || isProductLoading || isOuterInvoiceLoading || isEmployeeLoading || isInvoiceLoading || isSupplierLoading || isCouponLoading}
+                        disabled={isLoading || isCategoryLoading || isBrandLoading || isProductLoading || isOuterInvoiceLoading || isEmployeeLoading || isInvoiceLoading || isSupplierLoading || isCouponLoading || isExpenseLoading}
                         onClick={handleDelete} 
                         type="button" 
                         className="rounded flex gap-2 hover:bg-red-400 hover:text-white active:bg-red-700 border-red-600 border-2 bg-red-50 px-4 py-2 text-sm font-medium text-red-600"
                     >
-                        {isLoading || isCategoryLoading || isBrandLoading || isProductLoading || isOuterInvoiceLoading || isEmployeeLoading || isInvoiceLoading || isSupplierLoading || isCouponLoading && <BiLoaderCircle className='text-[1.4rem] animate-spin'/>} Yes, I'm sure
+                        {isLoading || isCategoryLoading || isBrandLoading || isProductLoading || isOuterInvoiceLoading || isEmployeeLoading || isInvoiceLoading || isSupplierLoading || isCouponLoading || isExpenseLoading && <BiLoaderCircle className='text-[1.4rem] animate-spin'/>} Yes, I'm sure
                     </button>
                     <button onClick={() => setOpenDeletePopup(false)} type="button" className="rounded border-gray-600 hover:bg-gray-400 active:bg-gray-700 hover:text-white border-2 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-600">
                         No, go back

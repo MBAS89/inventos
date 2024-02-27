@@ -15,6 +15,8 @@ export const Breadcrumb = ({ from, current, isLoading, width }) => {
             navigate('/dashboard/invoices')
         }else if( from === 'Suppliers'){
             navigate('/dashboard/suppliers')
+        }else if(from === 'Expenses'){
+            navigate('/dashboard/expenses')
         }
     }
 

@@ -6,6 +6,7 @@ import { MdOutlineSecurity } from "react-icons/md";
 import { AiFillHome } from "react-icons/ai";
 import { IoPeopleSharp } from "react-icons/io5";
 import { FaTruck } from "react-icons/fa";
+import { TbCash } from "react-icons/tb";
 
 
 export const SideBar = () => {
@@ -31,6 +32,11 @@ export const SideBar = () => {
             title:'suppliers',
             link:'/dashboard/settings/suppliers',
             icon: <FaTruck className='text-[1.5rem]' />
+        },
+        {
+            title:'expenses',
+            link:'/dashboard/settings/expenses',
+            icon: <TbCash className='text-[1.5rem]' />
         }
     ]
 

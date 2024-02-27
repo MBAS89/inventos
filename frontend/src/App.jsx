@@ -10,7 +10,7 @@ import { Casher } from "./pages/dashboard/Casher"
 import { Customers } from "./pages/dashboard/customers/Customers"
 import { Suppliers } from "./pages/dashboard/suppliers/Suppliers"
 import { Employees } from "./pages/dashboard/employees/Employees"
-import { Expenses } from "./pages/dashboard/Expenses"
+import { Expenses } from "./pages/dashboard/expenses/Expenses"
 import { Invoices } from "./pages/dashboard/invoices/Invoices"
 import { Categories } from "./components/inventory/Categories"
 import { Brands } from "./components/inventory/Brands"
@@ -36,6 +36,8 @@ import { InvoiceInfoPage } from "./pages/dashboard/invoices/InvoiceInfoPage"
 import { CustomersSettings } from "./pages/dashboard/settings/CustomersSettings"
 import { SuppliersSettings } from "./pages/dashboard/settings/SuppliersSettings"
 import { Coupons } from "./components/inventory/Coupons"
+import { ExpensesSettings } from "./pages/dashboard/settings/ExpensesSettings"
+import { SingleExpense } from "./pages/dashboard/expenses/SingleExpense"
 
 function App() {
   return (
@@ -107,6 +109,7 @@ function App() {
             <Expenses />
           </DashLayout>
         }></Route>
+        <Route path="/dashboard/expenses/single-expense/:expenseId" element={<SingleExpense />}></Route>
         <Route path="/dashboard/invoices" element={
           <DashLayout>
             <Invoices/>
@@ -139,6 +142,13 @@ function App() {
           <DashLayout>
             <SettingsLayout>
               <SuppliersSettings />
+            </SettingsLayout>
+          </DashLayout>
+        }></Route>
+        <Route path="/dashboard/settings/expenses" element={
+          <DashLayout>
+            <SettingsLayout>
+              <ExpensesSettings />
             </SettingsLayout>
           </DashLayout>
         }></Route>
