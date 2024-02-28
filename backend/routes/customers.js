@@ -18,16 +18,16 @@ const Auth = require('../middleware/auth/authMiddleware')
 
 //Routes
 //customers types routes
-router.get('/types/get', getCustomerTypes)
-router.post('/types/add', ValidateAddEditRemoveCustomerType,  addCustomerType)
-router.put('/types/edit/:typeId', ValidateAddEditRemoveCustomerType, editCustomerType)
-router.delete('/types/remove/:typeId', ValidateAddEditRemoveCustomerType, removeCustomerType)
+router.get('/types/get', Auth, getCustomerTypes)
+router.post('/types/add', Auth, ValidateAddEditRemoveCustomerType,  addCustomerType)
+router.put('/types/edit/:typeId', Auth, ValidateAddEditRemoveCustomerType, editCustomerType)
+router.delete('/types/remove/:typeId', Auth, ValidateAddEditRemoveCustomerType, removeCustomerType)
 
 //customers routes
-router.get('/read/single', getSingleCustomer)
-router.get('/read', getCustomers)
+router.get('/read/single', Auth, getSingleCustomer)
+router.get('/read', Auth, getCustomers)
 router.post('/add', Auth, ValidateCustomerName, uploadMiddleware, addCustomer)
 router.put('/edit/:customerId', Auth, ValidateCustomerName, uploadMiddleware, editCustomer)
-router.delete('/remove/:customerId', removeCustomer)
+router.delete('/remove/:customerId', Auth, removeCustomer)
 
 module.exports = router

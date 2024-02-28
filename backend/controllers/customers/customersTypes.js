@@ -6,7 +6,8 @@ const ErrorResponse = require('../../utils/errorResponse');
 
 exports.getCustomerTypes = async (req, res, next) => {
     try {
-        const { storeId } = req.query
+
+        const storeId = req.authData.store_id
 
         const customersTypes = await CustomersTypes.findAll({
             where:{
@@ -30,7 +31,7 @@ exports.getCustomerTypes = async (req, res, next) => {
         
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error)
+        return next(new ErrorResponse("Something Went Wrong", 500));
     }
 }
 
@@ -38,11 +39,12 @@ exports.addCustomerType = async (req, res, next) => {
 
     try {
         //retrieve values from req.body 
-        const { store_id, type_name, discount_value } = req.body
+        const storeId = req.authData.store_id
+        const { type_name, discount_value } = req.body
 
         //create cutomer type
         const customerType = await CustomersTypes.create({
-            store_id,
+            store_id:storeId,
             type_name,
             discount_value
         })
@@ -60,7 +62,7 @@ exports.addCustomerType = async (req, res, next) => {
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error)
+        return next(new ErrorResponse("Something Went Wrong", 500));
     }
 }
 

@@ -13,7 +13,7 @@ const ValidateAddEditRemoveCustomerType = async (req, res, next) => {
         
         let requiredFields;
         if (req.path.includes('/add')) {
-            requiredFields = ['store_id', 'type_name', 'discount_value'];
+            requiredFields = ['type_name', 'discount_value'];
         }else if(req.path.includes('/edit')){
             requiredFields = ['type_name', 'discount_value'];
 
