@@ -89,15 +89,21 @@ if (process.env.NODE_ENV !== 'test') {
 //porst number that server listen on
 const PORT = process.env.PORT || 5000
 
-// Sync Sequelize with the database
-sequelize.sync({ alter: true }).then(() => {
-    process.env.NODE_ENV !== 'test' && console.log('Database synced');
-    //create an express server
-    app.listen(PORT, () => {
-        process.env.NODE_ENV !== 'test' && console.log(`server is running on port ${PORT}`)
-    })
-});
+// Sync Sequelize with the database if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+    sequelize.sync({ alter: true })
+        .then(() => {
+            console.log('Database synced');
 
-
+            // Create an express server
+            app.listen(PORT, () => {
+                console.log(`Server is running on port ${PORT}`);
+            });
+        })
+        .catch(error => {
+            console.error('Error syncing database:', error);
+            process.exit(1); // Exit the process on error
+        });
+}
 
 module.exports = app

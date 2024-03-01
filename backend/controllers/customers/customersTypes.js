@@ -45,7 +45,7 @@ exports.addCustomerType = async (req, res, next) => {
         //create cutomer type
         const customerType = await CustomersTypes.create({
             store_id:storeId,
-            type_name,
+            type_name:type_name.toLowerCase(),
             discount_value
         })
 
@@ -77,7 +77,7 @@ exports.editCustomerType = async (req, res, next) => {
         //update cutomer type with the new values 
         await CustomersTypes.update(
             {
-                type_name,
+                type_name:type_name.toLowerCase(),
                 discount_value
             },
             {
@@ -86,7 +86,7 @@ exports.editCustomerType = async (req, res, next) => {
         );
 
         //return response of the req
-        res.status(200).json({
+        res.status(201).json({
             status:"success",
             message:"Customer Type Updated",
             results:1
@@ -94,7 +94,7 @@ exports.editCustomerType = async (req, res, next) => {
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error)
+        return next(new ErrorResponse("Something Went Wrong", 500));
     }
 }
 
@@ -110,7 +110,7 @@ exports.removeCustomerType = async (req, res, next) => {
         });
 
         //return response of the req
-        res.status(200).json({
+        res.status(201).json({
             status:"success",
             message:"Customer Type Deleted",
             results:1
@@ -118,6 +118,6 @@ exports.removeCustomerType = async (req, res, next) => {
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error)
+        return next(new ErrorResponse("Something Went Wrong", 500));
     }
 }
