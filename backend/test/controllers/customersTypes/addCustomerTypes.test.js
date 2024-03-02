@@ -21,34 +21,34 @@ beforeAll(async () => {
 
     // Extract the authentication cookie from the login response headers
     authCookie = loginResponse.headers['set-cookie'][0];
-},10000);
+},20000);
   
-afterAll(async () => {
-    //delete customer type that we created in test
-    await CustomersTypes.destroy({
-        where: { type_name: 'test customer type' }
-    });
-    
+afterAll(async () => {    
     await sequelize.close();
-},10000); 
+},20000); 
 
   
 describe('Add A CUSTOMER TYPES CONTROLLER ', () => {
     it('should create/add customer type and respond with and 201 status code', async () => {
-      const response = await request(app)
-        .post(APIURL)
-        .set('Cookie', authCookie)
-        .send({
-            type_name: 'test customer type',
-            discount_value: 2
+        const response = await request(app)
+            .post(APIURL)
+            .set('Cookie', authCookie)
+            .send({
+                type_name: 'test customer type',
+                discount_value: 2
+            });
+
+        //delete customer type that we created in test
+        await CustomersTypes.destroy({
+            where: { id: response.body.data.customerType.id}
         });
-    
-      expect(response.status).toBe(201)
-      expect(response.body).toHaveProperty('status', 'success');
-      expect(response.body).toHaveProperty('message', 'Customer Type Created');
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('customerType');
-    });
+
+        expect(response.status).toBe(201)
+        expect(response.body).toHaveProperty('status', 'success');
+        expect(response.body).toHaveProperty('message', 'Customer Type Created');
+        expect(response.body).toHaveProperty('data');
+        expect(response.body.data).toHaveProperty('customerType');
+    },10000);
 
     it('should respond with an error message and 500 status code if add a customer types result in error', async () => {
 

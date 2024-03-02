@@ -6,7 +6,7 @@ const sequelize = require('../../../config/database');
 const  APIURL = '/api/v1/store/customers/types/edit'
 
 let authCookie; // Variable to store the authentication cookie
-
+let storeData; //Variable to store the store data
 beforeAll(async () => {
     await sequelize.sync({ alter: true }); 
 
@@ -21,16 +21,14 @@ beforeAll(async () => {
 
     // Extract the authentication cookie from the login response headers
     authCookie = loginResponse.headers['set-cookie'][0];
-},10000);
+
+    //Extract store data from login reposnse body
+    storeData = loginResponse.body
+},20000);
   
 afterAll(async () => {
-    //delete customer type that we created in test
-    await CustomersTypes.destroy({
-        where: { type_name: 'updated customer type' }
-    });
-    
     await sequelize.close();
-},10000); 
+},20000); 
 
 describe('EDIT A CUSTOMER TYPES CONTROLLER ', () => {
     it('should edit customer type and respond with and 201 status code', async () => {
@@ -48,6 +46,11 @@ describe('EDIT A CUSTOMER TYPES CONTROLLER ', () => {
                 type_name: 'updated customer type',
                 discount_value: 2
             });
+
+        //delete customer type that we created in test
+        await CustomersTypes.destroy({
+            where: { id: customerType.id }
+        });
         
         expect(response.status).toBe(201)
         expect(response.body).toHaveProperty('status', 'success');
@@ -58,12 +61,10 @@ describe('EDIT A CUSTOMER TYPES CONTROLLER ', () => {
     it('should respond with an error message and 500 status code if edit a customer types result in error', async () => {
 
         const customerType = await CustomersTypes.create({
-            store_id: 4,
+            store_id: storeData.store_id,
             type_name:'test customer type',
             discount_value:1
         })
-
-        
 
         const response = await request(app)
             .put(APIURL + `/${customerType.dataValues.id}`)
@@ -75,7 +76,7 @@ describe('EDIT A CUSTOMER TYPES CONTROLLER ', () => {
 
         //delete customer type that we created in test
         await CustomersTypes.destroy({
-            where: { type_name: 'test customer type' }
+            where: { id: customerType.id }
         });
     
         expect(response.status).toBe(500);
