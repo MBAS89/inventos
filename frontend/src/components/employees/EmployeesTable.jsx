@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
+
+import { format, parseISO } from 'date-fns';
 
 import { TableHead } from '../TableHead'
 import { TablePagination } from '../TablePagination'
@@ -6,172 +8,27 @@ import { TablePagination } from '../TablePagination'
 //icons
 import { MdOutlineEmail } from "react-icons/md"
 import { AiOutlinePhone } from "react-icons/ai"
+import { useSelector } from 'react-redux'
+import { authInfoState } from '../../features/slices/authSlice'
+import { useReadEmployeesQuery } from '../../features/api/employees/employeeApiSlice'
+import { Loader } from '../reusable-components/Loader';
 
-export const EmployeesTable = ({ headItems }) => {
+export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmployee, searchQuery, sortBy }) => {
+    
+    const { authInfo } = useSelector(authInfoState)
 
-    const data = [
-        {
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"part time",
-            contract:false,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },{
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"full time",
-            contract:true,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },{
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"remote",
-            contract:false,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },{
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"remote",
-            contract:false,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },{
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"part time",
-            contract:true,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },{
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"full time",
-            contract:false,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },{
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"remote",
-            contract:false,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },{
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"remote",
-            contract:true,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },{
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"part time",
-            contract:false,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },{
-            image:"https://img.icons8.com/dusk/64/futurama-leela.png",
-            name:"Takuma Asahi",
-            email:"example2351@gmail.com",
-            phone:"+12734076561",
-            address:"United States-Winchester",
-            department:"wholesale",
-            workType:"full time",
-            contract:false,
-            totalPaid:22000,
-            totalDue:10000,
-            salary:"20k",
-            employmentDate:"24/05/1995",
-            endOfService:"24/05/1995",
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        }
-    ]
+    const [currentPage, setCurrentPage] = useState(1)
+
+    const {data:employees, isLoading, isFetching, isError, error } = useReadEmployeesQuery({page:currentPage, searchQuery:searchQuery, sortBy:sortBy},'readEmployees')
+
+    const handleCheckboxChange = (employeeId, imageId) => {
+        setSelectedEmployee({
+            employeeId,
+            imageId
+        })
+    };
+
+    console.log(employees)
 
     const handleContract = (status) => {
         if(status === true){
@@ -193,57 +50,71 @@ export const EmployeesTable = ({ headItems }) => {
         <div className='px-6 mt-2'>
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm rounded-md">
-                    <TableHead headItems={headItems} />
+                    <TableHead selectedCount={selectedEmployee.length} headItems={headItems} />
+                    {isLoading ? (
+                            <tbody className=' absolute w-[80%] mx-auto min-h-[50vh] left-[10%] justify-center items-center flex'>
+                                <tr><td><Loader /></td></tr>
+                            </tbody>
+                    ) :
                     <tbody className="divide-y divide-gray-200">
-                        {data.map((item, index) => (
-                            <tr key={index}>
+                        {employees.employees.map((employee) => (
+                            <tr key={employee.id}>
                                 <td className="px-4 py-2">
-                                    <input className="h-5 w-5 rounded border-gray-300" type="checkbox" id="Row1"/>
+                                <input
+                                        className="h-5 w-5 cursor-pointer rounded border-gray-300 focus:outline-none focus:ring-2 checked:bg-[#50B426] focus:ring-[#50B426]"
+                                        type="checkbox"
+                                        id={`Row${employee.id}`}
+                                        onChange={() => handleCheckboxChange(employee.id, employee.image_id)}
+                                        checked={selectedEmployee.employeeId == employee.id}
+                                    />
                                 </td>
                                 <td className="px-4 py-2 font-medium text-gray-900 flex items-center gap-3">
                                     <div className=' bg-gray-100 p-1 rounded-md w-[20%] flex items-center justify-center'>
-                                        <img width="40" height="40" src={item.image} alt="nut"/>
+                                        <img width="40" height="40" src={employee.image} alt={employee.image_id}/>
                                     </div>
                                     <div className='w-[80%]'>
-                                        <span className='capitalize'>{item.name}</span>
+                                        <span className='capitalize'>{employee.full_name}</span>
                                     </div>
                                 </td>
                                 <td className="px-4 py-2 text-gray-700">
                                     <div className='flex items-center gap-2'>
                                         <MdOutlineEmail className='text-[1.2rem]'/>
-                                        <span>{item.email}</span>
+                                        <span>{employee.email}</span>
                                     </div>
                                     <div className='flex items-center gap-2 mt-1'>
                                         <AiOutlinePhone className='text-[1.2rem]'/>
-                                        <span>{item.phone}</span>
+                                        <span>{employee.phone_number}</span>
                                     </div>
                                 </td>
-                                <td className="px-4 py-2 text-gray-700">{item.address}</td>
+                                <td className="px-4 py-2 text-gray-700">{employee.address}</td>
                                 <td className="px-4 py-2 text-gray-700">
-                                    <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-sm text-purple-700 bg-purple-100`}>
-                                        {item.department}
+                                    <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-sm ${employee.roleId ? 'text-purple-700 bg-purple-100': ''} `}>
+                                        {employee.roleId ?  employee.role.name : 'No Role'}
                                     </span>
                                 </td>
                                 <td className="px-4 py-2 text-gray-700">
                                     <span className={`whitespace-nowrap capitalize rounded-full px-2.5 py-0.5 text-sm text-purple-700 bg-purple-100`}>
-                                        {item.workType}
+                                        {employee.work_type}
                                     </span>
                                 </td>
                                 <td className="px-4 py-2 text-gray-700">
-                                    {handleContract(item.contract)}
+                                    {/*handleContract(item.contract)*/}
                                 </td>
-                                <td className="px-4 py-2 text-[#50B426] font-bold">${item.totalPaid}</td>
-                                <td className="px-4 py-2 font-bold text-[#4454DC]">${item.totalDue}</td>
-                                <td className="px-4 py-2 text-orange-400 font-bold">{item.salary}</td>
-                                <td className="px-4 py-2 text-gray-700">{item.employmentDate}</td>
-                                <td className="px-4 py-2 text-gray-700">{item.endOfService}</td>
-                                <td className="px-4 py-2 text-gray-700">{item.createdDate}</td>
-                                <td className="px-4 py-2 text-gray-700">{item.updatedDate}</td>
+                                <td className="px-4 py-2 text-[#50B426] font-bold">$</td>
+                                <td className="px-4 py-2 font-bold text-[#4454DC]">$</td>
+                                <td className="px-4 py-2 text-orange-400 font-bold"></td>
+                                <td className="px-4 py-2 text-gray-700">{format(parseISO(employee.employment_date), "dd/MM/yyyy h:mmaaa")}</td>
+                                <td className="px-4 py-2 text-gray-700">{employee.end_of_service ? format(parseISO(employee.end_of_service), "dd/MM/yyyy h:mmaaa") : 'Not specified'}</td>
+                                <td className="px-4 py-2 text-gray-700">{format(parseISO(employee.createdAt), "dd/MM/yyyy h:mmaaa")}</td>
+                                <td className="px-4 py-2 text-gray-700">{format(parseISO(employee.updatedAt), "dd/MM/yyyy h:mmaaa")}</td>
                             </tr>
                         ))}
                     </tbody>
+                    }
                 </table>
-                <TablePagination />
+                {employees &&
+                    <TablePagination currentPage={currentPage} totalPages={employees.totalPages} setCurrentPage={setCurrentPage} totalCount={employees.totalCount}  count={employees.employees.length}/>
+                }
             </div>
         </div>
     )
