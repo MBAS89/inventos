@@ -60,14 +60,14 @@ const Employees = sequelize.define('employees', {
         type: DataTypes.ENUM('full-time', 'part-time', 'temporary', 'remote', 'hybrid', 'contract-based', 'not-installed'),
         allowNull: false,
     },
-    salary_type: {
+    salary_type_id: {
         type: DataTypes.INTEGER,
         references: {
             model: 'salary_types',
             key: 'id'
         },
         onDelete: 'CASCADE',
-        allowNull:true
+        allowNull: true
     },
     hourly_rate: DataTypes.DECIMAL,
     yearly_salary: DataTypes.DECIMAL,

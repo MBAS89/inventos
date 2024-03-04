@@ -1,6 +1,27 @@
 const SalaryTypes = require("../../models/employees/salarytypes")
 const ErrorResponse = require("../../utils/errorResponse")
 
+exports.readSalaryTypes = async (req, res, next) => {
+    try {
+        
+        //fetch all Salary types
+        const salaryTypes = await SalaryTypes.findAll({
+            attributes: {
+                exclude: ['createdAt', 'updatedAt']
+            },
+            include: [{ all: true, nested: true }]
+        })
+
+        //return success response with message
+        res.status(201).json({
+            salaryTypes
+        })
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 exports.addSalaryTypes = async (req, res, next) => {
     try {

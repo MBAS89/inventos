@@ -19,8 +19,11 @@ const Employees = require('../../models/employees/employees');
 
 exports.addContractAndNewEmployee = async (req, res, next) => {
     try {
+        //retrive Customer values from req body 
+        const store_id = req.authData.store_id
+
         //get all employee and contract values from req.body
-        const { store_id, full_name, address, email, phone_number, password, status, employment_date, work_type, salary_type, confirmPassword, hourly_rate, yearly_salary, start_date, end_date, details } = req.body 
+        const { full_name, address, email, phone_number, password, status, employment_date, work_type, salary_type, confirmPassword, hourly_rate, yearly_salary, monthly_salary, roleId, start_date, end_date, details } = req.body 
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -37,16 +40,16 @@ exports.addContractAndNewEmployee = async (req, res, next) => {
 
 
         //Check if all Required Fileds are there
-        const requiredFields = ['store_id', 'full_name', 'email', 'phone_number', 'address', 'password', 'salary_type', 'start_date', 'end_date', 'details'];
+        const requiredFields = ['full_name', 'email', 'phone_number', 'address', 'password', 'salary_type', 'start_date', 'end_date', 'details'];
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         //Check If salary have value 
-        if(!hourly_rate && !yearly_salary){
+        if(!hourly_rate && !yearly_salary && !monthly_salary){
             //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
             await deleteImage(imageId)
 
              //this Will Tell the user That Contact should have Salary Value 
-            return next(new ErrorResponse('You must choose between a yearly salary or a hourly salary', 406));
+            return next(new ErrorResponse('You must choose between a yearly salary or a hourly salary or monthly salary', 406));
         }
 
         //if some required fields are missing 
@@ -76,6 +79,28 @@ exports.addContractAndNewEmployee = async (req, res, next) => {
         //hash password before insert into database
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        let hourly
+        let monthly
+        let yearly
+
+        if(JSON.parse(yearly_salary)){
+            yearly = JSON.parse(yearly_salary)
+            monthly = JSON.parse(yearly_salary) / 12
+            hourly = null
+        }else if(JSON.parse(monthly_salary)){
+            yearly = JSON.parse(monthly_salary) * 12
+            monthly = JSON.parse(monthly_salary)
+            hourly = null
+        }else if(JSON.parse(hourly_rate)){
+            yearly = null
+            monthly = null
+            hourly = JSON.parse(hourly_rate)
+        }else{
+            yearly = null
+            monthly = null
+            hourly = null
+        }
+
         //INSERT this Employee to the data base
         const employee = await Employees.create({
             store_id,
@@ -88,11 +113,13 @@ exports.addContractAndNewEmployee = async (req, res, next) => {
             password:hashedPassword,
             status,
             employment_date:employmentDate,
-            end_of_service:end_date,
-            work_type: work_type ? work_type : 'contract-based',
-            salary_type,
-            hourly_rate,
-            yearly_salary
+            end_of_service:new Date(end_date),
+            work_type : work_type ? work_type : 'contract-based',
+            salary_type_id:salary_type,
+            hourly_rate:hourly,
+            yearly_salary:yearly,
+            monthly_salary:monthly,
+            roleId: JSON.parse(roleId) ? JSON.parse(roleId) : null
         });
 
         //if creating an employee did not work 
@@ -109,9 +136,10 @@ exports.addContractAndNewEmployee = async (req, res, next) => {
             details,
             start_date,
             end_date,
-            salary_type,
-            hourly_rate,
-            yearly_salary,
+            salary_type_id:salary_type,
+            hourly_rate:hourly,
+            yearly_salary:yearly,
+            monthly_salary:monthly,
             employeeId:employee.id
         })
 

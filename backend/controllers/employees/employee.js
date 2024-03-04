@@ -1,3 +1,5 @@
+const { Op } = require('sequelize');
+
 //error response middleware
 const ErrorResponse = require('../../utils/errorResponse')
 
@@ -12,13 +14,113 @@ const { cloudinaryExtractPublicId, deleteImage } = require('../../utils/function
 //reusable functions to check Required Fields
 const { checkRequiredFields } = require('../../utils/functions/checkRequiredFileds');
 
+const { getOrderOptions } = require('../../utils/functions/orderOptions');
+
 //modles
-const Employees = require('../../models/employees/employees')
+const Employees = require('../../models/employees/employees');
+const SalaryTypes = require('../../models/employees/salarytypes');
+const Roles = require('../../models/employees/roles');
+
+exports.readEmployees = async (req, res, next) => {
+
+    try {
+        const storeId = req.authData.store_id
+
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
+
+        if (!page || !storeId) {
+            return next(new ErrorResponse('Page Number and Store ID are required', 400));
+        }
+        
+        const totalCount = await Employees.count({ where: { store_id: storeId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            store_id: storeId,
+            [Op.or]: [
+                { full_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { email: { [Op.iLike]: `%${searchQuery}%` } },
+                { phone_number: { [Op.iLike]: `%${searchQuery}%` } },
+            ]
+        } : { store_id: storeId };
+
+        const employees = await Employees.findAll({
+            where: whereClause,
+            limit: searchQuery ? null : parseInt(limit),
+            offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
+            order:column && sort ? getOrderOptions(column, sort) : [['id', 'ASC']],
+            include: [
+                {
+                    model: SalaryTypes,
+                    as: 'salary_type', 
+                    attributes: ['id', 'type'] 
+                },
+                {
+                    model: Roles,
+                    attributes: ['id', 'name'],
+                }
+            ]
+        });
+
+        return res.status(200).json({ totalCount, totalPages, currentPage, employees });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.readSingleEmployee = async (req, res, next) => {
+
+    try {
+        const storeId = req.authData.store_id
+        const { employeeId } = req.query;
+
+        if (!employeeId || !storeId) {
+            return next(new ErrorResponse('Employee ID and Store ID are required', 400));
+        }
+        
+        const employee = await Employees.findOne({
+            where: { 
+                store_id: storeId,
+                id: employeeId
+            },
+            include: [
+                {
+                    model: SalaryTypes,
+                    as: 'salary_type', 
+                    attributes: ['id', 'type'] 
+                },
+                {
+                    model: Roles,
+                    attributes: ['id', 'name'],
+                }
+            ]
+        })
+
+        if(!employee){
+            return  next(new ErrorResponse('No Employee Found!', 404))
+        }
+
+        return res.status(200).json({ employee });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 
 exports.addEmployee = async (req, res, next) => {
     try {
-        const { store_id, full_name, address, email, phone_number, password, status, employment_date, end_of_service, work_type, salary_type, confirmPassword, hourly_rate, yearly_salary } = req.body 
+
+        //retrive Customer values from req body 
+        const store_id = req.authData.store_id
+
+        const { full_name, address, email, phone_number, password, status, employment_date, end_of_service, work_type, salary_type, confirmPassword, hourly_rate, yearly_salary, monthly_salary, roleId } = req.body 
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -35,7 +137,7 @@ exports.addEmployee = async (req, res, next) => {
 
 
         //Check if all Required Fileds are there
-        const requiredFields = ['store_id', 'full_name', 'email', 'phone_number', 'address', 'password', 'status', 'work_type'];
+        const requiredFields = ['full_name', 'email', 'phone_number', 'address', 'password', 'status', 'work_type'];
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
@@ -65,6 +167,28 @@ exports.addEmployee = async (req, res, next) => {
         //hash password before insert into database
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        let hourly
+        let monthly
+        let yearly
+
+        if(JSON.parse(yearly_salary)){
+            yearly = JSON.parse(yearly_salary)
+            monthly = JSON.parse(yearly_salary) / 12
+            hourly = null
+        }else if(JSON.parse(monthly_salary)){
+            yearly = JSON.parse(monthly_salary) * 12
+            monthly = JSON.parse(monthly_salary)
+            hourly = null
+        }else if(JSON.parse(hourly_rate)){
+            yearly = null
+            monthly = null
+            hourly = JSON.parse(hourly_rate)
+        }else{
+            yearly = null
+            monthly = null
+            hourly = null
+        }
+
         //INSERT this Employee to the data base
         const employee = await Employees.create({
             store_id,
@@ -79,9 +203,11 @@ exports.addEmployee = async (req, res, next) => {
             employment_date:employmentDate,
             end_of_service,
             work_type,
-            salary_type,
-            hourly_rate,
-            yearly_salary
+            salary_type_id:salary_type,
+            hourly_rate:hourly,
+            yearly_salary:yearly,
+            monthly_salary:monthly,
+            roleId: JSON.parse(roleId) ? JSON.parse(roleId) : null
         });
 
         //if creating an employee did not work 
@@ -104,6 +230,7 @@ exports.addEmployee = async (req, res, next) => {
         })
 
     } catch (error) {
+        //console.log(error)
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
     }
@@ -114,18 +241,24 @@ exports.editEmployee = async (req, res, next) => {
         //retrive employeeId from req params 
         const { employeeId } =  req.params
         //retrive employee new values from req body 
-        const { full_name, address, email, phone_number, status, employment_date, end_of_service, work_type, salary_type, hourly_rate, yearly_salary } = req.body
+        const { full_name, address, email, phone_number, status, employment_date, end_of_service, work_type, salary_type, hourly_rate, yearly_salary, monthly_salary, roleId, oldImage } = req.body
         
+        let imageId
+        let imageUrl
         // Access Cloudinary image URL after uploading
-        const imageUrl = req.file.path;
-        // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
-        const imageId = cloudinaryExtractPublicId(imageUrl)
+        if(req.file){
+            imageUrl = req.file.path;
+
+            // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
+            imageId = cloudinaryExtractPublicId(imageUrl)
+        }
 
         //check if employeeId Have a value 
         if(!employeeId){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
-
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse("Employee ID Required", 422));
         }
@@ -154,8 +287,10 @@ exports.editEmployee = async (req, res, next) => {
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
 
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse(validationError, 422));
@@ -165,30 +300,54 @@ exports.editEmployee = async (req, res, next) => {
 
         // Check if the email is valid
         if (!isValidEmail) {
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
-            
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             //this will tell user email is not accepted 
             return next(new ErrorResponse('Invalid email address', 406));
         }
 
+        let hourly
+        let monthly
+        let yearly
+
+        if(JSON.parse(yearly_salary)){
+            yearly = JSON.parse(yearly_salary)
+            monthly = JSON.parse(yearly_salary) / 12
+            hourly = null
+        }else if(JSON.parse(monthly_salary)){
+            yearly = JSON.parse(monthly_salary) * 12
+            monthly = JSON.parse(monthly_salary)
+            hourly = null
+        }else if(JSON.parse(hourly_rate)){
+            yearly = null
+            monthly = null
+            hourly = JSON.parse(hourly_rate)
+        }else{
+            yearly = null
+            monthly = null
+            hourly = null
+        }
 
         //Edit Employee in database with new values 
         const updatedEmployee = await Employees.update(
             {
                 full_name,
-                image: imageUrl,
+                image: imageUrl ? imageUrl : oldImage,
                 image_id: imageId,
                 email,
                 phone_number,
                 address,
                 status,
-                employment_date:employmentDate,
-                end_of_service,
+                employment_date:new Date(employmentDate),
+                end_of_service:end_of_service ? new Date(end_of_service) : null,
                 work_type,
-                salary_type,
-                hourly_rate,
-                yearly_salary
+                salary_type_id:salary_type,
+                hourly_rate:hourly,
+                yearly_salary:yearly,
+                monthly_salary:monthly,
+                roleId: JSON.parse(roleId) ? JSON.parse(roleId) : null
             },
             {
                 returning: true,
@@ -198,14 +357,18 @@ exports.editEmployee = async (req, res, next) => {
 
         //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
         if(updatedEmployee[0] === 0){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
-        //this will send a request to cloudinary to delete the old image from there and return ok or fail 
-        const result = await deleteImage(oldEmployeeImageId)
-
+        let result
+        if(req.file){
+            //this will send a request to cloudinary to delete the old image from there and return ok or fail 
+            result = await deleteImage(oldEmployeeImageId)
+        }
 
         //return success response with message
         res.status(201).json({
@@ -229,6 +392,9 @@ exports.editEmployee = async (req, res, next) => {
 exports.removeEmployee = async (req, res, next) => {
     try {
 
+        //retrive Customer values from req body 
+        const store_id = req.authData.store_id
+
         //retrive employeeId from req params 
         const { employeeId } =  req.params
 
@@ -250,7 +416,8 @@ exports.removeEmployee = async (req, res, next) => {
         //DELETE supplier FROM DATA BASE WITH THE DISRE ID VALUE
         const employee = await Employees.destroy({
             where: {
-                id: employeeId
+                id: employeeId,
+                store_id
             }
         });
 

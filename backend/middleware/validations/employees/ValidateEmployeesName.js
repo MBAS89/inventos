@@ -8,21 +8,24 @@ const ErrorResponse = require('../../../utils/errorResponse')
 const ValidateEmployeesName = async (req, res, next) => {
     try {
         //retrieve Employee name from req query to check if the Employee name is used before uploading to cloudinary
-        const { employeeEmail, storeId } = req.query
+        const store_id = req.authData.store_id
+        const { employeeEmail } = req.query
 
         // Check if all fields are present
-        if (!employeeEmail || !storeId) {
+        if (!employeeEmail || !store_id) {
             return next(new ErrorResponse("Employee Email And Store ID Is required", 422));
         }
 
         if (req.path.includes('/remove')) {
+            next();
+        }else if(req.path.includes('/edit')){
             next();
         }else{
             // Check if the Employee name is already exists
             const existingEmployee = await Employees.findOne({
                 where: {
                     email: employeeEmail,
-                    store_id: storeId
+                    store_id: store_id
                 }
             });
 

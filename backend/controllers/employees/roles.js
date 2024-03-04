@@ -4,6 +4,40 @@ const ErrorResponse = require('../../utils/errorResponse')
 //modles
 const Roles = require('../../models/employees/roles')
 const Permissions = require('../../models/employees/permission');
+const Departments = require('../../models/employees/department');
+
+exports.readRole= async (req, res, next) => {
+    try {
+
+        const { employeeId } = req.query
+
+        const role = await Roles.findOne({
+            where:{ id:employeeId },
+            attributes: { exclude: ['createdAt', 'updatedAt'] },
+            include: [
+                {
+                    model: Permissions,
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                    through: {
+                        attributes: { exclude: ['createdAt', 'updatedAt'] }
+                    },
+                    include: [
+                        {
+                            model: Departments,
+                            attributes: ['id', 'name']
+                        }
+                    ]
+                }
+            ],
+            order: [['id', 'ASC']]
+        });
+
+        return res.status(200).json({ role })
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 exports.readRoles= async (req, res, next) => {
     try {

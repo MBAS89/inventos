@@ -4,6 +4,7 @@ const Employees = require('../../models/employees/employees');
 const Permissions = require('../../models/employees/permission');
 const RolePermissions = require('../../models/employees/rolePermission');
 const Roles = require('../../models/employees/roles');
+const SalaryTypes = require('../../models/employees/salarytypes');
 
 
 // Define associations
@@ -19,6 +20,9 @@ Permissions.belongsToMany(Roles, { through: RolePermissions });
 // Establishing relationship between Employee and Contract
 Employees.hasOne(Contracts);
 Contracts.belongsTo(Employees);
+
+Employees.belongsTo(SalaryTypes, { as: 'salary_type', foreignKey: 'salary_type_id' });
+Contracts.belongsTo(SalaryTypes, { as: 'salary_type', foreignKey: 'salary_type_id' });
 
 // Export models
 module.exports = {
