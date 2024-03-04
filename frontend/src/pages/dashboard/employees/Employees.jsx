@@ -51,16 +51,13 @@ export const Employees = () => {
             title:"End of service"
         },
         {
-            title:"created date"
-        },
-        {
             title:"updated date"
         }
         
     ]
 
     return (
-        <div className=' bg-gray-100 h-[calc(100vh-64px)]'>
+        <div className={`bg-gray-100 h-[calc(100vh-64px)] ${openDeletePopup ? 'overflow-hidden' : ''}`}>
             <SearchComponents placeholder="Search for employee" searchQuery={searchQuery} setsearchQuery={setsearchQuery} actionName="Add Employee" setOpenPopup={setOpenPopup}/>
             <TableToolsComponent setEditMode={setEditMode} setOpenPopup={setOpenPopup} setSortBy={setSortBy} sortBy={sortBy}  setOpenDeletePopup={setOpenDeletePopup} selected={selectedEmployee} department="Employees" setReset={setSelectedEmployee} />
             <EmployeesTable searchQuery={searchQuery} sortBy={sortBy} headItems={headItems} setSelectedEmployee={setSelectedEmployee} selectedEmployee={selectedEmployee} />

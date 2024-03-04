@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import { format, parseISO } from 'date-fns';
+import millify from "millify";
 
 import { TableHead } from '../TableHead'
 import { TablePagination } from '../TablePagination'
@@ -12,6 +13,7 @@ import { useSelector } from 'react-redux'
 import { authInfoState } from '../../features/slices/authSlice'
 import { useReadEmployeesQuery } from '../../features/api/employees/employeeApiSlice'
 import { Loader } from '../reusable-components/Loader';
+import { handleSalary } from '../../functions/handleSalary';
 
 export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmployee, searchQuery, sortBy }) => {
     
@@ -28,10 +30,8 @@ export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmploye
         })
     };
 
-    console.log(employees)
-
     const handleContract = (status) => {
-        if(status === true){
+        if(status === 'contract-based'){
             return(
                 <span className="whitespace-nowrap rounded-full bg-emerald-100 px-2.5 py-0.5 text-emerald-700">
                     Yes
@@ -45,6 +45,7 @@ export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmploye
             )
         }
     } 
+
 
     return (
         <div className='px-6 mt-2'>
@@ -69,7 +70,7 @@ export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmploye
                                     />
                                 </td>
                                 <td className="px-4 py-2 font-medium text-gray-900 flex items-center gap-3">
-                                    <div className=' bg-gray-100 p-1 rounded-md w-[20%] flex items-center justify-center'>
+                                    <div className=' bg-gray-100 p-1 rounded-md w-20 flex items-center justify-center'>
                                         <img width="40" height="40" src={employee.image} alt={employee.image_id}/>
                                     </div>
                                     <div className='w-[80%]'>
@@ -98,14 +99,13 @@ export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmploye
                                     </span>
                                 </td>
                                 <td className="px-4 py-2 text-gray-700">
-                                    {/*handleContract(item.contract)*/}
+                                    {handleContract(employee.work_type)}
                                 </td>
                                 <td className="px-4 py-2 text-[#50B426] font-bold">$</td>
                                 <td className="px-4 py-2 font-bold text-[#4454DC]">$</td>
-                                <td className="px-4 py-2 text-orange-400 font-bold"></td>
+                                <td className="px-4 py-2 text-[#9b6328] font-bold w-24">{handleSalary(employee)}</td>
                                 <td className="px-4 py-2 text-gray-700">{format(parseISO(employee.employment_date), "dd/MM/yyyy h:mmaaa")}</td>
                                 <td className="px-4 py-2 text-gray-700">{employee.end_of_service ? format(parseISO(employee.end_of_service), "dd/MM/yyyy h:mmaaa") : 'Not specified'}</td>
-                                <td className="px-4 py-2 text-gray-700">{format(parseISO(employee.createdAt), "dd/MM/yyyy h:mmaaa")}</td>
                                 <td className="px-4 py-2 text-gray-700">{format(parseISO(employee.updatedAt), "dd/MM/yyyy h:mmaaa")}</td>
                             </tr>
                         ))}

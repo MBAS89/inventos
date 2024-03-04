@@ -6,14 +6,24 @@ import { JobDetails } from '../../../components/employees/JobDetails'
 import { DuePayments } from '../../../components/employees/DuePayments'
 import { PaidPayments } from '../../../components/employees/PaidPayments'
 
+
+import { useParams } from 'react-router-dom'
+import { useReadEmployeeQuery } from '../../../features/api/employees/employeeApiSlice'
+
+
 export const EmployeeInformation = () => {
+
+    const { employeeId } = useParams();
+
+    const { data, isLoading } = useReadEmployeeQuery({ employeeId: employeeId }, 'readEmployee')
+
     return (
         <div className=' bg-gray-100 min-h-[calc(100vh-64px)] pb-16'>
-            <Breadcrumb from="Employees" current="Employee 1"/>
-            <EmployeeInfo />
-            <JobDetails />
-            <DuePayments />
-            <PaidPayments />
+            {data && <Breadcrumb from="Employees" current={data.employee.full_name}/>}
+            <EmployeeInfo data={data} isLoading={isLoading} />
+            <JobDetails  data={data} isLoading={isLoading}/>
+            <DuePayments  data={data} isLoading={isLoading}/>
+            <PaidPayments  data={data} isLoading={isLoading}/>
         </div>
     )
 }

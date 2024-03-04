@@ -7,10 +7,11 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         readEmployees: builder.query({
             query: (data) => ({
-                url: `${EMPLOYEE_URL}/read?page=${data.page}&sort=${data.sortBy.sort}&column=${data.sortBy.column}&searchQuery=${data.searchQuery}`,
+                url: `${EMPLOYEE_URL}/read?page=${data.page}&sort=${data.sortBy.sort || ''}&column=${data.sortBy.column || ''}&searchQuery=${data.searchQuery}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {
+                response.employees.sort((a, b) => a.id - b.id)
                 return response;
             },
             providesTags: ['Employees'],
@@ -97,8 +98,48 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Employees']
         }),
+        addEmployeeWithContract: builder.mutation({
+            query: (data) => {
+                const formData = new FormData();
+                formData.append('folderName', 'employees');
+                formData.append('full_name', data.fullName);
+                formData.append('address', data.address);
+                formData.append('email', data.email);
+                formData.append('phone_number', data.phone);
+                formData.append('password', data.password);
+                formData.append('confirmPassword', data.confirmPassword);
+                formData.append('status', data.status);
+                formData.append('work_type', data.workType);
+                formData.append('salary_type', data.salaryType);
+                formData.append('hourly_rate', data.salaryTypeValue == 'hourly' ? data.rate : null);
+                formData.append('yearly_salary', data.salaryTypeValue == 'yearly' ? data.rate : null);
+                formData.append('monthly_salary', data.salaryTypeValue == 'monthly' ? data.rate : null);
+                formData.append('roleId', data.roleId);
+                formData.append('image', data.file.file);
+
+                //contract data
+                formData.append('start_date', data.startDate);
+                formData.append('end_date', data.endDate);
+                formData.append('details', data.details);
+
+                return {
+                    url: `/api/v1/store/employees/contracts/add-employee-contract?employeeEmail=${data.email}`,
+                    method: 'POST',
+                    body: formData
+                };
+            },
+            invalidatesTags: ['Employees']
+
+        }),
 
     })
 })
 
-export const { useReadEmployeeQuery, useReadEmployeesQuery ,useAddEmployeeMutation, useRemoveEmployeeMutation, useEditEmployeeMutation } = employeeApiSlice
+export const { 
+    useReadEmployeeQuery,
+    useReadEmployeesQuery,
+    useAddEmployeeMutation, 
+    useRemoveEmployeeMutation, 
+    useEditEmployeeMutation,
+    useAddEmployeeWithContractMutation
+} = employeeApiSlice

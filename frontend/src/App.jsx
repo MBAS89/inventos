@@ -90,7 +90,7 @@ function App() {
             <Employees />
           </DashLayout>
         }></Route>
-        <Route path="/dashboard/employees/employee-information" element={
+        <Route path="/dashboard/employees/employee-information/:employeeId" element={
           <DashLayout>
             <EmployeeInformation />
           </DashLayout>

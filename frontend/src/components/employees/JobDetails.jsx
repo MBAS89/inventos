@@ -1,6 +1,13 @@
 import React from 'react'
+import { handleSalary } from '../../functions/handleSalary'
+import { format, parseISO } from 'date-fns'
 
-export const JobDetails = () => {
+
+
+export const JobDetails = ({data, isLoading}) => {
+
+
+    console.log(data)
     return (
         <div className='w-[60%] mx-auto flex gap-5'>
             <div className='rounded-md border-2 border-gray-200 p-4 bg-white mt-4 w-[59%]'>
@@ -12,9 +19,24 @@ export const JobDetails = () => {
                         <h4 className='font-bold capitalize'>agreed salary:</h4>
                     </div>
                     <div className='flex flex-col gap-2'>
-                        <span>16th Oct, 2023</span>
-                        <span>16th Oct, 2023</span>
-                        <span>$20k</span>
+                        {isLoading ? (
+                                <div className='bg-slate-500 animate-pulse h-[20px] w-[140px] rounded-lg'></div>
+                            ) : (
+                                <span>{data.employee.employment_date !== null && format(parseISO(data.employee.employment_date), "dd/MM/yyyy h:mmaaa")}</span>
+                            )
+                        }
+                        {isLoading ? (
+                                <div className='bg-slate-500 animate-pulse h-[20px] w-[140px] rounded-lg'></div>
+                            ) : (
+                                <span>{data.employee.end_of_service !== null  ? format(parseISO(data.employee.end_of_service), "dd/MM/yyyy h:mmaaa") : 'Unspecified'}</span>
+                            )
+                        }
+                        {isLoading ? (
+                                <div className='bg-slate-500 animate-pulse h-[20px] w-[140px] rounded-lg'></div>
+                            ) : (
+                                <span>{handleSalary(data.employee)}</span>
+                            )
+                        }
                     </div>
                     <div className='flex flex-col justify-start items-start gap-2'>
                         <button className='font-bold text-[#50B426] hover:text-green-600 active:text-green-900'>Change Date</button>
