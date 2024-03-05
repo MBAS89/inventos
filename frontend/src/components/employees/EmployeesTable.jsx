@@ -14,6 +14,7 @@ import { authInfoState } from '../../features/slices/authSlice'
 import { useReadEmployeesQuery } from '../../features/api/employees/employeeApiSlice'
 import { Loader } from '../reusable-components/Loader';
 import { handleSalary } from '../../functions/handleSalary';
+import { handleContract } from '../../functions/handleContract';
 
 export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmployee, searchQuery, sortBy }) => {
     
@@ -30,21 +31,6 @@ export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmploye
         })
     };
 
-    const handleContract = (status) => {
-        if(status === 'contract-based'){
-            return(
-                <span className="whitespace-nowrap rounded-full bg-emerald-100 px-2.5 py-0.5 text-emerald-700">
-                    Yes
-                </span>
-            )
-        }else{ 
-            return(
-                <span className="whitespace-nowrap rounded-full bg-red-100 px-2.5 py-0.5 text-red-700">
-                    No
-                </span>
-            )
-        }
-    } 
 
 
     return (
