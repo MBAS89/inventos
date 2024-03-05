@@ -20,6 +20,7 @@ const { getOrderOptions } = require('../../utils/functions/orderOptions');
 const Employees = require('../../models/employees/employees');
 const SalaryTypes = require('../../models/employees/salarytypes');
 const Roles = require('../../models/employees/roles');
+const Contracts = require('../../models/employees/contracts');
 
 exports.readEmployees = async (req, res, next) => {
 
@@ -105,7 +106,13 @@ exports.readSingleEmployee = async (req, res, next) => {
             return  next(new ErrorResponse('No Employee Found!', 404))
         }
 
-        return res.status(200).json({ employee });
+        const contracts = await Contracts.findAll({
+            where:{
+                employeeId:employee.id
+            }
+        })
+
+        return res.status(200).json({ employee, contracts });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
