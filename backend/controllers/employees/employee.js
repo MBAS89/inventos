@@ -109,7 +109,14 @@ exports.readSingleEmployee = async (req, res, next) => {
         const contracts = await Contracts.findAll({
             where:{
                 employeeId:employee.id
-            }
+            },
+            include: [
+                {
+                    model: SalaryTypes,
+                    as: 'salary_type', 
+                    attributes: ['id', 'type'] 
+                }
+            ]
         })
 
         return res.status(200).json({ employee, contracts });

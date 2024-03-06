@@ -1,3 +1,5 @@
+const { Op } = require('sequelize');
+
 //error response middleware
 const ErrorResponse = require('../../utils/errorResponse')
 
@@ -131,6 +133,11 @@ exports.addContractAndNewEmployee = async (req, res, next) => {
             return next(new ErrorResponse("Something went Wrong", 500));
         }
 
+        await Contracts.update(
+            { status: 'Canceled' },
+            { where: { employeeId:employee.id, status: 'Active' } }
+        );
+
         //create a contract 
         const contract = await Contracts.create({
             details,
@@ -169,11 +176,33 @@ exports.addContractAndNewEmployee = async (req, res, next) => {
 exports.addContractToEmployee = async (req, res, next) => {
     try {
         //get all contract values and employee id from req.body
-        const { details, start_date, salary_type, hourly_rate, yearly_salary, end_date, employeeId } = req.body;
+        const { details, start_date, salary_type, hourly_rate, yearly_salary, monthly_salary, end_date, employeeId } = req.body;
 
         //Check if all Required Fileds are there
-        const requiredFields = ['details', 'start_date', 'end_date', 'employeeId', 'salary_type', 'hourly_rate', 'yearly_salary'];
+        const requiredFields = ['details', 'start_date', 'end_date', 'employeeId', 'salary_type'];
         const validationError = checkRequiredFields(next, req.body, requiredFields);
+
+        let hourly
+        let monthly
+        let yearly
+
+        if(JSON.parse(yearly_salary)){
+            yearly = JSON.parse(yearly_salary)
+            monthly = JSON.parse(yearly_salary) / 12
+            hourly = null
+        }else if(JSON.parse(monthly_salary)){
+            yearly = JSON.parse(monthly_salary) * 12
+            monthly = JSON.parse(monthly_salary)
+            hourly = null
+        }else if(JSON.parse(hourly_rate)){
+            yearly = null
+            monthly = null
+            hourly = JSON.parse(hourly_rate)
+        }else{
+            yearly = null
+            monthly = null
+            hourly = null
+        }
 
         //if some required fields are missing 
         if(validationError){
@@ -181,14 +210,20 @@ exports.addContractToEmployee = async (req, res, next) => {
             return next(new ErrorResponse(validationError, 422));
         }
 
+        await Contracts.update(
+            { status: 'Canceled' },
+            { where: { employeeId, status: 'Active' } }
+        );
+
         //create a contract 
         const contract = await Contracts.create({
             details,
             start_date,
             end_date,
-            salary_type,
-            hourly_rate,
-            yearly_salary,
+            salary_type_id:salary_type,
+            hourly_rate:hourly,
+            yearly_salary:yearly,
+            monthly_salary:monthly,
             employeeId
         })
 
@@ -203,9 +238,10 @@ exports.addContractToEmployee = async (req, res, next) => {
             status:'on-payroll',
             end_of_service:end_date,
             work_type:'contract-based',
-            salary_type,
-            hourly_rate,
-            yearly_salary
+            salary_type_id:salary_type,
+            hourly_rate:hourly,
+            yearly_salary:yearly,
+            monthly_salary:monthly,
         },{
             where:{
                 id:employeeId
@@ -237,7 +273,7 @@ exports.editContract = async (req, res, next) => {
         //get contractId from req.params
         const { contractId } = req.params
         //get all contract values and employee id from req.body
-        const { salary_type, hourly_rate, yearly_salary, details, start_date, end_date, employeeId, status } = req.body
+        const { salary_type, hourly_rate, yearly_salary, monthly_salary, details, start_date, end_date, employeeId, status } = req.body
 
         //if contractId dose not have value
         if(!contractId){
@@ -253,6 +289,20 @@ exports.editContract = async (req, res, next) => {
         if(validationError){
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse(validationError, 422));
+        }
+
+        if(status === 'Active'){
+            isThereAnActiveContract = await Contracts.findAll({
+                where:{
+                    status:'Active',
+                    id:{[Op.not]: contractId} 
+                }
+            })
+
+            if(isThereAnActiveContract.length > 0){
+                //send error message that saying You already have an Active Contract 
+                return next(new ErrorResponse("Employee Has An Active Contract Deactivate Previous Contract First", 422));
+            }
         }
 
         //declare a variable to hold the contract status 
@@ -272,10 +322,11 @@ exports.editContract = async (req, res, next) => {
             salary_type,
             hourly_rate,
             yearly_salary,
+            monthly_salary,
             details,
             start_date,
             end_date,
-            status
+            status:contractStatus
         },{
             where:{
                 id:contractId
@@ -302,6 +353,7 @@ exports.editContract = async (req, res, next) => {
                 work_type:'contract-based',
                 salary_type,
                 hourly_rate,
+                monthly_salary,
                 yearly_salary
             },{
                 where:{
@@ -327,7 +379,8 @@ exports.editContract = async (req, res, next) => {
                 work_type:'not-installed',
                 salary_type: null,
                 hourly_rate:0,
-                yearly_salary:0
+                yearly_salary:0,
+                monthly_salary:0
             },{
                 where:{
                     id:employeeId
@@ -366,6 +419,12 @@ exports.removeContract = async (req, res, next) => {
             return next(new ErrorResponse("Contract ID AND Employee ID is required", 406))
         }
 
+        const contractInfo = await Contracts.findOne({
+            where:{
+                id:contractId
+            }
+        })
+
         //Delete contract where Id Equal the contract ID
         const contract = await Contracts.destroy({
             where: {
@@ -385,24 +444,31 @@ exports.removeContract = async (req, res, next) => {
             and assign the value of salary_type, hourly_rate and yearly_salary to 0 
             this mean employee need new contract or another work type
         */ 
-        const updatedEmployee = await Employees.update({
-            status:'out-payroll',
-            end_of_service:new Date(),
-            work_type:'not-installed',
-            salary_type: null,
-            hourly_rate:0,
-            yearly_salary:0
-        },{
-            where:{
-                id:employeeId
+
+        /*  
+            check if the deleted contract is an active contract if it's then we 
+            will update employee if not we will not 
+        */
+
+        if(contractInfo.status === "Active"){
+            const updatedEmployee = await Employees.update({
+                status:'out-payroll',
+                end_of_service:new Date(),
+                work_type:'not-installed',
+                salary_type: null,
+                hourly_rate:0,
+                yearly_salary:0
+            },{
+                where:{
+                    id:employeeId
+                }
+            })
+    
+            //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
+            if(updatedEmployee[0] === 0){
+                return next(new ErrorResponse("Something Went Wrong", 500));
             }
-        })
-
-        //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
-        if(updatedEmployee[0] === 0){
-            return next(new ErrorResponse("Something Went Wrong", 500));
         }
-
 
         //return success response with message
         res.status(200).json({
