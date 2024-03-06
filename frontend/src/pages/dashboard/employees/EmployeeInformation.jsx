@@ -9,6 +9,7 @@ import { EmployeeContractInfo } from '../../../components/employees/EmployeeCont
 
 import { useParams } from 'react-router-dom'
 import { useReadEmployeeQuery } from '../../../features/api/employees/employeeApiSlice'
+import { useState } from 'react'
 
 
 
@@ -19,7 +20,7 @@ export const EmployeeInformation = () => {
     const { data, isLoading } = useReadEmployeeQuery({ employeeId: employeeId }, 'readEmployee')
 
     return (
-        <div className=' bg-gray-100 min-h-[calc(100vh-64px)] pb-16'>
+        <div className={`bg-gray-200 min-h-[calc(100vh-64px)] h-full pb-16`}>
             {data && <Breadcrumb from="Employees" current={data.employee.full_name}/>}
             <EmployeeInfo data={data} isLoading={isLoading} />
             <JobDetails  data={data} isLoading={isLoading}/>

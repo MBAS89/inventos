@@ -168,11 +168,6 @@ export const AddAndEditEmpolyeesPopup = ({ setOpenPopup, editMode, selected, set
                 oldImage: data.employee.image
             })
 
-            if(data.employee.work_type === 'contract-based'){
-                setContactData({
-
-                })
-            }
         }
     },[editMode, data])
 

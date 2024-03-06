@@ -131,7 +131,6 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: ['Employees']
 
         }),
-
     })
 })
 
