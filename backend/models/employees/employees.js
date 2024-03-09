@@ -69,6 +69,11 @@ const Employees = sequelize.define('employees', {
         onDelete: 'CASCADE',
         allowNull: true
     },
+    paid_type: {
+        type: DataTypes.ENUM('weekly', 'monthly', 'yearly'),
+        defaultValue:'monthly',
+        allowNull: false,
+    },
     hourly_rate: DataTypes.DECIMAL,
     yearly_salary: DataTypes.DECIMAL,
     monthly_salary:DataTypes.DECIMAL

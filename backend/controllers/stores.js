@@ -2,6 +2,9 @@
 const NodeCache = require("node-cache");
 const cache = new NodeCache();
 
+//jwt 
+const jwt = require('jsonwebtoken');
+
 //error response middleware
 const ErrorResponse = require('../utils/errorResponse')
 
@@ -20,6 +23,7 @@ const Permissions = require('../models/employees/permission')
 const { generateToken } = require('../utils/generatToken');
 const Roles = require("../models/employees/roles");
 const Departments = require("../models/employees/department");
+const Log = require("../models/employees/log");
 
 
 exports.createStore = async (req, res, next) => {
@@ -201,6 +205,14 @@ exports.storeLogin = async (req, res, next) => {
               }
             });
 
+            //create a log for this employee 
+            await Log.create({
+                employeeId: employee.id,
+                signInTime: new Date(),
+                signoutTime: null,
+                accountedFor: false
+            });
+
 
             //if password pass we will create a payload to put into the token
             const payload = {
@@ -229,6 +241,28 @@ exports.storeLogin = async (req, res, next) => {
 
 exports.storelogout = async (req, res, next) => {
     try {
+        const token = req.cookies.jwt
+
+        //verify token and set all token value in decoded variable this will hold the key jwt the payload the data and the expiration
+        const decoded = jwt.verify(token, process.env.JWT_SECRT)
+
+        // Find the latest sign-in log for the employee
+        const latestLog = await Log.findOne({
+            where: {
+            employeeId: decoded.payload.id,
+            signoutTime: null
+            },
+            order: [['signInTime', 'DESC']]
+        });
+  
+        if (!latestLog) {
+            return res.status(400).send("Employee has not signed in");
+        }
+  
+        // Update the sign-out time for the latest sign-in log
+        latestLog.signoutTime = new Date();
+        await latestLog.save();
+
         //remove the token form the request by setting expire time to 0 
         res.cookie('jwt', '', {
             httpOnly:true,
