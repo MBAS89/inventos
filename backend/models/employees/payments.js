@@ -22,7 +22,11 @@ const Payment = sequelize.define('payment', {
     },
     paidDate:{
         type:DataTypes.DATE,
-    }
+    },
+    paymentDate:{
+        type:DataTypes.DATE,
+    },
+    hoursWorked: DataTypes.FLOAT,
 });
 
 module.exports = Payment;

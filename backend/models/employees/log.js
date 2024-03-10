@@ -15,7 +15,7 @@ const Log = sequelize.define('log', {
         type:DataTypes.DATE,
         allowNull: false
     },
-    signoutTime:{
+    signOutTime:{
         type:DataTypes.DATE
     },
     accountedFor:{

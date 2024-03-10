@@ -69,6 +69,9 @@ app.use('/api/v1/store/suppliers', require('./routes/suppliers'));
 //Suppliers routes
 app.use('/api/v1/store/employees', require('./routes/employees'));
 
+//test routes
+app.use('/api/v1/store/test', require('./routes/test'))
+
 
 // Error Handler Middleware
 app.use(errorHandler);
