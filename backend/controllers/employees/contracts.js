@@ -295,7 +295,8 @@ exports.editContract = async (req, res, next) => {
             isThereAnActiveContract = await Contracts.findAll({
                 where:{
                     status:'Active',
-                    id:{[Op.not]: contractId} 
+                    id:{[Op.not]: contractId},
+                    employeeId 
                 }
             })
 
@@ -319,7 +320,7 @@ exports.editContract = async (req, res, next) => {
 
         //update a contract
         const contract = await Contracts.update({
-            salary_type,
+            salary_type_id:salary_type,
             hourly_rate,
             yearly_salary,
             monthly_salary,
@@ -351,7 +352,7 @@ exports.editContract = async (req, res, next) => {
                 status:'on-payroll',
                 end_of_service:end_date,
                 work_type:'contract-based',
-                salary_type,
+                salary_type_id:salary_type,
                 hourly_rate,
                 monthly_salary,
                 yearly_salary
@@ -377,7 +378,7 @@ exports.editContract = async (req, res, next) => {
                 status:'out-payroll',
                 end_of_service:new Date(),
                 work_type:'not-installed',
-                salary_type: null,
+                salary_type_id: null,
                 hourly_rate:0,
                 yearly_salary:0,
                 monthly_salary:0
@@ -455,9 +456,10 @@ exports.removeContract = async (req, res, next) => {
                 status:'out-payroll',
                 end_of_service:new Date(),
                 work_type:'not-installed',
-                salary_type: null,
+                salary_type_id: null,
                 hourly_rate:0,
-                yearly_salary:0
+                yearly_salary:0,
+                monthly_salary:0
             },{
                 where:{
                     id:employeeId

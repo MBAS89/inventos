@@ -209,7 +209,7 @@ exports.storeLogin = async (req, res, next) => {
             await Log.create({
                 employeeId: employee.id,
                 signInTime: new Date(),
-                signoutTime: null,
+                signOutTime: null,
                 accountedFor: false
             });
 
@@ -250,7 +250,7 @@ exports.storelogout = async (req, res, next) => {
         const latestLog = await Log.findOne({
             where: {
             employeeId: decoded.payload.id,
-            signoutTime: null
+            signOutTime: null
             },
             order: [['signInTime', 'DESC']]
         });
@@ -260,7 +260,7 @@ exports.storelogout = async (req, res, next) => {
         }
   
         // Update the sign-out time for the latest sign-in log
-        latestLog.signoutTime = new Date();
+        latestLog.signOutTime = new Date();
         await latestLog.save();
 
         //remove the token form the request by setting expire time to 0 

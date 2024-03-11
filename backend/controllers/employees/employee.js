@@ -21,6 +21,8 @@ const Employees = require('../../models/employees/employees');
 const SalaryTypes = require('../../models/employees/salarytypes');
 const Roles = require('../../models/employees/roles');
 const Contracts = require('../../models/employees/contracts');
+const Log = require('../../models/employees/log');
+const Payment = require('../../models/employees/payments');
 
 exports.readEmployees = async (req, res, next) => {
 
@@ -98,6 +100,9 @@ exports.readSingleEmployee = async (req, res, next) => {
                 {
                     model: Roles,
                     attributes: ['id', 'name'],
+                },
+                {
+                    model:Log
                 }
             ]
         })
@@ -119,7 +124,13 @@ exports.readSingleEmployee = async (req, res, next) => {
             ]
         })
 
-        return res.status(200).json({ employee, contracts });
+        const payments = await Payment.findAll({
+            where:{
+                employeeId:employee.id
+            }
+        })
+
+        return res.status(200).json({ employee, contracts, payments });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 

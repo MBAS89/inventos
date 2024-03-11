@@ -31,6 +31,7 @@ const errorHandler = require("./middleware/error");
 
 //corns funtions
 const contractCron = require('./crons/contractCron');
+const createPayment = require('./crons/createPayment');
 
 
 const app = express()
@@ -76,16 +77,24 @@ app.use('/api/v1/store/test', require('./routes/test'))
 // Error Handler Middleware
 app.use(errorHandler);
 
-
-
+// Schedule the cron job only if testing is not false
 if (process.env.NODE_ENV !== 'test') {
-    // Schedule the cron job only if testing is not false
+
     cron.schedule('0 0 * * *', () => {
-        contractCron(); // Call the cron job function
+        contractCron(); 
     }, {
         scheduled: true,
-        timezone: "Asia/Jerusalem" // Set your timezone here
+        timezone: "Asia/Jerusalem" 
     });
+
+    // Schedule createPayment to run daily at 11 PM
+    cron.schedule('0 23 * * *', () => {
+        createPayment();
+    }, {
+        scheduled: true,
+        timezone: "Asia/Jerusalem" 
+    });
+
 }
 
 
