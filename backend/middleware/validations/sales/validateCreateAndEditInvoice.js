@@ -11,7 +11,7 @@ const validateCreateAndEditInvoice = async (req, res, next) => {
 
         let requiredFields;
         if (req.path.includes('/create')) {
-            requiredFields = ['total_amount', 'items_discount', 'total_discount', 'total_to_pay', 'total_due', 'total_paid', 'status', 'store_id'];
+            requiredFields = ['total_amount', 'items_discount', 'total_discount', 'total_to_pay', 'total_due', 'total_paid', 'status'];
         }else{
             requiredFields = ['total_amount', 'items_discount', 'total_discount', 'total_to_pay', 'total_due', 'total_paid', 'status'];
         }

@@ -27,6 +27,10 @@ const CustomersTypes = sequelize.define('customers_types', {
         allowNull:false,
         defaultValue:2
     },
+    wholeSalePrice:{
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
+    }
 });
 
 module.exports = CustomersTypes;

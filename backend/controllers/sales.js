@@ -1,4 +1,5 @@
 const sequelize = require('../config/database');
+const { Op } = require('sequelize');
 
 //error response middleware
 const ErrorResponse = require('../utils/errorResponse')
@@ -6,14 +7,130 @@ const ErrorResponse = require('../utils/errorResponse')
 //modles
 const { Invoices, InvoiceItems } = require('../models/sales/invoices');
 const Products = require('../models/inventory/products');
+const Employees = require('../models/employees/employees');
+const Customers = require('../models/cutomers/cutomers');
+const CustomerTypes = require('../models/cutomers/customersTypes')
+
+//reusable funtions 
+const {getOrderOptions} = require('../utils/functions/orderOptions')
+
+exports.readSingleInvoice = async (req, res, next) => {
+    try {
+        const storeId = req.authData.store_id
+        const { invoiceId } = req.query;
+
+        if (!invoiceId || !storeId) {
+            return next(new ErrorResponse('Invoice  ID and Store ID are required', 400));
+        }
+        
+        const invoice = await Invoices.findOne({
+            where: { 
+                store_id: storeId,
+                id: invoiceId
+            },
+            include: [
+                {
+                    model: InvoiceItems,
+                    as: 'items',
+                    include: [
+                        {
+                            model: Products,
+                            attributes: ['product_id', 'name', 'image', 'sku']
+                        }
+                    ]
+                },
+                {
+                    model:Employees,
+                    attributes: ['id', 'full_name', 'image'],
+                },
+                {
+                    model:Customers,
+                    attributes: ['id', 'full_name', 'image'],
+                }
+            ]
+        })
+
+        if(!invoice){
+            return  next(new ErrorResponse('No Invoice Found!', 404))
+        }
+
+        return res.status(200).json({ invoice });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.readInvoices = async (req, res, next) => {
+
+    try {
+        const storeId = req.authData.store_id
+
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
+
+        if (!page || !storeId) {
+            return next(new ErrorResponse('Page Number and Store ID are required', 400));
+        }
+        
+        const totalCount = await Invoices.count({ where: { store_id: storeId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            store_id: storeId,
+            [Op.or]: [
+                { full_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { email: { [Op.iLike]: `%${searchQuery}%` } },
+                { phone_number: { [Op.iLike]: `%${searchQuery}%` } },
+            ]
+        } : { store_id: storeId };
+
+        const invoices = await Invoices.findAll({
+            where: whereClause,
+            limit: searchQuery ? null : parseInt(limit),
+            offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
+            order:column && sort ? getOrderOptions(column, sort) : [['id', 'ASC']],
+            include: [
+                {
+                    model: InvoiceItems,
+                    as: 'items',
+                    include: [
+                        {
+                            model: Products,
+                            attributes: ['product_id', 'name', 'image', 'sku']
+                        }
+                    ]
+                },
+                {
+                    model:Employees,
+                    attributes: ['id', 'full_name', 'image'],
+                }
+            ]
+        });
+
+    
+        return res.status(200).json({ totalCount, totalPages, currentPage, invoices });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
 
 
 exports.createInvoice = async (req, res, next) => {
 
     try {
+
+        const store_id = req.authData.store_id
+
         //retrieve values from req.body  
         const { total_amount, items_discount, extra_discount, total_discount, 
-            total_to_pay, total_due, total_paid, status, store_id, items, customerId
+            total_to_pay, total_due, total_paid, status, items, customerId, employeeId
         } = req.body
 
         //create invoice
@@ -26,9 +143,11 @@ exports.createInvoice = async (req, res, next) => {
             total_due,
             total_paid,
             status,
+            employeeId:employeeId || null,
             customerId:customerId || null,
             store_id
         });
+
 
         // Add items to the invoice one by one
         for (const item of items) {
@@ -44,14 +163,18 @@ exports.createInvoice = async (req, res, next) => {
             })
 
             if (product) {
-                const updatedQty = product.qty - item.qty;
-                await Products.update(
-                    { qty: updatedQty },
-                    { where: { product_id: item.product_id }}
-                );
+                if(product.qty > item.qty){
+                    const updatedQty = product.qty - item.qty;
+                    await Products.update(
+                        { qty: updatedQty },
+                        { where: { product_id: item.product_id }}
+                    );
+                }else{
+                    return next(new ErrorResponse(`Not enough qty in the inventory.`, 406));
+                }
+
             } else {
-                console.error(`Product with ID ${item.product_id} not found.`);
-                // Handle error or log it accordingly
+                return next(new ErrorResponse(`Product with ID ${item.product_id} not found.`, 404));
             }
         }
 
@@ -225,6 +348,80 @@ exports.removeInvoice = async (req, res, next) => {
     } catch (error) {
         // Rollback the transaction if any error occurs
         await transaction.rollback();
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.addInvoiceHelper = async (req, res, next) => {
+
+    try {
+        const store_id = req.authData.store_id
+
+        const customers = await Customers.findAll({
+            where:{
+                store_id
+            },
+            attributes:['id','full_name'],
+            include:[
+                {
+                    model:CustomerTypes,
+                    as:'customerType',
+                    attributes:['id','discount_value','wholeSalePrice']
+                }
+            ]
+        })
+
+        const employees = await Employees.findAll({
+            where:{
+                store_id
+            },
+            attributes: ['id', 'full_name'] 
+        })
+
+        // Send success response
+        res.status(200).json({customers, employees});
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.casherProductSearch = async (req, res, next) => {
+    try {
+        const {searchQuery} = req.query
+        const store_id = req.authData.store_id
+
+        const product = await Products.findOne({
+            where:{
+                sku:searchQuery,
+                store_id
+            }
+        })
+
+        if(product){
+            // Send success response
+            res.status(200).json({type:'sku', product});
+        }else{
+
+            const productsUnitSku = await Products.findOne({
+                where: sequelize.literal(`store_id = ${store_id} AND "unit_of_measurement"::text ILIKE '%${searchQuery}%'`)
+            })
+
+            if(productsUnitSku){
+                return res.status(200).json({type:'unitSku', product:productsUnitSku});
+            }
+
+            const productsNameSearch = await Products.findAll({
+                where:{ name: { [Op.iLike]: `%${searchQuery}%` }, store_id}
+            })
+
+            // Send success response
+            res.status(200).json({type:'search', product:productsNameSearch});
+        }
+
+    } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
     }

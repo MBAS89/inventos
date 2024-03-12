@@ -1,5 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/database');
+const Employees = require('../employees/employees');
+const Customers = require('../cutomers/cutomers');
+const Products = require('../inventory/products');
 
 const Invoices = sequelize.define('invoices', {
     id: {
@@ -57,6 +60,14 @@ const Invoices = sequelize.define('invoices', {
             key: 'id'
         },
     },
+    employeeId: {
+        type: DataTypes.BIGINT,
+        allowNull: true,
+        references: {
+            model: 'employees',
+            key: 'id'
+        },
+    },
 });
 
 
@@ -75,7 +86,10 @@ const InvoiceItems = sequelize.define('invoice_items',  {
     },
 });
 
+InvoiceItems.belongsTo(Products, { foreignKey: 'product_id' });
 Invoices.hasMany(InvoiceItems, { as: 'items' , foreignKey: 'invoiceId', onDelete: 'CASCADE' });
 InvoiceItems.belongsTo(Invoices);
+Invoices.belongsTo(Employees, { foreignKey: 'employeeId' });
+Invoices.belongsTo(Customers, { foreignKey: 'customerId' });
 
 module.exports = { Invoices, InvoiceItems };

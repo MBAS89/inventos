@@ -7,6 +7,7 @@ const Permissions = require('../../models/employees/permission');
 const RolePermissions = require('../../models/employees/rolePermission');
 const Roles = require('../../models/employees/roles');
 const SalaryTypes = require('../../models/employees/salarytypes');
+const { Invoices } = require('../../models/sales/invoices');
 
 
 // Define associations
@@ -30,6 +31,8 @@ Employees.hasMany(Log);
 Log.belongsTo(Employees);
 Employees.hasMany(Payment);
 Payment.belongsTo(Employees);
+
+Employees.hasMany(Invoices, { foreignKey: 'employeeId' });
 
 // Export models
 module.exports = {
