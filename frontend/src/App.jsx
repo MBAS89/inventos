@@ -30,6 +30,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { SettingsHome } from "./pages/dashboard/settings/Settings"
 import { SettingsLayout } from "./components/settings/SettingsLayout"
 import { Permissions } from "./pages/dashboard/settings/Permissions"
+import { InnerInvoices } from "./components/Invoices/InnerInvoices"
+import { OuterInvoices } from "./components/Invoices/OuterInvoices"
 
 function App() {
   return (
@@ -104,7 +106,11 @@ function App() {
           <DashLayout>
             <Invoices/>
           </DashLayout>
-        }></Route>
+        }>
+          <Route index element={< InnerInvoices/>}/>
+          <Route path="inner-invoices" element={< InnerInvoices/>}/>
+          <Route path="outer-invoices" element={<OuterInvoices/>}/>
+        </Route> 
         <Route path="/dashboard/settings/permissions" element={
           <DashLayout>
             <SettingsLayout>

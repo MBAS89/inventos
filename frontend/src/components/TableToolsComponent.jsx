@@ -71,6 +71,16 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
                         value:{sort:'desc', column:'full_name'}
                     }
                 ])
+            }else if(department === 'invoices'){
+                setSortElements([
+                    {
+                        title:'Ascending',
+                        value:{sort:'asc', column:'id'}
+                    },{
+                        title:'Descending',
+                        value:{sort:'desc', column:'id'}
+                    }
+                ])
             }
         }
     

@@ -6,322 +6,12 @@ import { TablePagination } from '../TablePagination'
 import { AiOutlineCheckCircle } from "react-icons/ai"
 import { HiOutlineReceiptRefund } from "react-icons/hi"
 import { CiWarning } from "react-icons/ci"
+import { Loader } from '../reusable-components/Loader'
+import { format, parseISO } from 'date-fns'
 
-export const InvoicesTable = ({headItems}) => {
-    const data = [
-        {
-            items:[
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:3,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                }
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"paid",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-        {
-            items:[
-                {
-                    qty:1,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                }
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"refunded",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-        {
-            items:[
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"partially",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-        {
-            items:[
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"paid",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-        {
-            items:[
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"partially",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-        {
-            items:[
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"refunded",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-        {
-            items:[
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"paid",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-        {
-            items:[
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"paid",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-        {
-            items:[
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"paid",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-        {
-            items:[
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-                {
-                    qty:2,
-                    name:"Kakuma Organic Tutmeric Immune Booster",
-                    price:22,
-                    image:"https://img.icons8.com/dusk/64/hair-dryer.png"
-                },
-            ],
-            invoiceId:"000001374",
-            totalAmount:120,
-            totalPaid:120,
-            totalDue:0,
-            status:"paid",
-            casher:{
-                name:"Farouk Sa'id",
-                image:"https://img.icons8.com/dusk/64/manager.png"
-            },
-            createdDate:"24/05/1995",
-            updatedDate:"24/05/1995"
-        },
-    ]
+
+
+export const InvoicesTable = ({headItems, data, isLoading, currentPage, setCurrentPage, selectedInvoice, handleCheckboxChange}) => {
 
     const handleStatus = (status) => {
         if(status === "paid"){
@@ -331,7 +21,7 @@ export const InvoicesTable = ({headItems}) => {
                     <p className="whitespace-nowrap text-sm">Paid</p>
                 </span>
             )
-        }else if(status === "partially"){
+        }else if(status === "Partially"){
             return(
                 <span className="inline-flex items-center justify-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-amber-700">
                     <HiOutlineReceiptRefund />
@@ -362,48 +52,68 @@ export const InvoicesTable = ({headItems}) => {
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm rounded-md">
                     <TableHead headItems={headItems} invoice={true} />
+                    {isLoading ? (
+                        <tbody className=' absolute w-[80%] mx-auto min-h-[50vh] left-[10%] justify-center items-center flex'>
+                            <tr><td><Loader /></td></tr>
+                        </tbody>
+                    ) :
                     <tbody className="divide-y divide-gray-200">
-                        {data.map((item, index) => (
-                            <tr key={index} className='h-16'>
+                        {data.invoices.map((invoice) => (
+                            <tr key={invoice.id} className='h-16'>
                                 <td className="px-4 py-2">
-                                    <input className="h-5 w-5 rounded border-gray-300" type="checkbox" id="Row1"/>
+                                    <input
+                                        className="h-5 w-5 cursor-pointer rounded border-gray-300 focus:outline-none focus:ring-2 checked:bg-[#50B426] focus:ring-[#50B426]"
+                                        type="checkbox"
+                                        id={`Row${invoice.id}}`}
+                                        onChange={() => handleCheckboxChange(invoice.id, invoice.employeeId)}
+                                        checked={selectedInvoice.invoiceId == invoice.id}
+                                    />
                                 </td>
                                 <td className="px-4 py-2 font-medium text-gray-900 flex flex-col gap-2">
-                                    {item.items.map((product, index) => (
-                                        <div key={index} className='flex items-center gap-3'>
-                                            <div className='font-bold'>{product.qty} X</div>
+                                    {invoice.items.map((item) => (
+                                        <div key={item.id} className='flex items-center gap-3'>
+                                            <div className='font-bold'>{item.qty} X</div>
                                             <div className=' bg-gray-100 p-1 rounded-md w-[10%] flex items-center justify-center'>
-                                                <img width="40" height="40" src={product.image} alt="nut"/>
+                                                <img width="40" height="40" src={item.product.image} alt="nut"/>
                                             </div>
                                             <div className='w-[80%] flex flex-col gap-2'>
-                                                <span className='capitalize'>{product.name}</span>
-                                                <span className='font-bold text-[#4454DC]'>${product.price}</span>
+                                                <span className='capitalize'>{item.product.name}</span>
+                                                <span className='font-bold text-[#4454DC]'>$</span>
                                             </div>
                                         </div>
                                     ))}
                                 </td>
-                                <td className="px-4 py-2 font-bold">{item.invoiceId}</td>
-                                <td className="px-4 py-2 font-bold text-[#362993]">${item.totalAmount}</td>
-                                <td className="px-4 py-2 font-bold text-[#50B426]">${item.totalPaid}</td>
-                                <td className="px-4 py-2 font-bold text-[#f14f4f]">${item.totalDue}</td>
+                                <td className="px-4 py-2 font-bold">{invoice.id}</td>
+                                <td className="px-4 py-2 font-bold text-[#362993]">${invoice.total_amount}</td>
+                                <td className="px-4 py-2 font-bold text-[#50B426]">${invoice.total_paid}</td>
+                                <td className="px-4 py-2 font-bold text-[#f14f4f]">${invoice.total_due}</td>
                                 <td className="px-4 py-2 text-gray-700">
-                                    {handleStatus(item.status)}
+                                    {handleStatus(invoice.status)}
                                 </td>
                                 <td className="px-4 py-2 font-medium text-gray-900">
                                     <div className='flex items-center gap-4'>
                                         <div className=' bg-gray-100 p-1 rounded-md w-[20%] flex items-center justify-center'>
-                                            <img width="50" height="50" src={item.casher.image} alt="manager"/>
+                                            <img width="50" height="50" src={invoice.employee.image} alt={invoice.employee.full_name}/>
                                         </div>
-                                        <div>{item.casher.name}</div>
+                                        <div>{invoice.employee.full_name}</div>
                                     </div>
                                 </td>
-                                <td className="px-4 py-2 text-gray-700">{item.createdDate}</td>
-                                <td className="px-4 py-2 text-gray-700">{item.updatedDate}</td>
+                                <td className="px-4 py-2 text-gray-700">{format(parseISO(invoice.createdAt), "dd/MM/yyyy h:mmaaa")}</td>
+                                <td className="px-4 py-2 text-gray-700">{format(parseISO(invoice.updatedAt), "dd/MM/yyyy h:mmaaa")}</td>
                             </tr>
                         ))}
                     </tbody>
-                </table>
-                <TablePagination />
+                    }
+                </table>               
+                {data &&
+                    <TablePagination 
+                        currentPage={currentPage} 
+                        totalPages={data.totalPages} 
+                        setCurrentPage={setCurrentPage} 
+                        totalCount={data.totalCount}  
+                        count={data.invoices.length}
+                    />
+                }
             </div>
         </div>
     )
