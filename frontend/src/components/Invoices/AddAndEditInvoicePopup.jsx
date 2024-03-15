@@ -9,6 +9,8 @@ import { TbRulerMeasure } from "react-icons/tb";
 import { TableHead } from '../TableHead'
 import { useAddInvoiceHelperQuery, useProductSearchHelperQuery } from '../../features/api/sales/innerInvoicesApiSlice';
 import { useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { MeasurementPopUp } from './MeasurementPopUp';
 
 export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
 
@@ -36,6 +38,9 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                         defaultProductQty:search.product.qty,
                         unitValue:search.product.unit_value,
                         piecesPerUnit:search.product.pieces_per_unit,
+                        salePriceUnit:search.product.sale_price_unit,
+                        salePricePeice:search.product.sale_price_piece,
+                        wholeSalePrice: search.product.wholesale_price_piece ? search.product.wholesale_price_piece : search.product.wholesale_price_unit ? search.product.wholesale_price_unit : 0,
                     }]);
                 }
             }
@@ -55,6 +60,9 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                 defaultProductQty:product.qty,
                 unitValue:product.unit_value,
                 piecesPerUnit:product.pieces_per_unit,
+                salePriceUnit:product.sale_price_unit,
+                salePricePeice:product.sale_price_piece,
+                wholeSalePrice: product.wholesale_price_piece ? product.wholesale_price_piece : product.wholesale_price_unit ? product.wholesale_price_unit : 0,
             }]);
         }
         setSearchQuery('')
@@ -68,7 +76,6 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
         setItems(previousState => {
             // Find the index of the product with the given product_id in the state
             const index = previousState.findIndex(item => item.product_id === productId);
-    
             if (index !== -1) { 
                 // If the current quantity is less than the default quantity, increase the quantity and unit value by one
                 if (previousState[index].qty < defaultQty) {
@@ -110,7 +117,143 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
         });
     };
 
-    console.log(items)
+    const handleUnitChange = (productId, newUnitValue, piecesPerUnit, defaultProductQty) => {
+        if(newUnitValue > 50){
+            return toast.error('Max unit value 50')
+        }
+        
+        setItems(previousState => {
+            const index = previousState.findIndex(item => item.product_id === productId);
+            if (index !== -1) {
+                if(newUnitValue < defaultProductQty && piecesPerUnit < defaultProductQty){
+
+                    const updatedState = [...previousState];
+                    updatedState[index] = {
+                        ...updatedState[index],
+                        unitValue: newUnitValue,
+                        qty: newUnitValue * piecesPerUnit
+                    };
+        
+                    return updatedState;
+                }
+
+                return previousState
+            }
+            return previousState;
+        });
+    };
+
+    const [totalAmount, setTotalAmount] = useState(0)
+    const [itemsDiscount, setItemsDiscount] = useState(0)
+    const [customerDiscount, setCustomerDiscount] = useState(0)
+    const [extraDiscount, setExtraDiscount] = useState(0)
+    const [totalDiscount, setTotalDiscount] = useState(0)
+    const [totalToPay, setTotalToPay] = useState(0)
+    const [totalDue, setTotalDue] = useState(0)
+    const [totalPaid, setTotalPaid] = useState(0)
+    const [includeItemsDiscount, setIncludeItemsDiscount] = useState(false)
+    const [status, setStatus] = useState('No-status')
+
+    useEffect(() => {
+        if(items.length > 0){
+            const totalAmount = items.reduce((total, currentItem) => {
+                const itemTotal = currentItem.qty * currentItem.price;
+                return total + itemTotal;
+            }, 0);
+            setTotalAmount(totalAmount);
+            
+            const selectedCustomer = helper.customers.filter(cutomer => cutomer.id === pickedCustomer)
+            
+            if(selectedCustomer.length > 0){
+                if(selectedCustomer[0].customerType.discount_value > 0 || selectedCustomer[0].customerType.wholeSalePrice === true){
+                    if(selectedCustomer[0].customerType.discount_value > 0){
+                        setCustomerDiscount(totalAmount * (selectedCustomer[0].customerType.discount_value / 100))
+                        if(includeItemsDiscount){
+                            const totalDiscountPrice = items.reduce((total, currentItem) => {
+
+                                const salePrice = currentItem.salePricePeice ? currentItem.salePricePeice : currentItem.salePriceUnit;
+        
+                                const itemTotal = salePrice * currentItem.qty;
+        
+                                return total + itemTotal;
+                            }, 0);
+                            setItemsDiscount(totalAmount - totalDiscountPrice);
+                        }else{
+                            setItemsDiscount(0)
+                        }
+
+                    }else{
+                        const totalForCustomer = items.reduce((total, currentItem) => {
+                            const itemTotal = currentItem.qty * currentItem.wholeSalePrice;
+                            return total + itemTotal;
+                        }, 0);
+                        setCustomerDiscount(totalAmount - totalForCustomer)
+
+                        if(includeItemsDiscount){
+                            const totalDiscountPrice = items.reduce((total, currentItem) => {
+
+                                const salePrice = currentItem.salePricePeice ? currentItem.salePricePeice : currentItem.salePriceUnit;
+        
+                                const itemTotal = salePrice * currentItem.qty;
+        
+                                return total + itemTotal;
+                            }, 0);
+                            setItemsDiscount(totalAmount - totalDiscountPrice);
+                        }else{
+                            setItemsDiscount(0)
+                        }
+                    }
+                }else{
+                    setIncludeItemsDiscount(true)
+                    const totalDiscountPrice = items.reduce((total, currentItem) => {
+
+                        const salePrice = currentItem.salePricePeice ? currentItem.salePricePeice : currentItem.salePriceUnit;
+
+                        const itemTotal = salePrice * currentItem.qty;
+
+                        return total + itemTotal;
+                    }, 0);
+                    setItemsDiscount(totalAmount - totalDiscountPrice);
+                    setCustomerDiscount(0)
+                }
+            }else{
+                setIncludeItemsDiscount(true)
+                const totalDiscountPrice = items.reduce((total, currentItem) => {
+
+                    const salePrice = currentItem.salePricePeice ? currentItem.salePricePeice : currentItem.salePriceUnit;
+
+                    const itemTotal = salePrice * currentItem.qty;
+
+                    return total + itemTotal;
+                }, 0);
+                setItemsDiscount(totalAmount - totalDiscountPrice);
+                setCustomerDiscount(0)
+           }
+
+           setTotalDiscount(itemsDiscount + customerDiscount + Number(extraDiscount))
+           setTotalToPay(totalAmount - totalDiscount)
+           
+           setTotalDue(totalToPay - totalPaid)
+            if(totalDue > 0){
+                    setStatus('partially')
+            }else{
+                    setStatus('paid')
+            }
+
+        }else{
+            setTotalAmount(0);
+            setItemsDiscount(0);
+            setCustomerDiscount(0);
+            setExtraDiscount(0)
+            setTotalDiscount(0)
+            setTotalToPay(0)
+            setTotalDue(0)
+            setTotalPaid(0)
+            setIncludeItemsDiscount(false);
+            setStatus('No-status')
+        }
+    },[items, includeItemsDiscount, extraDiscount, totalDiscount, totalPaid, totalDue, helper])
+
 
     const headItems = [
         {
@@ -139,6 +282,39 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
             )
         }
     } 
+
+
+    const handleExtraInfo = () => {
+        if(pickedCustomer !== 'Please select -optinal-'){
+            const selectedCustomer = helper.customers.filter(cutomer => cutomer.id === pickedCustomer)
+
+            return (
+                <div className='flex flex-col gap-1'>
+                    <div>Customer Discount Vlaue:
+                        <span className='text-[#50B426] ml-1 font-bold'>{selectedCustomer[0].customerType.discount_value.toFixed(1)}%</span>
+                    </div>
+                    <div>IS Customer Wholesale:{selectedCustomer[0].customerType.wholeSalePrice ?
+                        <span className='text-white bg-[#50B426] ml-1 rounded-full px-5 py-1'>Yes</span>
+                    :   <span className='text-white bg-[#ee574c] ml-1 rounded-full px-4 py-1'>No</span>}
+                    </div>
+                </div>
+            )
+        }else{
+            return (
+                <div className='flex flex-col gap-1'>
+                    <div>Itmes Discount Percent:
+                        <span className='text-[#50B426] ml-1 font-bold'>{((itemsDiscount / totalAmount) * 100).toFixed(1)}%</span>
+                    </div>
+                    <div>Extra Discount Percent:
+                        <span className='text-[#50B426] ml-1 font-bold'>{((extraDiscount / totalAmount) * 100).toFixed(1)}%</span>
+                    </div>
+                </div>
+            )
+        }
+    }
+
+
+    const [showMeasurementPopUp, setShowMeasurementPopUp] = useState(false)
 
     return (
         <section className="overflow-auto bg-white left-[20%] top-[7%] h-[50rem] w-[80rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
@@ -207,7 +383,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                     </div>
                 }
                 {items.length > 0 ? (
-                    <table className="min-w-[94%] min-h-[5rem] divide-y-2 divide-gray-200 bg-white text-sm border-2 border-[#35ad25]">
+                    <table className="min-w-[94%] relative min-h-[5rem] divide-y-2 divide-gray-200 bg-white text-sm border-2 border-[#35ad25]">
                         <thead>
                             <tr>
                                 <th className="px-4 py-2 font-medium text-gray-900">
@@ -219,7 +395,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                                 <th className="px-4 py-2 font-medium text-gray-900">
                                 Unit QTY
                                 </th>
-                                {items.some(item => item.qty > 1) && (
+                                {items.some(item => item.piecesPerUnit > 1) && (
                                     <th className="px-4 py-2 font-medium text-gray-900">
                                         Unit Pieces QTY
                                     </th>
@@ -252,20 +428,20 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                                 <td className="px-4 py-2 font-bold text-[#50B426]">{item.unit}</td>
                                 <td className="px-4 py-2">
                                     <div className="inline-flex items-center justify-center rounded border-[1.8px] border-solid border-gray-300">
-                                        <button type='button' onClick={() => decreaseQuantity(item.product_id, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
+                                        <button type='button' onClick={() => decreaseQuantity(item.product_id, item.piecesPerUnit, item.defaultProductQty)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
                                             <AiOutlineMinus/>
                                         </button>
                                         <span className="h-4 w-px bg-gray-300"></span>
                                         <div>
-                                            <input value={item.unitValue} type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1"/>
+                                            <input onChange={(e) => handleUnitChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty)}  value={item.unitValue} type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1"/>
                                         </div>
                                         <span className="h-4 w-px bg-gray-300"></span>
-                                        <button type='button' onClick={() => increaseQuantity(item.product_id, item.defaultProductQty, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center bg-red-300 rtl:rotate-180">
+                                        <button type='button' onClick={() => increaseQuantity(item.product_id, item.defaultProductQty, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
                                             <AiOutlinePlus/>
                                         </button>
                                     </div>
                                 </td>
-                                {item.piecesPerUnit > 1 && 
+                                {item.piecesPerUnit > 1 ? 
                                     <td className="px-4 py-2">
                                         <div className="inline-flex items-center justify-center rounded border-[1.8px] border-solid border-gray-300">
                                             <button className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
@@ -273,7 +449,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                                             </button>
                                             <span className="h-4 w-px bg-gray-300"></span>
                                             <div>
-                                                <input value={item.qty} type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1"/>
+                                                <input value={item.qty} type="number"className="h-8 w-12 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1" max="1000"/>
                                             </div>
                                             <span className="h-4 w-px bg-gray-300"></span>
                                             <button className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
@@ -281,17 +457,23 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                                             </button>
                                         </div>
                                     </td>
+                                    :
+                                    items.some(item => item.piecesPerUnit > 1) &&
+                                    <td className='text-center text-[#50B426] font-bold'>
+                                        -
+                                    </td>
                                 }
                                 <td className="px-4 py-2 font-bold text-blue-400 text-center">{item.qty}</td>
                                 <td className="px-4 py-2 font-bold text-[#50B426]">${item.price}</td>
                                 <td className="px-4 py-2 text-red-500 cursor-pointer text-xl">
-                                    <div className='flex justify-center'>
-                                        <MdOutlineDelete onClick={() => handleRemoveItemFromItems(item)}/>
+                                    <div className='flex justify-center hover:bg-slate-200 hover:rounded-full p-2'>
+                                        <MdOutlineDelete onClick={() => handleRemoveItemFromItems(item)} className='cursor-pointer hover:scale-110' />
                                     </div>
                                 </td>
                                 <td className="px-4 py-2 text-[#50B426] cursor-pointer text-xl">
-                                    <div className='flex justify-center'>
-                                        <TbRulerMeasure/>
+                                    <div className='flex justify-center hover:bg-slate-200 hover:rounded-full p-2'>
+                                        <TbRulerMeasure onClick={() => setShowMeasurementPopUp(true)} className='cursor-pointer hover:scale-110'/>
+                                        <MeasurementPopUp />
                                     </div>
                                 </td>
                             </tr>
@@ -303,75 +485,77 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                         <div className='text-center mt-7 text-[1.3rem] italic text-gray-400'>No Items Added!</div>
                     </div>
                 )}
+                <div className='flex justify-end'>
+                    <div className='flex gap-2 items-center'>
+                        <span>Include Product Discount:</span>
+                        <input checked={includeItemsDiscount} onChange={() => setIncludeItemsDiscount(!includeItemsDiscount)} type="checkbox" name='status' className="switch appearance-none focus:ring-0" />
+                    </div>
+                </div>
                 <div className='flex items-center w-full gap-4'>
-                    <label htmlFor="SubTotal" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input type="text" id="SubTotal" placeholder="SubTotal" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                    <label htmlFor="totalAmount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                        <input value={totalAmount} readOnly disabled type="number" id="totalAmount" placeholder="totalAmount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Actual Total
                         </span>
                     </label>
-                    <label htmlFor="ProductDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input type="text" id="ProductDiscount" placeholder="Product Discount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                    <label htmlFor="itemsDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                        <input value={itemsDiscount} readOnly disabled type="number" id="itemsDiscount" placeholder="itemsDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
-                            Product Discount
+                            Items Discount
                         </span>
                     </label>
-                    <label htmlFor="ExtraDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input type="text" id="ExtraDiscount" placeholder="ExtraDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                    <label htmlFor="customerDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                        <input value={customerDiscount}  readOnly disabled  type="number" id="customerDiscount" placeholder="customerDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Customer Discount
                         </span>
                     </label>
                 </div>
                 <div className='flex items-center w-full gap-4'>
-                    <label htmlFor="TotalAmount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input type="text" id="TotalAmount" placeholder="Total Amount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                    <label htmlFor="extraDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                        <input value={extraDiscount} onChange={(e) => setExtraDiscount(e.target.value)} type="number" id="extraDiscount" placeholder="extraDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Extra Discount
                         </span>
                     </label>
-                    <label htmlFor="Totalpaid" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input type="text" id="Totalpaid" placeholder="Totalpaid" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                    <label htmlFor="totalDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                        <input value={totalDiscount} disabled readOnly type="number" id="totalDiscount" placeholder="totalDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Total Discount
                         </span>
                     </label>
-                    <label htmlFor="TotalDue" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input type="text" id="TotalDue" placeholder="TotalDue" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                    <label htmlFor="totalToPay" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                        <input value={totalToPay} readOnly disabled type="number" id="totalToPay" placeholder="totalToPay" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Total To Pay	
                         </span>
                     </label>
                 </div>
                 <div className='flex items-center w-full gap-4'>
-                    <label htmlFor="TotalAmount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input type="text" id="TotalAmount" placeholder="Total Amount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
-                        <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
+                    <label htmlFor="totalPaid" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                        <input value={totalPaid} onChange={(e) => setTotalPaid(e.target.value)} type="number" id="totalPaid" placeholder="totalPaid" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <span  className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Total Paid
                         </span>
                     </label>
-                    <label htmlFor="Totalpaid" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input type="text" id="Totalpaid" placeholder="Totalpaid" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                    <label htmlFor="totalDue" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                        <input value={totalDue} readOnly disabled type="number" id="totalDue" placeholder="totalDue" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Total Due
                         </span>
                     </label>
-                    <label htmlFor="TotalDue" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input type="text" id="TotalDue" placeholder="TotalDue" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
-                        <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
-                            Nothing	
-                        </span>
-                    </label>
+                    <div className='flex-col text-left text-[0.9rem] p-1 w-[45rem] gap-2'>
+                        {handleExtraInfo()}
+                    </div>
                 </div>
                 <div className='w-full'>
                     <label htmlFor="Status" className="block text-sm font-medium text-gray-900">
                         Status
                     </label>
-                    <select name="Status" id="Status" className="mt-1.5 h-16 w-full border-[2px] rounded-md border-solid focus:border-[#50B426] text-gray-700 sm:text-sm">
-                        <option value="">Please select</option>
-                        <option value="JM">Paid</option>
-                        <option value="SRV">Refunded</option>
-                        <option value="JH">Partially</option>
+                    <select value={status} readOnly name="Status" id="Status" className="mt-1.5 h-16 w-full border-[2px] rounded-md border-solid focus:border-[#50B426] text-gray-700 sm:text-sm">
+                        <option value="No-status">No status</option>
+                        <option value="paid">Paid</option>
+                        <option value="partially">Partially</option>
                     </select>
                 </div>
                 <button className="inline-block mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">Submit Invoice</button>
