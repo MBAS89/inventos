@@ -7,7 +7,7 @@ import { AiOutlineMinus, AiOutlinePlus, AiOutlineCloseCircle } from "react-icons
 import { TbRulerMeasure } from "react-icons/tb";
 
 import { TableHead } from '../TableHead'
-import { useAddInvoiceHelperQuery, useProductSearchHelperQuery } from '../../features/api/sales/innerInvoicesApiSlice';
+import { useAddInvoiceHelperQuery, useAddInvoiceMutation, useProductSearchHelperQuery } from '../../features/api/sales/innerInvoicesApiSlice';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { MeasurementPopUp } from './MeasurementPopUp';
@@ -41,6 +41,8 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                         salePriceUnit:search.product.sale_price_unit,
                         salePricePeice:search.product.sale_price_piece,
                         wholeSalePrice: search.product.wholesale_price_piece ? search.product.wholesale_price_piece : search.product.wholesale_price_unit ? search.product.wholesale_price_unit : 0,
+                        unitOfMeasurement:search.product.unit_of_measurement,
+                        unitCategory:search.product.unit_catergory
                     }]);
                 }
             }
@@ -63,6 +65,8 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                 salePriceUnit:product.sale_price_unit,
                 salePricePeice:product.sale_price_piece,
                 wholeSalePrice: product.wholesale_price_piece ? product.wholesale_price_piece : product.wholesale_price_unit ? product.wholesale_price_unit : 0,
+                unitOfMeasurement:product.unit_of_measurement,
+                unitCategory:product.unit_catergory
             }]);
         }
         setSearchQuery('')
@@ -315,6 +319,198 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
 
 
     const [showMeasurementPopUp, setShowMeasurementPopUp] = useState(false)
+    const [itemsUnits, setItemsUnits] = useState([])
+    const [selectedItem, setSelectedItem] = useState('')
+
+    const handleUsingCustomUnits = (unit) => {
+        const item = items.filter(item => item.product_id === selectedItem)
+
+        setItems(previousState => {
+            const index = previousState.findIndex(item => item.product_id === selectedItem);
+            if (index !== -1) {
+                if(Number(unit.pieces) < item[0].defaultProductQty && Number(unit.pieces) < item[0].defaultProductQty){
+
+                    const updatedState = [...previousState];
+                    updatedState[index] = {
+                        ...updatedState[index],
+                        qty: Number(unit.pieces)
+                    };
+        
+                    return updatedState;
+                }
+
+                return previousState
+            }
+            return previousState;
+        });
+
+        setShowMeasurementPopUp(false)
+        setItemsUnits([])
+    }
+
+
+    const handleAddCustomMeasure = (result) => {
+        const item = items.filter(item => item.product_id === selectedItem)
+        
+        setItems(previousState => {
+            const index = previousState.findIndex(item => item.product_id === selectedItem);
+            if (index !== -1) {
+                if(Number(result.qty) < item[0].defaultProductQty && Number(result.qty) < item[0].defaultProductQty){
+
+                    const updatedState = [...previousState];
+                    updatedState[index] = {
+                        ...updatedState[index],
+                        qty: Number(result.qty),
+                        unitValue:Number(result.qty)
+                    };
+        
+                    return updatedState;
+                }
+
+                toast.error('Qty is so high in compare with inventory')
+                return previousState
+            }
+            return previousState;
+        });
+
+        setShowMeasurementPopUp(false)
+        setItemsUnits([])
+    }
+
+    const handleDecreasePiecesQty = (productId, piecesPerUnit) => {
+        setItems(previousState => {
+            const index = previousState.findIndex(item => item.product_id === productId);
+    
+            if (index !== -1) { 
+                if (previousState[index].qty > 1 ) {
+                    const updatedState = [...previousState];
+                    updatedState[index] = {
+                        ...updatedState[index],
+                        qty: updatedState[index].qty - 1
+                    };
+
+                    updatedState[index] = {
+                        ...updatedState[index],
+                        unitValue: updatedState[index].qty / piecesPerUnit
+                    };
+    
+                    return updatedState;
+                }
+            } 
+            // Return previous state if no updates are made or the quantity is already at 1
+            return previousState;
+        });
+    }
+
+    const handleIncreasePiecesQty = (productId, piecesPerUnit) => {
+        setItems(previousState => {
+            const index = previousState.findIndex(item => item.product_id === productId);
+    
+            if (index !== -1) { 
+                if (previousState[index].qty > 1 ) {
+                    const updatedState = [...previousState];
+
+                    updatedState[index] = {
+                        ...updatedState[index],
+                        qty: updatedState[index].qty + 1,
+                    };
+
+                    updatedState[index] = {
+                        ...updatedState[index],
+                        unitValue: updatedState[index].qty / piecesPerUnit
+                    };
+    
+                    return updatedState;
+                }
+            } 
+            // Return previous state if no updates are made or the quantity is already at 1
+            return previousState;
+        });
+    }
+
+    const handlePiecesChange = (productId, newQtyValue, piecesPerUnit, defaultProductQty) => {
+        if(newQtyValue > 900){
+            return toast.error('Max unit value 900')
+        }
+
+        setItems(previousState => {
+            const index = previousState.findIndex(item => item.product_id === productId);
+            if (index !== -1) {
+                if(newQtyValue < defaultProductQty && piecesPerUnit < defaultProductQty){
+
+                    const updatedState = [...previousState];
+                    updatedState[index] = {
+                        ...updatedState[index],
+                        qty: newQtyValue
+                    };
+
+                    updatedState[index] = {
+                        ...updatedState[index],
+                        unitValue: updatedState[index].qty / piecesPerUnit
+                    };
+    
+        
+                    return updatedState;
+                }
+
+                return previousState
+            }
+            return previousState;
+        });
+    }
+
+
+    const [addInvoice, {isLoading:isAddLoading}] = useAddInvoiceMutation()
+
+    const handleAddInvoice = async (e) => {
+        e.preventDefault()
+
+        if(pickedEmployee === "Please select"){
+            return toast.error('Please Select A Cahser First!')
+        }
+
+        if(items.length == 0){
+            return toast.error('Invoice Should Have Items!')
+        }
+
+        const payload = {
+            totalAmount,
+            itemsDiscount, 
+            customerDiscount,
+            extraDiscount,
+            totalDiscount, 
+            totalToPay, 
+            totalPaid, 
+            totalDue,
+            status, 
+            employeeId:pickedEmployee, 
+            customerId:pickedCustomer === "Please select -optinal-" ? null : pickedCustomer,
+            items
+        }
+
+        try {
+            const res = await addInvoice(payload).unwrap()
+            toast.success(res.message)
+            setItems([])
+            setTotalAmount(0);
+            setItemsDiscount(0);
+            setCustomerDiscount(0);
+            setExtraDiscount(0)
+            setTotalDiscount(0)
+            setTotalToPay(0)
+            setTotalDue(0)
+            setTotalPaid(0)
+            setIncludeItemsDiscount(false);
+            setStatus('No-status')
+
+        } catch (error) {
+            toast.error(error.data.error)
+        }
+    }
+
+
+
+
 
     return (
         <section className="overflow-auto bg-white left-[20%] top-[7%] h-[50rem] w-[80rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
@@ -322,7 +518,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                 <AiOutlineCloseCircle onClick={() => setOpenPopup(false)} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
             </div>
             <h2 className='text-[2.5rem] font-bold text-center text-gray-500 capitalize mt-12'>Add Invoice</h2>
-            <form className='flex flex-col gap-10 w-[70%] mx-auto mt-5 relative'>
+            <form onSubmit={handleAddInvoice} className='flex flex-col gap-10 w-[70%] mx-auto mt-5 relative'>
                 <div className='w-full'>
                         <label htmlFor="Casher" className="block text-sm font-medium text-gray-900">
                         Casher
@@ -433,7 +629,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                                         </button>
                                         <span className="h-4 w-px bg-gray-300"></span>
                                         <div>
-                                            <input onChange={(e) => handleUnitChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty)}  value={item.unitValue} type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1"/>
+                                            <input onChange={(e) => handleUnitChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty)}  value={item.unitValue} type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"/>
                                         </div>
                                         <span className="h-4 w-px bg-gray-300"></span>
                                         <button type='button' onClick={() => increaseQuantity(item.product_id, item.defaultProductQty, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
@@ -444,15 +640,15 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                                 {item.piecesPerUnit > 1 ? 
                                     <td className="px-4 py-2">
                                         <div className="inline-flex items-center justify-center rounded border-[1.8px] border-solid border-gray-300">
-                                            <button className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
+                                            <button type='button' onClick={() => handleDecreasePiecesQty(item.product_id, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
                                                 <AiOutlineMinus/>
                                             </button>
                                             <span className="h-4 w-px bg-gray-300"></span>
                                             <div>
-                                                <input value={item.qty} type="number"className="h-8 w-12 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1" max="1000"/>
+                                                <input value={item.qty} onChange={(e) => handlePiecesChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty)} type="number"className="h-8 w-12 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1" max="1000"/>
                                             </div>
                                             <span className="h-4 w-px bg-gray-300"></span>
-                                            <button className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
+                                            <button type='button' onClick={() => handleIncreasePiecesQty(item.product_id, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
                                                 <AiOutlinePlus/>
                                             </button>
                                         </div>
@@ -470,11 +666,22 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                                         <MdOutlineDelete onClick={() => handleRemoveItemFromItems(item)} className='cursor-pointer hover:scale-110' />
                                     </div>
                                 </td>
-                                <td className="px-4 py-2 text-[#50B426] cursor-pointer text-xl">
-                                    <div className='flex justify-center hover:bg-slate-200 hover:rounded-full p-2'>
-                                        <TbRulerMeasure onClick={() => setShowMeasurementPopUp(true)} className='cursor-pointer hover:scale-110'/>
-                                        <MeasurementPopUp />
+                                <td className="px-4 py-2 text-[#50B426]  text-xl">
+                                    <div  onClick={() => { setShowMeasurementPopUp(true); setItemsUnits(item.unitOfMeasurement); setSelectedItem(item.product_id)}} className='flex justify-center cursor-pointer hover:bg-slate-200 hover:rounded-full p-2'>
+                                        <TbRulerMeasure  className='cursor-pointer hover:scale-110'/>
                                     </div>
+                                    {showMeasurementPopUp && 
+                                        <MeasurementPopUp 
+                                            setSelectedItem={setSelectedItem}
+                                            selectedItem={selectedItem}
+                                            items={items}
+                                            unitOfMeasurement={itemsUnits} 
+                                            setItemsUnits={setItemsUnits} 
+                                            setShowMeasurementPopUp={setShowMeasurementPopUp} 
+                                            handleUsingCustomUnits={handleUsingCustomUnits}
+                                            handleAddCustomMeasure={handleAddCustomMeasure}
+                                        />
+                                    }
                                 </td>
                             </tr>
                             ))}
@@ -558,7 +765,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                         <option value="partially">Partially</option>
                     </select>
                 </div>
-                <button className="inline-block mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">Submit Invoice</button>
+                <button type='submit' className="inline-block mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">Submit Invoice</button>
             </form>
         </section>
     )

@@ -40,9 +40,12 @@ export const innerInvoicesApiSlice = apiSlice.injectEndpoints({
                 body:{
                     total_amount: data.totalAmount,
                     items_discount: data.itemsDiscount, 
+                    customer_discount:data.customerDiscount,
+                    extra_discount:data.extraDiscount,
                     total_discount: data.totalDiscount, 
                     total_to_pay: data.totalToPay, 
                     total_paid: data.totalPaid, 
+                    total_due:data.totalDue,
                     status: data.status, 
                     employeeId: data.employeeId, 
                     customerId:data.customerId,
