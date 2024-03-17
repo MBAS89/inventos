@@ -23,7 +23,7 @@ const CustomersTypes = sequelize.define('customers_types', {
         defaultValue:"loyal customer"
     },
     discount_value:{
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull:false,
         defaultValue:2
     },

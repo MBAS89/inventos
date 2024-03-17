@@ -35,7 +35,12 @@ exports.readSingleInvoice = async (req, res, next) => {
                     include: [
                         {
                             model: Products,
-                            attributes: ['product_id', 'name', 'image', 'sku']
+                            attributes: [
+                                'product_id', 'name', 'image', 'sku', 'unit', 'retail_price_unit',
+                                'retail_price_piece', 'unit_value', 'pieces_per_unit', 'sale_price_unit',
+                                'sale_price_piece', 'wholesale_price_piece', 'wholesale_price_unit',
+                                'unit_of_measurement', 'unit_catergory', 'qty'
+                            ]
                         }
                     ]
                 },
@@ -54,7 +59,7 @@ exports.readSingleInvoice = async (req, res, next) => {
             return  next(new ErrorResponse('No Invoice Found!', 404))
         }
 
-        return res.status(200).json({ invoice });
+        return res.status(200).json(invoice);
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
@@ -129,7 +134,7 @@ exports.createInvoice = async (req, res, next) => {
         const store_id = req.authData.store_id
 
         //retrieve values from req.body  
-        const { total_amount, items_discount, extra_discount, total_discount, 
+        const { total_amount, items_discount, extra_discount, total_discount, customer_discount, 
             total_to_pay, total_due, total_paid, status, items, customerId, employeeId
         } = req.body
 
@@ -137,7 +142,8 @@ exports.createInvoice = async (req, res, next) => {
         const invoice = await Invoices.create({
             total_amount,
             items_discount,
-            extra_discount: extra_discount || null,
+            customer_discount,
+            extra_discount: extra_discount || 0,
             total_discount,
             total_to_pay,
             total_due,
@@ -230,8 +236,8 @@ exports.editInvoice = async (req, res, next) => {
         }
 
         //retrieve values from req.body 
-        const { total_amount, items_discount, extra_discount, total_discount, 
-            total_to_pay, total_due, total_paid, status, items 
+        const { total_amount, items_discount, extra_discount, total_discount, customer_discount, 
+            total_to_pay, total_due, total_paid, status, items, customerId, employeeId
         } = req.body
 
 
@@ -240,12 +246,15 @@ exports.editInvoice = async (req, res, next) => {
             {
                 total_amount,
                 items_discount,
-                extra_discount: extra_discount || null,
+                customer_discount,
+                extra_discount: extra_discount || 0,
                 total_discount,
                 total_to_pay,
                 total_due,
                 total_paid,
-                status
+                status,
+                employeeId:employeeId || null,
+                customerId:customerId || null,
             },
             {
                 where: { id: invoiceId },
@@ -393,6 +402,8 @@ exports.casherProductSearch = async (req, res, next) => {
         const {searchQuery} = req.query
         const store_id = req.authData.store_id
 
+
+        
         const product = await Products.findOne({
             where:{
                 sku:searchQuery,
@@ -402,15 +413,24 @@ exports.casherProductSearch = async (req, res, next) => {
 
         if(product){
             // Send success response
-            res.status(200).json({type:'sku', product});
+            return res.status(200).json({type:'sku', product});
         }else{
 
             const productsUnitSku = await Products.findOne({
-                where: sequelize.literal(`store_id = ${store_id} AND "unit_of_measurement"::text ILIKE '%${searchQuery}%'`)
+                where: sequelize.literal(`
+                    store_id = ${store_id} AND 
+                    EXISTS (
+                        SELECT 1 FROM unnest("unit_of_measurement") AS elem WHERE elem->>'sku' ILIKE '${searchQuery}'
+                    )
+                `)
             })
 
             if(productsUnitSku){
                 return res.status(200).json({type:'unitSku', product:productsUnitSku});
+            }
+
+            if(!searchQuery){
+                return res.status(200).json({})
             }
 
             const productsNameSearch = await Products.findAll({
@@ -418,7 +438,7 @@ exports.casherProductSearch = async (req, res, next) => {
             })
 
             // Send success response
-            res.status(200).json({type:'search', product:productsNameSearch});
+            return res.status(200).json({type:'search', product:productsNameSearch});
         }
 
     } catch (error) {

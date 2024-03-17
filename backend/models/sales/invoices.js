@@ -11,12 +11,16 @@ const Invoices = sequelize.define('invoices', {
         autoIncrement: true
     },
     total_amount: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false,
     },
     items_discount: {
         type: DataTypes.FLOAT,
         allowNull: false,
+        defaultValue : 0
+    },
+    customer_discount:{
+        type: DataTypes.FLOAT,
         defaultValue : 0
     },
     extra_discount: {
@@ -29,16 +33,16 @@ const Invoices = sequelize.define('invoices', {
         defaultValue : 0
     },
     total_to_pay: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false,
     },
     total_due: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         defaultValue: 0,
         allowNull: true,
     },
     total_paid: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false,
     },
     status:{

@@ -872,7 +872,7 @@ exports.editProduct = async (req, res, next) => {
                 wholesale_price_piece: wholesale_price_piece ? wholesale_price_piece === 'null' ? null: wholesale_price_piece : null,
                 qty,
                 sale_price_unit: sale_price_unit ? sale_price_unit === 'null' ? null: sale_price_unit : null,
-                sale_price_piece: sale_price_unit ? sale_price_unit === 'null' ? null: sale_price_unit : null,
+                sale_price_piece: sale_price_piece ? sale_price_piece === 'null' ? null: sale_price_piece : null,
                 on_sale: on_sale || false,
                 unit_of_measurement:unit_of_measurement_json,
                 description: description ? description === 'null' ? null: description : null,

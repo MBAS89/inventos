@@ -36,35 +36,35 @@ const Products = sequelize.define('products', {
         allowNull: true,
     },
     unit_value:{
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true,
     },
     cost_unit: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false,
     },
     retail_price_unit: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false,
     },
     wholesale_price_unit: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false,
     },
     pieces_per_unit:{
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: false,
     },
     cost_piece:{
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true,
     },
     retail_price_piece:{
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true,
     },
     wholesale_price_piece:{
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
         allowNull: true,
     },
     qty: {
@@ -72,10 +72,10 @@ const Products = sequelize.define('products', {
         allowNull: false,
     },
     sale_price_unit: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
     },
     sale_price_piece: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.FLOAT,
     },
     on_sale: {
         type: DataTypes.BOOLEAN,
