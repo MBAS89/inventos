@@ -21,7 +21,7 @@ export const InvoicesTable = ({headItems, data, isLoading, currentPage, setCurre
                     <p className="whitespace-nowrap text-sm">Paid</p>
                 </span>
             )
-        }else if(status === "Partially"){
+        }else if(status === "Partially" || status === "partially"){
             return(
                 <span className="inline-flex items-center justify-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-amber-700">
                     <HiOutlineReceiptRefund />

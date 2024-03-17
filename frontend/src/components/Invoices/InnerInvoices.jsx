@@ -27,8 +27,6 @@ export const InnerInvoices = () => {
     };
 
 
-    console.log(innerInvoices)
-
     const headItems = [
         {
             title:"items"
@@ -74,7 +72,7 @@ export const InnerInvoices = () => {
             handleCheckboxChange={handleCheckboxChange}
         />
         {openPopup && 
-            <AddAndEditInvoicePopup setOpenPopup={setOpenPopup}/>
+            <AddAndEditInvoicePopup selectedInvoice={selectedInvoice} editMode={editMode} setOpenPopup={setOpenPopup}/>
         }
         {openDeletePopup && 
             <DeletePopup setOpenDeletePopup={setOpenDeletePopup} selected={selectedInvoice} setReset={setSelectedInvoice} department="invoices" />

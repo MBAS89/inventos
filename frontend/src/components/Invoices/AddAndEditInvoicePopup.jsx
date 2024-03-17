@@ -5,19 +5,21 @@ import { BiSearch } from "react-icons/bi"
 import { MdOutlineDelete } from "react-icons/md";
 import { AiOutlineMinus, AiOutlinePlus, AiOutlineCloseCircle } from "react-icons/ai";
 import { TbRulerMeasure } from "react-icons/tb";
+import { BiLoaderCircle } from "react-icons/bi";
 
 import { TableHead } from '../TableHead'
-import { useAddInvoiceHelperQuery, useAddInvoiceMutation, useProductSearchHelperQuery } from '../../features/api/sales/innerInvoicesApiSlice';
+import { useAddInvoiceHelperQuery, useAddInvoiceMutation, useEditInvoiceMutation, useProductSearchHelperQuery, useReadInvoiceQuery } from '../../features/api/sales/innerInvoicesApiSlice';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { MeasurementPopUp } from './MeasurementPopUp';
 
-export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
+export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice }) => {
 
     const [searchQuery, setSearchQuery] = useState('')
+
     const { data:helper, isLoading:isHelperLoading} = useAddInvoiceHelperQuery()
     const { data:search, isLoading } = useProductSearchHelperQuery({searchQuery},'productSearchHelper') 
-
+    
     const [pickedCustomer, setPickedCustomer] = useState('Please select -optinal-')
     const [pickedEmployee, setPickedEmployee] = useState('Please select')
 
@@ -170,7 +172,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
             
             if(selectedCustomer.length > 0){
                 if(selectedCustomer[0].customerType.discount_value > 0 || selectedCustomer[0].customerType.wholeSalePrice === true){
-                    if(selectedCustomer[0].customerType.discount_value > 0){
+                    if(selectedCustomer[0].customerType.discount_value > 0 && selectedCustomer[0].customerType.wholeSalePrice === false){
                         setCustomerDiscount(totalAmount * (selectedCustomer[0].customerType.discount_value / 100))
                         if(includeItemsDiscount){
                             const totalDiscountPrice = items.reduce((total, currentItem) => {
@@ -502,23 +504,119 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
             setTotalPaid(0)
             setIncludeItemsDiscount(false);
             setStatus('No-status')
-
+            setOpenPopup(false)
         } catch (error) {
             toast.error(error.data.error)
         }
     }
 
 
+    const { data:invoice } = editMode ? useReadInvoiceQuery({ invoiceId:selectedInvoice.invoiceId }, 'readInvoice') : { data: null, isLoading: false };
 
+    useEffect(() => {
+        setItems([])
+        if(invoice && helper){
+            invoice.items.forEach(item => {
+                // Check if the product already exists in the items array
+                const productExists = items.some(existingItem => existingItem.product_id === item.product_id);
+
+                // If the product doesn't exist, add it to the items array
+                if (!productExists) {
+
+                    setItems(previousState => [
+                        ...previousState,
+                        {
+                            product_id:item.product_id,
+                            qty:item.qty,
+                            image:item.product.image,
+                            name:item.product.name,
+                            unit:item.product.unit,
+                            price:item.product.retail_price_piece ? item.product.retail_price_piece : item.product.retail_price_unit,
+                            defaultProductQty:item.product.qty,
+                            unitValue:item.product.unit_value,
+                            piecesPerUnit:item.product.pieces_per_unit,
+                            salePriceUnit:item.product.sale_price_unit,
+                            salePricePeice:item.product.sale_price_piece,
+                            wholeSalePrice: item.product.wholesale_price_piece ? item.product.wholesale_price_piece : item.product.wholesale_price_unit ? item.product.wholesale_price_unit : 0,
+                            unitOfMeasurement:item.product.unit_of_measurement,
+                            unitCategory:item.product.unit_catergory
+                        }
+                    ]);
+                }
+            });
+
+            setTotalAmount(invoice.total_amount);
+            setItemsDiscount(invoice.items_discount);
+            setCustomerDiscount(invoice.customer_discount ? invoice.customer_discount : 0);
+            setExtraDiscount(invoice.extra_discount ? invoice.extra_discount : 0)
+            setTotalDiscount(invoice.total_discount)
+            setTotalToPay(invoice.total_to_pay)
+            setTotalDue(invoice.total_due)
+            setTotalPaid(invoice.total_paid)
+            setStatus(invoice.status)
+            setPickedCustomer(invoice.customerId ? invoice.customerId : 'Please select -optinal-')
+            setPickedEmployee(invoice.employeeId)
+
+        }
+    } ,[invoice])
+
+    const [editInvoice, {isLoading:isEditLoading}] = useEditInvoiceMutation()
+
+    const handleEditInvoice = async (e) => {
+        e.preventDefault()
+
+        if(pickedEmployee === "Please select"){
+            return toast.error('Please Select A Cahser First!')
+        }
+
+        if(items.length == 0){
+            return toast.error('Invoice Should Have Items!')
+        }
+
+        const payload = {
+            invoiceId:invoice.id,
+            totalAmount,
+            itemsDiscount, 
+            customerDiscount,
+            extraDiscount,
+            totalDiscount, 
+            totalToPay, 
+            totalPaid, 
+            totalDue,
+            status, 
+            employeeId:pickedEmployee, 
+            customerId:pickedCustomer === "Please select -optinal-" ? null : pickedCustomer,
+            items
+        }
+
+        try {
+            const res = await editInvoice(payload).unwrap()
+            toast.success(res.message)
+            setItems([])
+            setTotalAmount(0);
+            setItemsDiscount(0);
+            setCustomerDiscount(0);
+            setExtraDiscount(0)
+            setTotalDiscount(0)
+            setTotalToPay(0)
+            setTotalDue(0)
+            setTotalPaid(0)
+            setIncludeItemsDiscount(false);
+            setStatus('No-status')
+            setOpenPopup(false)
+        } catch (error) {
+            toast.error(error.data.error)
+        }
+    }
 
 
     return (
         <section className="overflow-auto bg-white left-[20%] top-[7%] h-[50rem] w-[80rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
             <div className='relative w-full bg-black'>
-                <AiOutlineCloseCircle onClick={() => setOpenPopup(false)} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
+                <AiOutlineCloseCircle onClick={() => {setOpenPopup(false); setItems([])}} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
             </div>
-            <h2 className='text-[2.5rem] font-bold text-center text-gray-500 capitalize mt-12'>Add Invoice</h2>
-            <form onSubmit={handleAddInvoice} className='flex flex-col gap-10 w-[70%] mx-auto mt-5 relative'>
+            <h2 className='text-[2.5rem] font-bold text-center text-gray-500 capitalize mt-12'>{editMode ? 'Edit Invoice' : 'Add Invoice' }</h2>
+            <form onSubmit={editMode ?  handleEditInvoice : handleAddInvoice} className='flex flex-col gap-10 w-[70%] mx-auto mt-5 relative'>
                 <div className='w-full'>
                         <label htmlFor="Casher" className="block text-sm font-medium text-gray-900">
                         Casher
@@ -700,39 +798,39 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                 </div>
                 <div className='flex items-center w-full gap-4'>
                     <label htmlFor="totalAmount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={totalAmount} readOnly disabled type="number" id="totalAmount" placeholder="totalAmount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input value={totalAmount.toFixed(2)} readOnly disabled type="number" id="totalAmount" placeholder="totalAmount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Actual Total
                         </span>
                     </label>
                     <label htmlFor="itemsDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={itemsDiscount} readOnly disabled type="number" id="itemsDiscount" placeholder="itemsDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input value={itemsDiscount.toFixed(2)} readOnly disabled type="number" id="itemsDiscount" placeholder="itemsDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Items Discount
                         </span>
                     </label>
                     <label htmlFor="customerDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={customerDiscount}  readOnly disabled  type="number" id="customerDiscount" placeholder="customerDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input value={customerDiscount.toFixed(2)}  readOnly disabled  type="number" id="customerDiscount" placeholder="customerDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Customer Discount
                         </span>
                     </label>
                 </div>
                 <div className='flex items-center w-full gap-4'>
-                    <label htmlFor="extraDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={extraDiscount} onChange={(e) => setExtraDiscount(e.target.value)} type="number" id="extraDiscount" placeholder="extraDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                    <label htmlFor="extraDiscount" className="relative block overflow-hidden w-full rounded-md border-3 border-[#50B426] px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
+                        <input value={extraDiscount.toFixed(2)} onChange={(e) => setExtraDiscount(e.target.value)} type="number" id="extraDiscount" placeholder="extraDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Extra Discount
                         </span>
                     </label>
                     <label htmlFor="totalDiscount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={totalDiscount} disabled readOnly type="number" id="totalDiscount" placeholder="totalDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input value={totalDiscount.toFixed(2)} disabled readOnly type="number" id="totalDiscount" placeholder="totalDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Total Discount
                         </span>
                     </label>
                     <label htmlFor="totalToPay" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={totalToPay} readOnly disabled type="number" id="totalToPay" placeholder="totalToPay" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input value={totalToPay.toFixed(2)} readOnly disabled type="number" id="totalToPay" placeholder="totalToPay" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Total To Pay	
                         </span>
@@ -746,12 +844,12 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                         </span>
                     </label>
                     <label htmlFor="totalDue" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={totalDue} readOnly disabled type="number" id="totalDue" placeholder="totalDue" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input value={totalDue.toFixed(2)} readOnly disabled type="number" id="totalDue" placeholder="totalDue" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Total Due
                         </span>
                     </label>
-                    <div className='flex-col text-left text-[0.9rem] p-1 w-[45rem] gap-2'>
+                    <div className='flex-col text-left text-[0.9rem] p-1 w-[50rem] gap-2'>
                         {handleExtraInfo()}
                     </div>
                 </div>
@@ -765,7 +863,10 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup }) => {
                         <option value="partially">Partially</option>
                     </select>
                 </div>
-                <button type='submit' className="inline-block mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">Submit Invoice</button>
+                <button type='submit' className="flex gap-4 justify-center mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">
+                    {isAddLoading || isEditLoading && <BiLoaderCircle className='text-[1.4rem] animate-spin'/>}
+                    {editMode ? 'Confirm Edits' : 'Submit Invoice' }
+                </button>
             </form>
         </section>
     )

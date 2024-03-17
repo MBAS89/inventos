@@ -25,7 +25,7 @@ export const innerInvoicesApiSlice = apiSlice.injectEndpoints({
         }),
         readInvoice:builder.query({
             query: (data) => ({
-                url: `${EMPLOYEE_URL}/read-snigle?invoiceId=${data.invoiceId}`,
+                url: `${INVOICE_URL}/read-snigle?invoiceId=${data.invoiceId}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {
@@ -37,6 +37,27 @@ export const innerInvoicesApiSlice = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: `${INVOICE_URL}/create`,
                 method: 'POST',
+                body:{
+                    total_amount: data.totalAmount,
+                    items_discount: data.itemsDiscount, 
+                    customer_discount:data.customerDiscount,
+                    extra_discount:data.extraDiscount,
+                    total_discount: data.totalDiscount, 
+                    total_to_pay: data.totalToPay, 
+                    total_paid: data.totalPaid, 
+                    total_due:data.totalDue,
+                    status: data.status, 
+                    employeeId: data.employeeId, 
+                    customerId:data.customerId,
+                    items:data.items
+                }
+            }),
+            invalidatesTags: ['InnerInvoices']
+        }),
+        editInvoice: builder.mutation({
+            query: (data) => ({
+                url: `${INVOICE_URL}/edit/${data.invoiceId}`,
+                method: 'PUT',
                 body:{
                     total_amount: data.totalAmount,
                     items_discount: data.itemsDiscount, 
@@ -83,5 +104,6 @@ export const {
     useReadInvoicesQuery, 
     useAddInvoiceMutation, 
     useAddInvoiceHelperQuery,
-    useProductSearchHelperQuery
+    useProductSearchHelperQuery,
+    useEditInvoiceMutation
 } = innerInvoicesApiSlice
