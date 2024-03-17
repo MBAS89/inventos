@@ -11,7 +11,7 @@ import { Customers } from "./pages/dashboard/customers/Customers"
 import { Suppliers } from "./pages/dashboard/suppliers/Suppliers"
 import { Employees } from "./pages/dashboard/employees/Employees"
 import { Expenses } from "./pages/dashboard/Expenses"
-import { Invoices } from "./pages/dashboard/Invoices"
+import { Invoices } from "./pages/dashboard/invoices/Invoices"
 import { Categories } from "./components/inventory/Categories"
 import { Brands } from "./components/inventory/Brands"
 import { Products } from "./components/inventory/Products"
@@ -32,6 +32,7 @@ import { SettingsLayout } from "./components/settings/SettingsLayout"
 import { Permissions } from "./pages/dashboard/settings/Permissions"
 import { InnerInvoices } from "./components/Invoices/InnerInvoices"
 import { OuterInvoices } from "./components/Invoices/OuterInvoices"
+import { InvoiceInfoPage } from "./pages/dashboard/invoices/InvoiceInfoPage"
 
 function App() {
   return (
@@ -111,6 +112,11 @@ function App() {
           <Route path="inner-invoices" element={< InnerInvoices/>}/>
           <Route path="outer-invoices" element={<OuterInvoices/>}/>
         </Route> 
+        <Route path="/dashboard/invoices/info/:invoiceId" element={
+          <DashLayout>
+            <InvoiceInfoPage />
+          </DashLayout>
+        }></Route>
         <Route path="/dashboard/settings/permissions" element={
           <DashLayout>
             <SettingsLayout>

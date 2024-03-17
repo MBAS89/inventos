@@ -13,7 +13,7 @@ import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { MeasurementPopUp } from './MeasurementPopUp';
 
-export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice }) => {
+export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice, setEditMode }) => {
 
     const [searchQuery, setSearchQuery] = useState('')
 
@@ -258,7 +258,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
             setIncludeItemsDiscount(false);
             setStatus('No-status')
         }
-    },[items, includeItemsDiscount, extraDiscount, totalDiscount, totalPaid, totalDue, helper])
+    },[items, includeItemsDiscount, customerDiscount, itemsDiscount, totalToPay,  extraDiscount, totalDiscount, totalPaid, totalDue, helper])
 
 
     const headItems = [
@@ -299,7 +299,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                     <div>Customer Discount Vlaue:
                         <span className='text-[#50B426] ml-1 font-bold'>{selectedCustomer[0].customerType.discount_value.toFixed(1)}%</span>
                     </div>
-                    <div>IS Customer Wholesale:{selectedCustomer[0].customerType.wholeSalePrice ?
+                    <div>Is Customer Wholesale:{selectedCustomer[0].customerType.wholeSalePrice ?
                         <span className='text-white bg-[#50B426] ml-1 rounded-full px-5 py-1'>Yes</span>
                     :   <span className='text-white bg-[#ee574c] ml-1 rounded-full px-4 py-1'>No</span>}
                     </div>
@@ -475,6 +475,9 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
             return toast.error('Invoice Should Have Items!')
         }
 
+        const selectedCustomer = helper.customers.filter(cutomer => cutomer.id === pickedCustomer)
+
+        console.log(selectedCustomer)
         const payload = {
             totalAmount,
             itemsDiscount, 
@@ -487,6 +490,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
             status, 
             employeeId:pickedEmployee, 
             customerId:pickedCustomer === "Please select -optinal-" ? null : pickedCustomer,
+            customerExtraInfo:selectedCustomer[0] ? selectedCustomer[0].customerType.wholeSalePrice ? 'This Invoice Counted This Customer As A Wholesaler And Take Whole Sale Price' : `This Invoice Counted This Customer As A ${selectedCustomer[0].customerType.type_name} And Have A Discount Value Of ${selectedCustomer[0].customerType.discount_value}%` : '',
             items
         }
 
@@ -604,6 +608,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
             setIncludeItemsDiscount(false);
             setStatus('No-status')
             setOpenPopup(false)
+            setEditMode(false)
         } catch (error) {
             toast.error(error.data.error)
         }
@@ -613,7 +618,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
     return (
         <section className="overflow-auto bg-white left-[20%] top-[7%] h-[50rem] w-[80rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
             <div className='relative w-full bg-black'>
-                <AiOutlineCloseCircle onClick={() => {setOpenPopup(false); setItems([])}} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
+                <AiOutlineCloseCircle onClick={() => {setOpenPopup(false); setItems([]); setEditMode(false)}} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
             </div>
             <h2 className='text-[2.5rem] font-bold text-center text-gray-500 capitalize mt-12'>{editMode ? 'Edit Invoice' : 'Add Invoice' }</h2>
             <form onSubmit={editMode ?  handleEditInvoice : handleAddInvoice} className='flex flex-col gap-10 w-[70%] mx-auto mt-5 relative'>
@@ -863,8 +868,8 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                         <option value="partially">Partially</option>
                     </select>
                 </div>
-                <button type='submit' className="flex gap-4 justify-center mb-20 rounded border w-full border-[#50B426] px-12 py-4 text-sm font-medium text-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]">
-                    {isAddLoading || isEditLoading && <BiLoaderCircle className='text-[1.4rem] animate-spin'/>}
+                <button type='submit' disabled={isAddLoading || isEditLoading} className={` ${isAddLoading || isEditLoading  ? 'bg-gray-300 text-gray-200': 'text-[#50B426] border-[#50B426] hover:bg-[#50B426] hover:text-white focus:outline-none focus:ring active:bg-green-500 text-[1.3rem]' } flex gap-4 justify-center mb-20 rounded border w-full  px-12 py-4 text-sm font-medium`}>
+                    {(isAddLoading || isEditLoading) && <BiLoaderCircle className='text-[1.4rem] animate-spin'/>}
                     {editMode ? 'Confirm Edits' : 'Submit Invoice' }
                 </button>
             </form>

@@ -8,6 +8,7 @@ import { useRemoveCategoryMutation } from '../features/api/inventory/categoryApi
 import { useRemoveBrandMutation } from '../features/api/inventory/brandApiSlice';
 import { useRemoveProductMutation } from '../features/api/inventory/productApiSlice';
 import { useRemoveEmployeeMutation } from '../features/api/employees/employeeApiSlice';
+import { useRemoveInvoiceMutation } from '../features/api/sales/innerInvoicesApiSlice';
 
 export const DeletePopup = ({ setOpenDeletePopup, selected, department, setReset }) => {
 
@@ -16,7 +17,8 @@ export const DeletePopup = ({ setOpenDeletePopup, selected, department, setReset
     const [removeBrand, {isLoading:isBrandLoading}] = useRemoveBrandMutation() 
     const [removeProduct, {isLoading:isProductLoading}] = useRemoveProductMutation() 
     const [removeEmployee, {isLoading:isEmployeeLoading}] = useRemoveEmployeeMutation() 
-    
+    const [removeInvoice, {isLoading:isInvoiceLoading}] = useRemoveInvoiceMutation() 
+
     const handleDelete = async () => {
         if(department === 'Customers'){
             try {
@@ -68,6 +70,16 @@ export const DeletePopup = ({ setOpenDeletePopup, selected, department, setReset
             } catch (error) {
                 toast.error(error.data.error)
             }
+        }else if(department === "invoices"){
+            try {
+                
+                const res = await removeInvoice(selected).unwrap()
+                setReset('')
+                setOpenDeletePopup(false)
+                toast.success(res.message)    
+            } catch (error) {
+                toast.error(error.data.error)
+            }
         }
     }
 
@@ -78,7 +90,7 @@ export const DeletePopup = ({ setOpenDeletePopup, selected, department, setReset
                 <p className="mt-2 text-sm text-gray-500">Deleting anything may affect in losing important data</p>
                 <div className="mt-4 flex gap-2 justify-center">
                     <button disabled={isLoading} onClick={handleDelete} type="button" className="rounded flex gap-2 hover:bg-red-400 hover:text-white active:bg-red-700 border-red-600 border-2 bg-red-50 px-4 py-2 text-sm font-medium text-red-600">
-                        {isLoading || isCategoryLoading || isBrandLoading || isProductLoading || isEmployeeLoading && <BiLoaderCircle className='text-[1.4rem] animate-spin'/>} Yes, I'm sure
+                        {isLoading || isCategoryLoading || isBrandLoading || isProductLoading || isEmployeeLoading || isInvoiceLoading && <BiLoaderCircle className='text-[1.4rem] animate-spin'/>} Yes, I'm sure
                     </button>
                     <button onClick={() => setOpenDeletePopup(false)} type="button" className="rounded border-gray-600 hover:bg-gray-400 active:bg-gray-700 hover:text-white border-2 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-600">
                         No, go back

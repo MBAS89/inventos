@@ -49,7 +49,8 @@ export const innerInvoicesApiSlice = apiSlice.injectEndpoints({
                     status: data.status, 
                     employeeId: data.employeeId, 
                     customerId:data.customerId,
-                    items:data.items
+                    items:data.items,
+                    customer_extra_info:data.customerExtraInfo
                 }
             }),
             invalidatesTags: ['InnerInvoices']
@@ -72,6 +73,13 @@ export const innerInvoicesApiSlice = apiSlice.injectEndpoints({
                     customerId:data.customerId,
                     items:data.items
                 }
+            }),
+            invalidatesTags: ['InnerInvoices']
+        }),
+        removeInvoice: builder.mutation({
+            query: (data) => ({
+                url: `${INVOICE_URL}/remove/${data.invoiceId}`,
+                method: 'DELETE',
             }),
             invalidatesTags: ['InnerInvoices']
         }),
@@ -105,5 +113,6 @@ export const {
     useAddInvoiceMutation, 
     useAddInvoiceHelperQuery,
     useProductSearchHelperQuery,
-    useEditInvoiceMutation
+    useEditInvoiceMutation,
+    useRemoveInvoiceMutation
 } = innerInvoicesApiSlice

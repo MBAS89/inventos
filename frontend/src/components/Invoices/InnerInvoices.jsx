@@ -72,7 +72,7 @@ export const InnerInvoices = () => {
             handleCheckboxChange={handleCheckboxChange}
         />
         {openPopup && 
-            <AddAndEditInvoicePopup selectedInvoice={selectedInvoice} editMode={editMode} setOpenPopup={setOpenPopup}/>
+            <AddAndEditInvoicePopup selectedInvoice={selectedInvoice} editMode={editMode} setEditMode={setEditMode} setOpenPopup={setOpenPopup}/>
         }
         {openDeletePopup && 
             <DeletePopup setOpenDeletePopup={setOpenDeletePopup} selected={selectedInvoice} setReset={setSelectedInvoice} department="invoices" />

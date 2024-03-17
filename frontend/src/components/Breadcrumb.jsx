@@ -5,17 +5,19 @@ import { MdKeyboardArrowRight } from "react-icons/md"
 import { useNavigate } from 'react-router-dom'
 
 
-export const Breadcrumb = ({ from, current, isLoading }) => {
+export const Breadcrumb = ({ from, current, isLoading, width }) => {
     const navigate = useNavigate()
 
     const handleBack = () => {
         if(from === 'Employees'){
             navigate('/dashboard/employees')
+        }else if( from === 'Inner Invoices'){
+            navigate('/dashboard/invoices')
         }
     }
 
     return (
-        <div className='w-[60%] mx-auto pt-20'>
+        <div className={` ${width ? width : 'w-[60%]'} mx-auto pt-20`}>
             <nav aria-label="Breadcrumb" >
                 <ol className="flex items-center gap-1 text-sm text-gray-600">
                     <li>
