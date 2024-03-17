@@ -51,6 +51,12 @@ exports.readSingleInvoice = async (req, res, next) => {
                 {
                     model:Customers,
                     attributes: ['id', 'full_name', 'image'],
+                    include:[
+                        {
+                            model:CustomerTypes,
+                            as: 'customerType'
+                        }
+                    ]
                 }
             ]
         })
@@ -135,14 +141,14 @@ exports.createInvoice = async (req, res, next) => {
 
         //retrieve values from req.body  
         const { total_amount, items_discount, extra_discount, total_discount, customer_discount, 
-            total_to_pay, total_due, total_paid, status, items, customerId, employeeId
+            total_to_pay, total_due, total_paid, status, items, customerId, employeeId, customer_extra_info
         } = req.body
 
         //create invoice
         const invoice = await Invoices.create({
             total_amount,
             items_discount,
-            customer_discount,
+            customer_discount:customer_discount.toFixed(2),
             extra_discount: extra_discount || 0,
             total_discount,
             total_to_pay,
@@ -151,6 +157,7 @@ exports.createInvoice = async (req, res, next) => {
             status,
             employeeId:employeeId || null,
             customerId:customerId || null,
+            customer_extra_info,
             store_id
         });
 
@@ -376,7 +383,7 @@ exports.addInvoiceHelper = async (req, res, next) => {
                 {
                     model:CustomerTypes,
                     as:'customerType',
-                    attributes:['id','discount_value','wholeSalePrice']
+                    attributes:['id','discount_value','wholeSalePrice', 'type_name']
                 }
             ]
         })

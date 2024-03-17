@@ -57,6 +57,9 @@ const Invoices = sequelize.define('invoices', {
             key: 'id'
         },
     },
+    customer_extra_info:{
+        type: DataTypes.STRING,
+    },
     store_id: {
         type: DataTypes.INTEGER,
         references: {
