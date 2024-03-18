@@ -4,12 +4,39 @@ const ErrorResponse = require('../../utils/errorResponse');
 //modles
 const SuppliersTypes = require('../../models/suppliers/suppliersType');
 
+exports.readSupplierTypes = async (req, res, next) => {
+
+    try {
+        const store_id = req.authData.store_id
+
+        //Fetch All Suppliers type
+        const supplierTypes = await SuppliersTypes.findAll({
+            where:{ store_id }
+        })
+
+        //if response with an error
+        if(!supplierTypes){
+            return next(new ErrorResponse("Something went wrong!", 500));
+        }
+
+        //return response of the req
+        res.status(200).json({supplierTypes})
+
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
 
 exports.addSupplierType = async (req, res, next) => {
 
     try {
+        const store_id = req.authData.store_id
+
         //retrieve values from req.body 
-        const { store_id, type_name } = req.body
+        const { type_name } = req.body
 
         //create Supplier type
         const supplierType = await SuppliersTypes.create({

@@ -8,13 +8,100 @@ const validator = require('validator');
 const { cloudinaryExtractPublicId, deleteImage } = require('../../utils/functions/cloudinary/cloudinaryUtils');
 //reusable functions to check Required Fields
 const { checkRequiredFields } = require('../../utils/functions/checkRequiredFileds');
+const SuppliersTypes = require('../../models/suppliers/suppliersType');
+const { Op } = require('sequelize');
+const ErrorResponse = require('../../utils/errorResponse');
+const { getOrderOptions } = require('../../utils/functions/orderOptions')
 
+exports.getSuppliers = async (req, res, next) => {
+    try {
+        const storeId = req.authData.store_id
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
+
+        if (!page || !storeId) {
+            return next(new ErrorResponse('Page Number and Store ID are required', 400));
+        }
+        
+        const totalCount = await Suppliers.count({ where: { store_id: storeId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            store_id: storeId,
+            [Op.or]: [
+                { supplier_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { phone_number: { [Op.like]: `%${searchQuery}%` } },
+                { address: { [Op.like]: `%${searchQuery}%` } },
+                { email: { [Op.like]: `%${searchQuery}%` } },
+            ]
+        } : { store_id: storeId };
+
+        const suppliers = await Suppliers.findAll({
+            where: whereClause,
+            limit: searchQuery ? undefined : parseInt(limit),
+            offset: searchQuery ? undefined : (currentPage - 1) * parseInt(limit),
+            include:[
+                {
+                    model:SuppliersTypes,
+                    attributes:['type_name', 'id']
+                }
+            ],
+            order:column && sort ? getOrderOptions(column, sort) : []
+        });
+
+        
+
+        return res.status(200).json({ totalCount, totalPages, currentPage, suppliers });
+
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.getSingleSuppliers = async (req, res, next) => {
+    try {
+        const storeId = req.authData.store_id
+        const { supplierId } = req.query;
+
+        if (!supplierId || !storeId) {
+            return next(new ErrorResponse('Supplier ID and Store ID are required', 400));
+        }
+        
+        const supplier = await Suppliers.findOne({
+            where: { 
+                store_id: storeId,
+                id: supplierId
+            },
+            include:[
+                {
+                    model:SuppliersTypes,
+                    attributes:['type_name', 'id']
+                }
+            ],
+        })
+
+        if(!supplier){
+            return  next(new ErrorResponse('No Supplier Found!', 404))
+        }
+
+        res.status(200).json({ supplier });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 exports.addSupplier = async (req, res, next) => {
 
     try {
+        const store_id = req.authData.store_id
         //retrive Customer values from req body 
-        const { store_id, supplier_name, email, phone_number, address, supplier_type } = req.body
+        const { supplier_name, email, phone_number, address, supplier_type } = req.body
 
         // Access Cloudinary image URL after uploading
         const imageUrl = req.file.path;
@@ -22,7 +109,7 @@ exports.addSupplier = async (req, res, next) => {
         const imageId = cloudinaryExtractPublicId(imageUrl)
 
         //Check if all Required Fileds are there
-        const requiredFields = ['store_id', 'supplier_name', 'email', 'phone_number', 'address', 'supplier_type'];
+        const requiredFields = ['supplier_name', 'email', 'phone_number', 'address', 'supplier_type'];
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
@@ -44,6 +131,7 @@ exports.addSupplier = async (req, res, next) => {
             return next(new ErrorResponse('Invalid email address', 406));
         }
 
+
         //INSERT this Supplier to the data base
         const supplier = await Suppliers.create({
             store_id,
@@ -53,7 +141,7 @@ exports.addSupplier = async (req, res, next) => {
             email,
             phone_number,
             address,
-            supplier_type
+            supplier_type_id:supplier_type || null
         });
 
 
@@ -90,18 +178,24 @@ exports.editSupplier = async (req, res, next) => {
         //retrive supplierId from req params 
         const { supplierId } =  req.params
         //retrive supplier new values from req body 
-        const { supplier_name, email, phone_number, address, supplier_type } = req.body
+        const { supplier_name, email, phone_number, address, supplier_type, oldImage } = req.body
 
+        let imageId
+        let imageUrl
         // Access Cloudinary image URL after uploading
-        const imageUrl = req.file.path;
-        // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
-        const imageId = cloudinaryExtractPublicId(imageUrl)
+        if(req.file){
+            imageUrl = req.file.path;
+
+            // Extract the puplic id from the image URL using reusable function cloudinaryExtractPublicId
+            imageId = cloudinaryExtractPublicId(imageUrl)
+        }
 
         //check if supplierId Have a value 
         if(!supplierId){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
-
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse("Supplier ID Required", 422));
         }
@@ -122,8 +216,10 @@ exports.editSupplier = async (req, res, next) => {
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
 
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse(validationError, 422));
@@ -133,8 +229,11 @@ exports.editSupplier = async (req, res, next) => {
 
         // Check if the email is valid
         if (!isValidEmail) {
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
+            
             
             //this will tell user email is not accepted 
             return next(new ErrorResponse('Invalid email address', 406));
@@ -145,7 +244,7 @@ exports.editSupplier = async (req, res, next) => {
         const updatedSupplier = await Suppliers.update(
             {
                 supplier_name,
-                image: imageUrl,
+                image: imageUrl ? imageUrl : oldImage,
                 image_id: imageId,
                 email,
                 phone_number,
@@ -160,20 +259,25 @@ exports.editSupplier = async (req, res, next) => {
 
         //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
         if(!updatedSupplier){
-            //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-            await deleteImage(imageId)
+            if(imageId){
+                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
+                await deleteImage(imageId)
+            }
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
 
-        //this will send a request to cloudinary to delete the old image from there and return ok or fail 
-        const result = await deleteImage(oldSupplierImageId)
+        let result
+        if(req.file){
+            //this will send a request to cloudinary to delete the old image from there and return ok or fail 
+            result = await deleteImage(oldSupplierImageId)
+        }
 
 
         //return success response with message
         res.status(201).json({
             status:"success",
             message:"Supplier Edited",
-            cloudinary:result,
+            cloudinary:result || 'no new Image',
             results:1,
             data: {
                 supplier:updatedSupplier
@@ -201,7 +305,7 @@ exports.removeSupplier = async (req, res, next) => {
 
         //check if supplierId have value if not throw an error
         if(!supplierId){
-            return next(new ErrorResponse("Customer ID Is required", 422));
+            return next(new ErrorResponse("Supplier ID Is required", 422));
         }
 
         //this will send a request to cloudinary to delete the image from there and return ok or fail 

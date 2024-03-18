@@ -53,15 +53,6 @@ const Suppliers = sequelize.define('suppliers', {
     total_debt_us: {
         type: DataTypes.FLOAT,
         defaultValue: 0
-    },	
-    supplier_type:{
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'customers_types',
-            key: 'id'
-        },
-        onDelete: 'CASCADE',
     }
 });
 

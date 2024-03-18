@@ -16,7 +16,7 @@ const ValidateAddEditRemoveSuppliersType = async (req, res, next) => {
         //if the route path is /add we required specific field  
         if (req.path.includes('/add')) {
 
-            requiredFields = ['store_id', 'type_name'];
+            requiredFields = ['type_name'];
 
         //if the route path is /edit we required specific field  
         }else if(req.path.includes('/edit')){

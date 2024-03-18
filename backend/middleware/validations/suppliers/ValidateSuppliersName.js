@@ -7,15 +7,15 @@ const ErrorResponse = require('../../../utils/errorResponse')
 // Validation middleware for creating and editing 
 const ValidateSuppliersName = async (req, res, next) => {
     try {
+        const store_id = req.authData.store_id
         //retrieve Supplier name from req query to check if the Supplier name is used before uploading to cloudinary
-        const { supplierName, storeId } = req.query
+        const { supplierName } = req.query
 
         // Check if all fields are present
-        if (!supplierName || !storeId) {
+        if (!supplierName || !store_id) {
             return next(new ErrorResponse("Supplier Name And Store ID Is required", 422));
         }
 
-        console.log(req.path)
         if (req.path.includes('/remove')) {
             next();
         }else{
@@ -23,7 +23,7 @@ const ValidateSuppliersName = async (req, res, next) => {
             const existingSupplier = await Suppliers.findOne({
                 where: {
                     supplier_name: supplierName,
-                    store_id: storeId
+                    store_id
                 }
             });
 
