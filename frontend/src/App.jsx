@@ -87,7 +87,7 @@ function App() {
             <Suppliers />
           </DashLayout>
         }></Route>
-        <Route path="/dashboard/suppliers/single-supplier" element={<SingleSuppliers />}></Route>
+        <Route path="/dashboard/suppliers/single-supplier/:supplierId" element={<SingleSuppliers />}></Route>
         <Route path="/dashboard/employees" element={
           <DashLayout>
             <Employees />

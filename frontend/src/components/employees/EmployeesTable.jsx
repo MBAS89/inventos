@@ -47,7 +47,7 @@ export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmploye
                         {employees.employees.map((employee) => (
                             <tr key={employee.id}>
                                 <td className="px-4 py-2">
-                                <input
+                                    <input
                                         className="h-5 w-5 cursor-pointer rounded border-gray-300 focus:outline-none focus:ring-2 checked:bg-[#50B426] focus:ring-[#50B426]"
                                         type="checkbox"
                                         id={`Row${employee.id}`}
