@@ -119,3 +119,20 @@
   transform: translateX(100%);
   border-color: rgba(77, 175, 80, 1);
 }
+
+.remove-arrow::-webkit-inner-spin-button,
+.remove-arrow::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.remove-arrow {
+    -moz-appearance: textfield;
+}
+
+*:focus {
+  outline: none;
+}
+
+textarea:focus, input:focus{
+  outline: 0;
+}
