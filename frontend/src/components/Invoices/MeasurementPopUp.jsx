@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
 import { unitiCalculator, allUnitsBasedOnCategory  } from 'uniti-price-tool'
 
-export const MeasurementPopUp = ({ setShowMeasurementPopUp, unitOfMeasurement, setItemsUnits, handleUsingCustomUnits, setSelectedItem, items, selectedItem, handleAddCustomMeasure }) => {
+export const MeasurementPopUp = ({ setShowMeasurementPopUp, unitOfMeasurement, setItemsUnits, handleUsingCustomUnits, setSelectedItem, items, selectedItem, handleAddCustomMeasure, cost }) => {
     const item = items.filter(item => item.product_id === selectedItem)
 
     const allUits = allUnitsBasedOnCategory(item[0].unitCategory)
@@ -10,7 +10,7 @@ export const MeasurementPopUp = ({ setShowMeasurementPopUp, unitOfMeasurement, s
     const [newUnit, setNewUnit] = useState('')
     const [newQty, setNewQty] = useState(0)
 
-    const result = unitiCalculator(item[0].unitCategory, item[0].unit, item[0].price, newUnit, newQty, 2);
+    const result = unitiCalculator(item[0].unitCategory, item[0].unit, cost ? item[0].costUnit : item[0].price, newUnit, newQty, 2);
 
     return (
     <div className='absolute w-[80%] -top-20 right-20 rounded-lg p-5 z-10 shadow-lg shadow-slate-300  bg-white min-h-[10rem] border-2 border-gray-800'>
@@ -43,9 +43,9 @@ export const MeasurementPopUp = ({ setShowMeasurementPopUp, unitOfMeasurement, s
                         </span>
                     </label>
                     <label htmlFor="pricePerUnit" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={item[0].price} readOnly disabled type="text" id='pricePerUnit' placeholder="pricePerUnit" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input value={item[0].costUnit} readOnly disabled type="text" id='pricePerUnit' placeholder="pricePerUnit" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
-                            Price Per unit
+                            {cost ? 'Cost Per unit' : 'Price Per unit'}
                         </span>
                     </label>
                     <div className='w-full'>
