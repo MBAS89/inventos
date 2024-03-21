@@ -14,6 +14,7 @@ const { cloudinaryExtractPublicId, deleteImage } = require('../utils/functions/c
 const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds');
 const { getOrderOptions } = require('../utils/functions/orderOptions');
 const { generateUniqueSKU } = require('../utils/functions/genrateSku');
+const OldInventory = require('../models/inventory/oldInventory');
 
 
 
@@ -690,7 +691,7 @@ exports.addProduct = async (req, res, next) => {
 
         //Check if all Required Fileds are there
         const requiredFields = ['name', 'sku', 'unit', 'unit_catergory',
-            'cost_unit', 'retail_price_unit', 'wholesale_price_unit',
+            'cost_unit', 'retail_price_unit',
             'qty'
         ];
 
@@ -777,6 +778,16 @@ exports.removeProduct = async (req, res, next) => {
             return next(new ErrorResponse("Something went wrong!", 500));
         }
 
+        const oldInventories = await OldInventory.destroy({
+            where:{
+                product_id:productId
+            }
+        })
+
+        if(!oldInventories){
+            return next(new ErrorResponse("Something went wrong!", 500));
+        }
+
         //this will send a request to cloudinary to delete the image from there and return ok or fail 
         const result = await deleteImage(imageId)
 
@@ -838,9 +849,10 @@ exports.editProduct = async (req, res, next) => {
 
         //Check if all Required Fileds are there
         const requiredFields = ['name', 'sku', 'unit', 'unit_catergory',
-            'cost_unit', 'retail_price_unit', 'wholesale_price_unit',
+            'cost_unit', 'retail_price_unit',
             'qty'
         ];
+
         const validationError = checkRequiredFields(next, req.body, requiredFields);
 
         if(validationError){
