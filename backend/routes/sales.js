@@ -9,7 +9,7 @@ const {  createInvoice, editInvoice, removeInvoice, readInvoices, readSingleInvo
 const validateCreateAndEditInvoice = require('../middleware/validations/sales/validateCreateAndEditInvoice')
 const validateDeleteAndEditInvoice = require('../middleware/validations/sales/validateDeleteAndEditInvoice')
 const Auth = require('../middleware/auth/authMiddleware')
-const { createOuterInvoice } = require('../controllers/outerInvoices')
+const { createOuterInvoice, addOuterInvoiceHelper } = require('../controllers/outerInvoices')
 
 //routes
 router.get('/invoices/read', Auth, readInvoices)
@@ -21,5 +21,6 @@ router.put('/invoices/edit/:invoiceId', Auth, validateDeleteAndEditInvoice, vali
 router.delete('/invoices/remove/:invoiceId', Auth, validateDeleteAndEditInvoice, removeInvoice)
 
 router.post('/outer-invoices/create', Auth, createOuterInvoice)
+router.get('/outer-invoices/helper', Auth, addOuterInvoiceHelper)
 
 module.exports = router
