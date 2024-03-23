@@ -12,7 +12,8 @@ const Customers = require('../models/cutomers/cutomers');
 const CustomerTypes = require('../models/cutomers/customersTypes')
 
 //reusable funtions 
-const {getOrderOptions} = require('../utils/functions/orderOptions')
+const {getOrderOptions} = require('../utils/functions/orderOptions');
+const OldInventory = require('../models/inventory/oldInventory');
 
 exports.readSingleInvoice = async (req, res, next) => {
     try {
@@ -415,6 +416,10 @@ exports.casherProductSearch = async (req, res, next) => {
             where:{
                 sku:searchQuery,
                 store_id
+            },
+            include:{
+                model:OldInventory,
+                order: [['createdAt', 'ASC']] 
             }
         })
 
@@ -429,8 +434,12 @@ exports.casherProductSearch = async (req, res, next) => {
                     EXISTS (
                         SELECT 1 FROM unnest("unit_of_measurement") AS elem WHERE elem->>'sku' ILIKE '${searchQuery}'
                     )
-                `)
-            })
+                `),
+                include: [{
+                    model: OldInventory,
+                    order: [['createdAt', 'ASC']] 
+                }],
+            });
 
             if(productsUnitSku){
                 return res.status(200).json({type:'unitSku', product:productsUnitSku});
@@ -441,7 +450,11 @@ exports.casherProductSearch = async (req, res, next) => {
             }
 
             const productsNameSearch = await Products.findAll({
-                where:{ name: { [Op.iLike]: `%${searchQuery}%` }, store_id}
+                where:{ name: { [Op.iLike]: `%${searchQuery}%` }, store_id},
+                include: [{
+                    model: OldInventory,
+                    order: [['createdAt', 'ASC']] 
+                }]
             })
 
             // Send success response
