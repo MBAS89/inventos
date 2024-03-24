@@ -8,11 +8,14 @@ import { useProductSearchHelperQuery } from '../../features/api/sales/innerInvoi
 import { TableHead } from '../TableHead';
 import { MeasurementPopUp } from './MeasurementPopUp';
 import { MdOutlineEdit } from "react-icons/md";
+import { useAddOuterInvoiceHelperQuery, useAddOuterInvoiceMutation } from '../../features/api/sales/outerInvoicesApiSlice';
+import { toast } from 'react-toastify';
 
 
 export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode}) => {
     const [searchQuery, setSearchQuery] = useState('')
     const { data:search, isLoading } = useProductSearchHelperQuery({searchQuery},'productSearchHelper')
+    const { data:helper } = useAddOuterInvoiceHelperQuery()
 
     const [pickedSupplier, setPickedSupplier] = useState('Please select')
     const [pickedEmployee, setPickedEmployee] = useState('Please select')
@@ -356,6 +359,7 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
     };
 
 
+    const [totalQty, setTotalQty] = useState(0)
     const [totalAmount, setTotalAmount] = useState(0)
     const [extraDiscount, setExtraDiscount] = useState(0)
     const [totalToPay, setTotalToPay] = useState(0)
@@ -365,6 +369,11 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
 
     useEffect(() => {
         if(items.length > 0){
+            const totalqty = items.reduce((total, currentItem) => {
+                return total + currentItem.qty;
+            }, 0);
+
+            setTotalQty(totalqty)
             const totalAmount = items.reduce((total, currentItem) => {
                 const itemTotal = currentItem.piecesPerUnit > 1 ? currentItem.qty * currentItem.costPiece : currentItem.qty * currentItem.costUnit;
                 return total + itemTotal;
@@ -389,27 +398,82 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
         }
     },[items, totalToPay,  extraDiscount, totalPaid, totalDue])
 
+    const [oldInventoryStatus, setOldInventoryStatus] = useState('sell-this-on-old-price')
+
+    const [addOuterInvoice, {isLoading:isAddLoading}] = useAddOuterInvoiceMutation()
+
+    const handleAddOuterInvoice = async (e) => {
+        e.preventDefault()
+
+        if(pickedSupplier === "Please select"){
+            return toast.error('Please Select A Supplier First!')
+        }
+
+        if(pickedEmployee === "Please select"){
+            return toast.error('Please Select A Employee First!')
+        }
+
+        if(items.length == 0){
+            return toast.error('Invoice Should Have Items!')
+        }
+
+        const payload = {
+            totalAmount,
+            extraDiscount,
+            totalToPay, 
+            totalPaid, 
+            totalDue,
+            status, 
+            employeeId:pickedEmployee, 
+            suppliersId:pickedSupplier,
+            items,
+            inventoryStatus:oldInventoryStatus
+        }
+
+        try {
+            const res = await addOuterInvoice(payload).unwrap()
+            toast.success(res.message)
+            setItems([])
+            setTotalAmount(0);
+            setExtraDiscount(0)
+            setTotalToPay(0)
+            setTotalDue(0)
+            setTotalPaid(0)
+            setStatus('No-status')
+            setOldInventoryStatus('sell-this-on-old-price')
+            setOpenPopup(false)
+        } catch (error) {
+            toast.error(error.data.error)
+        }
+    }
+
     return (
         <section className="overflow-auto bg-white left-[13%] top-[7%] h-[50rem] w-[90rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
             <div className='relative w-full bg-black'>
                 <AiOutlineCloseCircle onClick={() => {setOpenPopup(false); setItems([]); setEditMode(false)}} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
             </div>
             <h2 className='text-[2.5rem] font-bold text-center text-gray-500 capitalize mt-12'>{editMode ? 'Edit Outer Invoice' : 'Add Outer Invoice' }</h2>
-            <form className='flex flex-col gap-10 w-[70%] mx-auto mt-5 mb-24 relative'>
+            <form onSubmit={handleAddOuterInvoice} className='flex flex-col gap-10 w-[70%] mx-auto mt-5 mb-24 relative'>
                 <div className='w-full'>
                     <label htmlFor="Casher" className="block text-sm font-medium text-gray-900">
                     Casher
                     </label>
-                    <select value={pickedEmployee} className="mt-1.5 h-16 remove-arrow w-full border-[2px] rounded-md border-solid focus:border-[#50B426] text-gray-700 sm:text-sm">
+                    <select value={pickedEmployee} onChange={(e) => {setPickedEmployee(e.target.value)}} className="mt-1.5 h-16 remove-arrow w-full border-[2px] rounded-md border-solid focus:border-[#50B426] text-gray-700 sm:text-sm">
                         <option disabled>Please select</option>
+                        {helper && helper.employees.map((employee) => (
+                            <option key={employee.id} value={employee.id}>{employee.full_name}</option>
+                        ))}
                     </select>   
                 </div>
                 <div className='w-full'>
                     <label htmlFor="Casher" className="block text-sm font-medium text-gray-900">
                     Suppier
                     </label>
-                    <select value={pickedSupplier} className="mt-1.5 h-16 remove-arrow w-full border-[2px] rounded-md border-solid focus:border-[#50B426] text-gray-700 sm:text-sm">
+                    <select value={pickedSupplier} onChange={(e) => {setPickedSupplier(e.target.value)}} className="mt-1.5 h-16 remove-arrow w-full border-[2px] rounded-md border-solid focus:border-[#50B426] text-gray-700 sm:text-sm">
                         <option disabled>Please select</option>
+                        {helper && helper.suppliers.map((supplier) => (
+                            <option key={supplier.id} value={supplier.id}>{supplier.supplier_name}</option>
+                        ))}
                     </select>   
                 </div>
                 <label htmlFor="Sku" className="relative block overflow-hidden rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
@@ -577,28 +641,28 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
                                                 <tbody className="divide-y divide-gray-200 text-center">
                                                     <tr>
                                                         <td className="px-4 py-2 ">
-                                                            <input value={item.costUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='costUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'/>
+                                                            <input value={item.costUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='costUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
                                                         <td className="px-4 py-2">
-                                                            <input value={item.costPiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='costPiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'/>
+                                                            <input value={item.costPiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='costPiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
                                                         <td className="px-4 py-2">
-                                                            <input value={item.retailPriceUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='retailPriceUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'/>   
+                                                            <input value={item.retailPriceUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='retailPriceUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>   
                                                         </td>
                                                         <td className="px-4 py-2">
-                                                            <input value={item.retailPricePiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='retailPricePiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'/>
+                                                            <input value={item.retailPricePiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='retailPricePiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
                                                         <td className="px-4 py-2">
-                                                            <input value={item.wholeSalePriceUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='wholeSalePriceUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'/>
+                                                            <input value={item.wholeSalePriceUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='wholeSalePriceUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
                                                         <td className="px-4 py-2">
-                                                            <input value={item.wholeSalePricePiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='wholeSalePricePiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'/>
+                                                            <input value={item.wholeSalePricePiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='wholeSalePricePiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
                                                         <td className="px-4 py-2">
-                                                            <input value={item.salePriceUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='salePriceUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'/>
+                                                            <input value={item.salePriceUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='salePriceUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
                                                         <td className="px-4 py-2">
-                                                            <input value={item.salePricePeice} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='salePricePeice' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'/>
+                                                            <input value={item.salePricePeice} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='salePricePeice' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -632,6 +696,41 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
                     </div>
                 )}
                 </div>
+                <div className='w-full h-50 bg-slate-200 rounded-lg p-4 flex '>
+                    <div className=' w-1/2'>
+                        <h4 className='font-bold'>Invoice Items Information</h4>
+                        <div className='text-[0.9rem] italic'>All new items will be added to the store inventory</div>
+                        <div className='flex justify-center items-center mt-8 gap-2 text-[1.4rem] font-bold'>
+                            <div className='font-bold'>Total New Qty:</div>
+                            <span className='text-[#35ad25] text-[1.6rem]'>{totalQty}</span>
+                        </div>
+                        <h5 className='text-[0.9rem] mt-5'>When adjusting prices, it's imperative to acknowledge that such changes render existing inventory as <span className='font-bold'>'old inventory.'</span></h5>
+                    </div>
+                    <div className='flex flex-col gap-4 justify-center items-center w-1/2'>
+                        <h5>How would you prefer to manage old inventory?</h5>
+                        <button 
+                            onClick={() => setOldInventoryStatus('sell-this-on-old-price')} 
+                            type='button' 
+                            className={` ${oldInventoryStatus === 'sell-this-on-old-price' ? 'bg-[#35ad25] text-white' : 'bg-white text-[#35ad25]'}  w-64 rounded-lg h-10 border-2 border-[#34ad25] hover:bg-green-400`}
+                        >
+                            Sell Old On Old Price
+                        </button>
+                        <button 
+                            type='button' 
+                            onClick={() => setOldInventoryStatus('sell-on-old-price')} 
+                            className={` ${oldInventoryStatus === 'sell-on-old-price' ? 'bg-[#35ad25] text-white' : 'bg-white text-[#35ad25]'}  w-64 rounded-lg h-10 border-2 border-[#34ad25] hover:bg-green-400`}
+                        >
+                            Sell Old & New On Old Price
+                        </button>
+                        <button 
+                            type='button' 
+                            onClick={() => setOldInventoryStatus('sell-on-new-price')} 
+                            className={` ${oldInventoryStatus === 'sell-on-new-price' ? 'bg-[#35ad25] text-white' : 'bg-white text-[#35ad25]'}  w-64 rounded-lg h-10 border-2 border-[#34ad25] hover:bg-green-400`}
+                        >
+                            Sell Old On New Price
+                        </button>
+                    </div>
+                </div>
                 <div className='flex items-center w-full gap-4'>
                     <label htmlFor="totalAmount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
                         <input value={totalAmount} readOnly disabled type="number" id="totalAmount" placeholder="totalAmount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
@@ -640,7 +739,7 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
                         </span>
                     </label>
                     <label htmlFor="itemsDiscount" className="relative block overflow-hidden w-full ring-[#50B426] ring-2  rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={extraDiscount} type="number" id="itemsDiscount" placeholder="itemsDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input value={extraDiscount} onChange={(e) => setExtraDiscount(e.target.value)} type="number" id="itemsDiscount" placeholder="itemsDiscount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Extra Discount
                         </span>
@@ -654,7 +753,7 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
                 </div>
                 <div className='flex items-center w-full gap-4'>
                     <label htmlFor="totalAmount" className="relative block overflow-hidden w-full rounded-md border border-gray-200 px-3 pt-3 ring-[#50B426] ring-2 shadow-sm focus-within:border-[#50B426] focus-within:ring-1 focus-within:ring-[#50B426]">
-                        <input value={totalPaid} type="number" id="totalAmount" placeholder="totalAmount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                        <input value={totalPaid} onChange={(e) => setTotalPaid(e.target.value)} type="number" id="totalAmount" placeholder="totalAmount" className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
                             Total Paid
                         </span>
@@ -665,10 +764,10 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
                             Total Due
                         </span>
                     </label>
-                    <div className='w-[40rem] flex flex-col gap-1 border-2 border-[#35ad25] p-1 rounded-md'>
+                    <div className='w-[50rem] flex flex-col gap-1 border-2 border-[#35ad25] p-1 rounded-md'>
                         <div className='flex items-center gap-2 font-bold'>
                             <div>Discount Percentage:</div>
-                            <div className='text-[#35ad25]'>{(extraDiscount/totalAmount) * 100}%</div>
+                            <div className='text-[#35ad25]'>{((extraDiscount/totalAmount) * 100).toFixed(2)}%</div>
                         </div>
                         <div className='flex items-center gap-2 font-bold'>
                             <div>Discount Percentage:</div>

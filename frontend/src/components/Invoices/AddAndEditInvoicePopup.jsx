@@ -25,74 +25,196 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
 
     const [items, setItems] = useState([])
 
+    const [inventoryIndex, setInventoryIndex] = useState(0)
+    const [indexChange, setIndexChange] = useState([])
+
     useEffect(() => {
         if(search){
             if(search.type === "unitSku" || search.type === "sku"){
-                const productExists = items.some(item => item.product_id === search.product.product_id);
-                if (!productExists) {
-                    setItems(previousState => [...previousState, {
-                        product_id:search.product.product_id,
-                        qty:search.product.pieces_per_unit > 1 ? search.product.pieces_per_unit : 1,
-                        image:search.product.image,
-                        name:search.product.name,
-                        unit:search.product.unit,
-                        price:search.product.retail_price_piece ? search.product.retail_price_piece : search.product.retail_price_unit,
-                        defaultProductQty:search.product.qty,
-                        unitValue:search.product.unit_value,
-                        piecesPerUnit:search.product.pieces_per_unit,
-                        salePriceUnit:search.product.sale_price_unit,
-                        salePricePeice:search.product.sale_price_piece,
-                        wholeSalePrice: search.product.wholesale_price_piece ? search.product.wholesale_price_piece : search.product.wholesale_price_unit ? search.product.wholesale_price_unit : 0,
-                        unitOfMeasurement:search.product.unit_of_measurement,
-                        unitCategory:search.product.unit_catergory
-                    }]);
+                if(search.product.old_inventories.length > 0){
+
+                    if(search.product.old_inventories.length >= inventoryIndex){
+                        const oldestInventory = search.product.old_inventories[inventoryIndex]
+
+                        if(oldestInventory){
+                            const inventoryExists = items.some(item => item.inventoryId === oldestInventory.id)
+
+
+                            if(!inventoryExists){
+                                setItems(previousState => [...previousState, {
+                                    product_id:search.product.product_id,
+                                    qty:search.product.pieces_per_unit > 1 ? search.product.pieces_per_unit : 1,
+                                    image:search.product.image,
+                                    name:search.product.name,
+                                    unit:search.product.unit,
+                                    sku:search.product.sku,
+                                    price:oldestInventory.retail_price_piece ? oldestInventory.retail_price_piece : oldestInventory.retail_price_unit,
+                                    defaultProductQty:oldestInventory.qty,
+                                    unitValue:search.product.unit_value,
+                                    piecesPerUnit:search.product.pieces_per_unit,
+                                    salePriceUnit:oldestInventory.sale_price_unit,
+                                    salePricePeice:oldestInventory.sale_price_piece ? oldestInventory.sale_price_piece : 0,
+                                    wholeSalePrice: oldestInventory.wholesale_price_piece ? oldestInventory.wholesale_price_piece : oldestInventory.wholesale_price_unit ? oldestInventory.wholesale_price_unit : 0,
+                                    unitOfMeasurement:search.product.unit_of_measurement,
+                                    unitCategory:search.product.unit_catergory,
+                                    inventoryId:oldestInventory.id
+                                }]);
+        
+                                setSearchQuery('')
+                            }
+                        }else{
+                            const productExists = items.some(item => item.inventoryId !== null);
+                            if(productExists){
+                                setItems(previousState => [...previousState, {
+                                    product_id:search.product.product_id,
+                                    qty:search.product.pieces_per_unit > 1 ? search.product.pieces_per_unit : 1,
+                                    image:search.product.image,
+                                    name:search.product.name,
+                                    unit:search.product.unit,
+                                    sku:search.product.sku,
+                                    price:search.product.retail_price_piece ? search.product.retail_price_piece : search.product.retail_price_unit,
+                                    defaultProductQty:search.product.qty,
+                                    unitValue:search.product.unit_value,
+                                    piecesPerUnit:search.product.pieces_per_unit,
+                                    salePriceUnit:search.product.sale_price_unit,
+                                    salePricePeice:search.product.sale_price_piece,
+                                    wholeSalePrice: search.product.wholesale_price_piece ? search.product.wholesale_price_piece : search.product.wholesale_price_unit ? search.product.wholesale_price_unit : 0,
+                                    unitOfMeasurement:search.product.unit_of_measurement,
+                                    unitCategory:search.product.unit_catergory,
+                                    inventoryId:null
+                                }]);
+        
+                                setSearchQuery('')
+                            }
+                        }
+
+                    }
+
+                }else{
+                    const productExists = items.some(item => item.product_id === search.product.product_id);
+                    if (!productExists) {
+                        setItems(previousState => [...previousState, {
+                            product_id:search.product.product_id,
+                            qty:search.product.pieces_per_unit > 1 ? search.product.pieces_per_unit : 1,
+                            image:search.product.image,
+                            name:search.product.name,
+                            unit:search.product.unit,
+                            sku:search.product.sku,
+                            price:search.product.retail_price_piece ? search.product.retail_price_piece : search.product.retail_price_unit,
+                            defaultProductQty:search.product.qty,
+                            unitValue:search.product.unit_value,
+                            piecesPerUnit:search.product.pieces_per_unit,
+                            salePriceUnit:search.product.sale_price_unit,
+                            salePricePeice:search.product.sale_price_piece,
+                            wholeSalePrice: search.product.wholesale_price_piece ? search.product.wholesale_price_piece : search.product.wholesale_price_unit ? search.product.wholesale_price_unit : 0,
+                            unitOfMeasurement:search.product.unit_of_measurement,
+                            unitCategory:search.product.unit_catergory,
+                            inventoryId:null
+                        }]);
+
+                        setSearchQuery('')
+                    }
                 }
             }
         }
     },[search])
 
     const handleAddItemToItems = (product) => {
-        const productExists = items.some(item => item.product_id === product.product_id);
-        if (!productExists) {
-            setItems(previousState => [...previousState, {
-                product_id:product.product_id,
-                qty:product.pieces_per_unit > 1 ? product.pieces_per_unit : 1,
-                image:product.image,
-                name:product.name,
-                unit:product.unit,
-                price:product.retail_price_piece ? product.retail_price_piece : product.retail_price_unit,
-                defaultProductQty:product.qty,
-                unitValue:product.unit_value,
-                piecesPerUnit:product.pieces_per_unit,
-                salePriceUnit:product.sale_price_unit,
-                salePricePeice:product.sale_price_piece,
-                wholeSalePrice: product.wholesale_price_piece ? product.wholesale_price_piece : product.wholesale_price_unit ? product.wholesale_price_unit : 0,
-                unitOfMeasurement:product.unit_of_measurement,
-                unitCategory:product.unit_catergory
-            }]);
+        if(product.old_inventories.length > 0){
+            const oldestInventory = product.old_inventories[0]
+            const inventoryExists = items.some(item => item.inventoryId === oldestInventory.id)
+            if(!inventoryExists){
+                setItems(previousState => [...previousState, {
+                    product_id:product.product_id,
+                    qty:product.pieces_per_unit > 1 ? product.pieces_per_unit : 1,
+                    image:product.image,
+                    name:product.name,
+                    unit:product.unit,
+                    sku:product.sku,
+                    price:oldestInventory.retail_price_piece ? oldestInventory.retail_price_piece : oldestInventory.retail_price_unit,
+                    defaultProductQty:oldestInventory.qty,
+                    unitValue:product.unit_value,
+                    piecesPerUnit:product.pieces_per_unit,
+                    salePriceUnit:oldestInventory.sale_price_unit,
+                    salePricePeice:oldestInventory.sale_price_piece,
+                    wholeSalePrice: oldestInventory.wholesale_price_piece ? oldestInventory.wholesale_price_piece : oldestInventory.wholesale_price_unit ? oldestInventory.wholesale_price_unit : 0,
+                    unitOfMeasurement:product.unit_of_measurement,
+                    unitCategory:product.unit_catergory,
+                    inventoryId:oldestInventory.id
+                }]);
+            }
+        }else{
+            const productExists = items.some(item => item.product_id === product.product_id);
+            if (!productExists) {
+                setItems(previousState => [...previousState, {
+                    product_id:product.product_id,
+                    qty:product.pieces_per_unit > 1 ? product.pieces_per_unit : 1,
+                    image:product.image,
+                    name:product.name,
+                    unit:product.unit,
+                    sku:product.sku,
+                    price:product.retail_price_piece ? product.retail_price_piece : product.retail_price_unit,
+                    defaultProductQty:product.qty,
+                    unitValue:product.unit_value,
+                    piecesPerUnit:product.pieces_per_unit,
+                    salePriceUnit:product.sale_price_unit,
+                    salePricePeice:product.sale_price_piece,
+                    wholeSalePrice: product.wholesale_price_piece ? product.wholesale_price_piece : product.wholesale_price_unit ? product.wholesale_price_unit : 0,
+                    unitOfMeasurement:product.unit_of_measurement,
+                    unitCategory:product.unit_catergory,
+                    inventoryId:null
+                }]);
+            }
         }
         setSearchQuery('')
     }
 
-    const handleRemoveItemFromItems = (item) => {
-        setItems(previousState => previousState.filter(product => product.product_id !== item.product_id));
+    const handleRemoveItemFromItems = (index) => {
+        // Create a copy of the items array
+        const updatedItems = [...items];
+        const updatedIndexs = [...indexChange]
+
+        // Remove the item at the specified index
+        updatedItems.splice(index, 1);
+        updatedIndexs.splice(index, 1);
+        // Update the state with the modified items array
+        setItems(updatedItems);
+        setIndexChange(updatedIndexs)
+        setInventoryIndex(0)
     }
 
-    const increaseQuantity = (productId, defaultQty, piecesPerUnit) => {
+    const increaseQuantity = (productId, defaultQty, piecesPerUnit, product) => {
         setItems(previousState => {
             // Find the index of the product with the given product_id in the state
-            const index = previousState.findIndex(item => item.product_id === productId);
+
+            const index = previousState.findIndex(item => item.inventoryId === product.inventoryId && item.product_id === product.product_id);
+
             if (index !== -1) { 
                 // If the current quantity is less than the default quantity, increase the quantity and unit value by one
                 if (previousState[index].qty < defaultQty) {
                     const updatedState = [...previousState];
                     updatedState[index] = {
                         ...updatedState[index],
-                        qty: updatedState[index].qty + piecesPerUnit,
+                        qty: updatedState[index].qty + piecesPerUnit > defaultQty ? defaultQty : updatedState[index].qty + piecesPerUnit,
                         unitValue: updatedState[index].unitValue + 1
                     };
     
                     return updatedState;
+                }else{
+
+                    const there = indexChange.filter(i => i === index)
+
+                    if(there.length === 0){
+                        setInventoryIndex(inventoryIndex + 1)
+                        setIndexChange([
+                            ...indexChange,
+                            index
+                        ])
+                        setSearchQuery(product.sku)
+                    }else{
+                        setSearchQuery('')
+                    }
+
                 }
             } 
             // Return previous state if no updates are made
@@ -100,11 +222,11 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
         });
     };
 
-    const decreaseQuantity = (productId, piecesPerUnit) => {
+    const decreaseQuantity = (productId, piecesPerUnit, product) => {
         setItems(previousState => {
             // Find the index of the product with the given product_id in the state
-            const index = previousState.findIndex(item => item.product_id === productId);
-    
+            const index = previousState.findIndex(item => item.inventoryId === product.inventoryId && item.product_id === productId);
+
             if (index !== -1) { 
                 // If the current quantity is greater than 1, decrease the quantity and unit value by one
                 if (previousState[index].qty > 1 && previousState[index].unitValue > 1) {
@@ -123,16 +245,16 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
         });
     };
 
-    const handleUnitChange = (productId, newUnitValue, piecesPerUnit, defaultProductQty) => {
+    const handleUnitChange = (productId, newUnitValue, piecesPerUnit, defaultProductQty, product) => {
         if(newUnitValue > 50){
             return toast.error('Max unit value 50')
         }
         
         setItems(previousState => {
-            const index = previousState.findIndex(item => item.product_id === productId);
+            const index = previousState.findIndex(item => item.inventoryId === product.inventoryId && item.product_id === productId);
             if (index !== -1) {
-                if(newUnitValue < defaultProductQty && piecesPerUnit < defaultProductQty){
-
+                if(newUnitValue < defaultProductQty && piecesPerUnit < defaultProductQty && ((newUnitValue * piecesPerUnit) <= defaultProductQty)){
+                    
                     const updatedState = [...previousState];
                     updatedState[index] = {
                         ...updatedState[index],
@@ -257,8 +379,10 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
             setTotalPaid(0)
             setIncludeItemsDiscount(false);
             setStatus('No-status')
+            setIndexChange([])
+            setInventoryIndex(0)
         }
-    },[items, includeItemsDiscount, customerDiscount, itemsDiscount, totalToPay,  extraDiscount, totalDiscount, totalPaid, totalDue, helper])
+    },[items, includeItemsDiscount, pickedCustomer, customerDiscount, itemsDiscount, totalToPay,  extraDiscount, totalDiscount, totalPaid, totalDue, helper])
 
 
     const headItems = [
@@ -379,9 +503,9 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
         setItemsUnits([])
     }
 
-    const handleDecreasePiecesQty = (productId, piecesPerUnit) => {
+    const handleDecreasePiecesQty = (productId, piecesPerUnit, product) => {
         setItems(previousState => {
-            const index = previousState.findIndex(item => item.product_id === productId);
+            const index = previousState.findIndex(item => item.inventoryId === product.inventoryId && item.product_id === productId);
     
             if (index !== -1) { 
                 if (previousState[index].qty > 1 ) {
@@ -404,12 +528,12 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
         });
     }
 
-    const handleIncreasePiecesQty = (productId, piecesPerUnit) => {
+    const handleIncreasePiecesQty = (productId, piecesPerUnit, product) => {
         setItems(previousState => {
-            const index = previousState.findIndex(item => item.product_id === productId);
+            const index = previousState.findIndex(item => item.inventoryId === product.inventoryId && item.product_id === productId);
     
             if (index !== -1) { 
-                if (previousState[index].qty > 1 ) {
+                if (previousState[index].qty > 1 && previousState[index].qty < product.defaultProductQty) {
                     const updatedState = [...previousState];
 
                     updatedState[index] = {
@@ -430,15 +554,16 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
         });
     }
 
-    const handlePiecesChange = (productId, newQtyValue, piecesPerUnit, defaultProductQty) => {
+    const handlePiecesChange = (productId, newQtyValue, piecesPerUnit, defaultProductQty, product) => {
         if(newQtyValue > 900){
             return toast.error('Max unit value 900')
         }
 
         setItems(previousState => {
-            const index = previousState.findIndex(item => item.product_id === productId);
+            const index = previousState.findIndex(item => item.inventoryId === product.inventoryId && item.product_id === productId);
+
             if (index !== -1) {
-                if(newQtyValue < defaultProductQty && piecesPerUnit < defaultProductQty){
+                if(newQtyValue <= defaultProductQty && piecesPerUnit <= defaultProductQty){
 
                     const updatedState = [...previousState];
                     updatedState[index] = {
@@ -477,7 +602,6 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
 
         const selectedCustomer = helper.customers.filter(cutomer => cutomer.id === pickedCustomer)
 
-        console.log(selectedCustomer)
         const payload = {
             totalAmount,
             itemsDiscount, 
@@ -491,7 +615,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
             employeeId:pickedEmployee, 
             customerId:pickedCustomer === "Please select -optinal-" ? null : pickedCustomer,
             customerExtraInfo:selectedCustomer[0] ? selectedCustomer[0].customerType.wholeSalePrice ? 'This Invoice Counted This Customer As A Wholesaler And Take Whole Sale Price' : `This Invoice Counted This Customer As A ${selectedCustomer[0].customerType.type_name} And Have A Discount Value Of ${selectedCustomer[0].customerType.discount_value}%` : '',
-            items
+            items        
         }
 
         try {
@@ -616,7 +740,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
 
 
     return (
-        <section className="overflow-auto bg-white left-[20%] top-[7%] h-[50rem] w-[80rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
+        <section className="overflow-auto bg-white left-[13%] top-[7%] h-[50rem] w-[90rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
             <div className='relative w-full bg-black'>
                 <AiOutlineCloseCircle onClick={() => {setOpenPopup(false); setItems([]); setEditMode(false)}} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
             </div>
@@ -706,6 +830,9 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                                 Price
                                 </th>
                                 <th className="px-4 py-2 font-medium text-gray-900">
+                                Old Inventory
+                                </th>
+                                <th className="px-4 py-2 font-medium text-gray-900">
                                 Delete
                                 </th>
                                 <th className="px-4 py-2 font-medium text-gray-900">
@@ -727,15 +854,15 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                                 <td className="px-4 py-2 font-bold text-[#50B426]">{item.unit}</td>
                                 <td className="px-4 py-2">
                                     <div className="inline-flex items-center justify-center rounded border-[1.8px] border-solid border-gray-300">
-                                        <button type='button' onClick={() => decreaseQuantity(item.product_id, item.piecesPerUnit, item.defaultProductQty)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
+                                        <button type='button' onClick={() => decreaseQuantity(item.product_id, item.piecesPerUnit, item)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
                                             <AiOutlineMinus/>
                                         </button>
                                         <span className="h-4 w-px bg-gray-300"></span>
                                         <div>
-                                            <input onChange={(e) => handleUnitChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty)}  value={item.unitValue} type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"/>
+                                            <input onChange={(e) => handleUnitChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty, item)}  value={item.unitValue} type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"/>
                                         </div>
                                         <span className="h-4 w-px bg-gray-300"></span>
-                                        <button type='button' onClick={() => increaseQuantity(item.product_id, item.defaultProductQty, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
+                                        <button type='button' onClick={() => increaseQuantity(item.product_id, item.defaultProductQty, item.piecesPerUnit, item)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
                                             <AiOutlinePlus/>
                                         </button>
                                     </div>
@@ -743,15 +870,15 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                                 {item.piecesPerUnit > 1 ? 
                                     <td className="px-4 py-2">
                                         <div className="inline-flex items-center justify-center rounded border-[1.8px] border-solid border-gray-300">
-                                            <button type='button' onClick={() => handleDecreasePiecesQty(item.product_id, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
+                                            <button type='button' onClick={() => handleDecreasePiecesQty(item.product_id, item.piecesPerUnit, item)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
                                                 <AiOutlineMinus/>
                                             </button>
                                             <span className="h-4 w-px bg-gray-300"></span>
                                             <div>
-                                                <input value={item.qty} onChange={(e) => handlePiecesChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty)} type="number"className="h-8 w-12 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1" max="1000"/>
+                                                <input value={item.qty} onChange={(e) => handlePiecesChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty, item)} type="number"className="h-8 w-12 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1" max="1000"/>
                                             </div>
                                             <span className="h-4 w-px bg-gray-300"></span>
-                                            <button type='button' onClick={() => handleIncreasePiecesQty(item.product_id, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
+                                            <button type='button' onClick={() => handleIncreasePiecesQty(item.product_id, item.piecesPerUnit, item)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
                                                 <AiOutlinePlus/>
                                             </button>
                                         </div>
@@ -764,9 +891,10 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                                 }
                                 <td className="px-4 py-2 font-bold text-blue-400 text-center">{item.qty}</td>
                                 <td className="px-4 py-2 font-bold text-[#50B426]">${item.price}</td>
+                                <td className="px-4 py-2 font-bold text-[#50B426] text-center">{item.inventoryId ? handleOnSaleStatus(true) : handleOnSaleStatus(false)} : {item.defaultProductQty}</td>
                                 <td className="px-4 py-2 text-red-500 cursor-pointer text-xl">
-                                    <div className='flex justify-center hover:bg-slate-200 hover:rounded-full p-2'>
-                                        <MdOutlineDelete onClick={() => handleRemoveItemFromItems(item)} className='cursor-pointer hover:scale-110' />
+                                    <div onClick={() => handleRemoveItemFromItems(index)}  className='flex justify-center hover:bg-slate-200 hover:rounded-full p-2'>
+                                        <MdOutlineDelete className='cursor-pointer hover:scale-110' />
                                     </div>
                                 </td>
                                 <td className="px-4 py-2 text-[#50B426]  text-xl">
