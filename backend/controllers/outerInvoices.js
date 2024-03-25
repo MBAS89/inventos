@@ -57,14 +57,14 @@ exports.createOuterInvoice = async (req, res, next) => {
                 where: { product_id: item.product_id }
             })
 
-
             if (product) {
-                if(product.cost_unit !== item.costUnit || item.pieces_per_unit > 1 ? product.cost_piece !== item.costPiece : false){
+                if(product.cost_unit !== item.costUnit || (item.piecesPerUnit > 1 ? product.cost_piece !== item.costPiece : false)){
                     //price change we will create an old inventory with all the old
                     if(inventoryStatus === 'sell-on-old-price'){ //sell all on old prices reatil wholeSale and Sale price even though cost change 
                         await OldInventory.create({
                             status:inventoryStatus,
                             cost_unit:product.cost_unit,
+                            pieces_per_unit:item.piecesPerUnit,
                             retail_price_unit:product.retail_price_unit,
                             wholesale_price_unit:product.wholesale_price_unit,
                             cost_piece:product.cost_piece,
@@ -88,6 +88,7 @@ exports.createOuterInvoice = async (req, res, next) => {
                     }else{
                         await OldInventory.create({
                             status:inventoryStatus,
+                            pieces_per_unit:item.piecesPerUnit,
                             cost_unit: inventoryStatus === 'sell-this-on-old-price' ? product.cost_unit : item.costUnit,
                             retail_price_unit: inventoryStatus === 'sell-this-on-old-price' ? product.retail_price_unit : item.retailPriceUnit,
                             wholesale_price_unit:inventoryStatus === 'sell-this-on-old-price' ? product.wholesale_price_unit : item.wholeSalePriceUnit,

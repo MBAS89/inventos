@@ -142,13 +142,27 @@ exports.createInvoice = async (req, res, next) => {
 
         //retrieve values from req.body  
         const { total_amount, items_discount, extra_discount, total_discount, customer_discount, 
-            total_to_pay, total_due, total_paid, status, items, customerId, employeeId, customer_extra_info
+            total_to_pay, total_due, total_paid, status, items, customerId,
+            employeeId, customer_extra_info, includeItemsDiscount
         } = req.body
+
+        //calculate total cost 
+        const totalCost = items.reduce((accumulator, currentItem) => {
+            return accumulator + (currentItem.qty * currentItem.cost);
+        }, 0);
+
+        const totalEstimatedProfit = total_to_pay - totalCost
+        const totalProfit = total_paid - totalCost
 
         //create invoice
         const invoice = await Invoices.create({
             total_amount,
             items_discount,
+            total_profit_now:totalProfit,
+            total_profit_estimated:totalEstimatedProfit,
+            total_cost:totalCost,
+            last_paid_date:new Date(),
+            fully_paid_date:total_to_pay === total_paid ? new Date() : null,
             customer_discount:customer_discount.toFixed(2),
             extra_discount: extra_discount || 0,
             total_discount,
@@ -162,34 +176,101 @@ exports.createInvoice = async (req, res, next) => {
             store_id
         });
 
+        let customer
+        if(customerId){
+            customer = await Customers.findOne({
+                where:{
+                    id:customerId
+                },
+                attributes:['id','full_name'],
+                include:[
+                    {
+                        model:CustomerTypes,
+                        as:'customerType',
+                        attributes:['id','discount_value','wholeSalePrice']
+                    }
+                ]
+            })
+        }
+        
+
+
 
         // Add items to the invoice one by one
         for (const item of items) {
             await InvoiceItems.create({
                 product_id:item.product_id,
-                qty: item.qty,
+                qty: item.qty,//
+                profit:customer ? 
+                    !customer.customerType.wholeSalePrice ?
+                            includeItemsDiscount ? 
+                                item.piecesPerUnit > 1 ? 
+                                    ((item.qty * item.salePricePeice) * (customer.customerType.discount_value / 100)) - (item.qty * item.cost) 
+                                : ((item.qty * item.salePriceUnit) * (customer.customerType.discount_value / 100)) - (item.qty * item.cost) 
+                            : ((item.qty * item.price) * (customer.customerType.discount_value / 100)) - (item.qty * item.cost) 
+                        :   includeItemsDiscount ?  
+                                item.piecesPerUnit > 1 ? 
+                                    ((item.qty * item.wholeSalePrice) - ((item.qty * item.price) - (item.qty * item.salePricePeice))) - (item.qty * item.cost)
+                                :
+                                ((item.qty * item.wholeSalePrice) - ((item.qty * item.price) - (item.qty * item.salePriceUnit))) - (item.qty * item.cost)
+                            :   (item.qty * item.wholeSalePrice) - (item.qty * item.cost)  
+                    : item.piecesPerUnit > 1 ? 
+                        (item.qty * (item.salePricePeice ? 
+                            item.salePricePeice 
+                        : item.price)) - (item.qty * item.cost) 
+                    : (item.qty * (item.salePriceUnit ? 
+                        item.salePriceUnit 
+                    : item.price)) - (item.qty * item.cost),
+                cost:item.cost * item.qty,
                 invoiceId:invoice.id
             });
 
-            // Update product's inventory
-            const product = await Products.findOne({
-                where: { product_id: item.product_id }
-            })
+            if(item.inventoryId){
+                // Update product's inventory
+                const inventory = await OldInventory.findOne({
+                    where: { id: item.inventoryId }
+                })
 
-            if (product) {
-                if(product.qty > item.qty){
-                    const updatedQty = product.qty - item.qty;
-                    await Products.update(
-                        { qty: updatedQty },
-                        { where: { product_id: item.product_id }}
-                    );
-                }else{
-                    return next(new ErrorResponse(`Not enough qty in the inventory.`, 406));
+                if(inventory){
+                    if(inventory.qty === item.qty){
+                        await OldInventory.destroy({
+                            where: { id: item.inventoryId }
+                        });
+                    }else if(inventory.qty > item.qty){
+                        const updatedQty = inventory.qty - item.qty;
+                        await OldInventory.update(
+                            { qty: updatedQty },
+                            { where:{ id: item.inventoryId }}
+                        );
+                    }else{
+                        return next(new ErrorResponse(`Not enough qty in the inventory.`, 406));
+                    }
+                }else {
+                    return next(new ErrorResponse(`Product with ID ${item.product_id} not found.`, 404));
                 }
 
-            } else {
-                return next(new ErrorResponse(`Product with ID ${item.product_id} not found.`, 404));
+            }else{
+                // Update product's inventory
+                const product = await Products.findOne({
+                    where: { product_id: item.product_id }
+                })
+
+                if (product) {
+                    if(product.qty >= item.qty){
+                        const updatedQty = product.qty - item.qty;
+                        await Products.update(
+                            { qty: updatedQty },
+                            { where: { product_id: item.product_id }}
+                        );
+                    }else{
+                        return next(new ErrorResponse(`Not enough qty in the inventory.`, 406));
+                    }
+
+                } else {
+                    return next(new ErrorResponse(`Product with ID ${item.product_id} not found.`, 404));
+                }
             }
+
         }
 
         //return response of the req

@@ -22,6 +22,11 @@ const OldInventory = sequelize.define('old_inventory', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
+    pieces_per_unit:{
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue:1
+    },
     wholesale_price_unit: {
         type: DataTypes.FLOAT,
         allowNull: false,

@@ -45,6 +45,21 @@ const Invoices = sequelize.define('invoices', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
+    total_profit_now:{
+        type: DataTypes.FLOAT,
+    },
+    total_profit_estimated:{
+        type: DataTypes.FLOAT,
+    },
+    total_cost:{
+        type: DataTypes.FLOAT,
+    },
+    fully_paid_date:{
+        type:DataTypes.DATE
+    },
+    last_paid_date:{
+        type:DataTypes.DATE
+    },
     status:{
         type: DataTypes.STRING(255),
         allowNull: false,
@@ -91,6 +106,12 @@ const InvoiceItems = sequelize.define('invoice_items',  {
         defaultValue: 1,
         allowNull: false,
     },
+    profit: {
+        type: DataTypes.FLOAT,
+    },
+    cost:{
+        type: DataTypes.FLOAT,
+    }
 });
 
 InvoiceItems.belongsTo(Products, { foreignKey: 'product_id' });
