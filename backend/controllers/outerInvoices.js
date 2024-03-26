@@ -18,6 +18,134 @@ const OldInventory = require('../models/inventory/oldInventory');
 const Suppliers = require('../models/suppliers/suppliers');
 const SuppliersTypes = require('../models/suppliers/suppliersType');
 
+
+exports.readSingleOuterInvoice = async (req, res, next) => {
+    try {
+        const storeId = req.authData.store_id
+        const { invoiceId } = req.query;
+
+        if (!invoiceId || !storeId) {
+            return next(new ErrorResponse('Invoice  ID and Store ID are required', 400));
+        }
+        
+        const invoice = await OuterInvoices.findOne({
+            where: { 
+                store_id: storeId,
+                id: invoiceId
+            },
+            include: [
+                {
+                    model: OuterInvoiceItems,
+                    as: 'items',
+                    include: [
+                        {
+                            model: Products,
+                            attributes: [
+                                'product_id', 'name', 'image', 'sku', 'unit', 'retail_price_unit',
+                                'retail_price_piece', 'unit_value', 'pieces_per_unit', 'sale_price_unit',
+                                'sale_price_piece', 'wholesale_price_piece', 'wholesale_price_unit',
+                                'unit_of_measurement', 'unit_catergory', 'qty'
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model:Employees,
+                    attributes: ['id', 'full_name', 'image'],
+                },
+                {
+                    model:Suppliers,
+                    attributes: ['id', 'supplier_name', 'image'],
+                    include:[
+                        {
+                            model:SuppliersTypes
+                        }
+                    ]
+                }
+            ]
+        })
+
+        if(!invoice){
+            return  next(new ErrorResponse('No Invoice Found!', 404))
+        }
+
+        return res.status(200).json(invoice);
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.readOuterInvoices = async (req, res, next) => {
+
+    try {
+        const storeId = req.authData.store_id
+
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
+
+        if (!page || !storeId) {
+            return next(new ErrorResponse('Page Number and Store ID are required', 400));
+        }
+        
+        const totalCount = await OuterInvoices.count({ where: { store_id: storeId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            store_id: storeId,
+            [Op.or]: [
+                { full_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { email: { [Op.iLike]: `%${searchQuery}%` } },
+                { phone_number: { [Op.iLike]: `%${searchQuery}%` } },
+            ]
+        } : { store_id: storeId };
+
+        const invoices = await OuterInvoices.findAll({
+            where: whereClause,
+            limit: searchQuery ? null : parseInt(limit),
+            offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
+            order:column && sort ? getOrderOptions(column, sort) : [['id', 'ASC']],
+            include: [
+                {
+                    model: OuterInvoiceItems,
+                    as: 'items',
+                    include: [
+                        {
+                            model: Products,
+                            attributes: ['product_id', 'name', 'image', 'sku']
+                        }
+                    ]
+                },
+                {
+                    model:Employees,
+                    attributes: ['id', 'full_name', 'image'],
+                },
+                {
+                    model:Suppliers,
+                    attributes: ['id', 'supplier_name', 'image'],
+                    include:[
+                        {
+                            model:SuppliersTypes,
+                            attributes: ['id', 'type_name'],
+                        }
+                    ]
+                }
+            ]
+        });
+
+    
+        return res.status(200).json({ totalCount, totalPages, currentPage, invoices });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+
 exports.createOuterInvoice = async (req, res, next) => {
 
     try {
@@ -29,6 +157,11 @@ exports.createOuterInvoice = async (req, res, next) => {
             status, employeeId, suppliersId, items, inventoryStatus
         } = req.body
 
+        //calculate total cost 
+        const totalCost = items.reduce((accumulator, currentItem) => {
+            return accumulator + (currentItem.qty * currentItem.cost);
+        }, 0);
+
         //create invoice
         const invoice = await OuterInvoices.create({
             total_amount,
@@ -36,6 +169,9 @@ exports.createOuterInvoice = async (req, res, next) => {
             total_to_pay,
             total_due,
             total_paid,
+            total_cost:totalCost,
+            last_paid_date:new Date(),
+            fully_paid_date:total_paid === total_to_pay ? new Date() : null,
             status,
             employeeId:employeeId || null,
             suppliersId:suppliersId || null,
@@ -146,6 +282,45 @@ exports.createOuterInvoice = async (req, res, next) => {
 
 
     } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.removeOuterInvoice = async (req, res, next) => {
+
+    // Begin a transaction
+    const transaction = await sequelize.transaction();
+
+    try {
+        //retrieve invoiceId from the req params
+        const { invoiceId } = req.params
+
+        // Delete the invoice where invoice_id = invoiceId
+        await OuterInvoices.destroy({
+            where: { id: invoiceId },
+            transaction
+        });
+
+        // Delete associated items where invoice_id = invoiceId
+        await OuterInvoiceItems.destroy({
+            where: { invoiceId: invoiceId },
+            transaction
+        });
+
+        // Commit the transaction
+        await transaction.commit();
+
+        // Send success response
+        res.status(200).json({
+            status: "success",
+            message: "Outer Invoice Deleted",
+            results:1
+        });
+
+    } catch (error) {
+        // Rollback the transaction if any error occurs
+        await transaction.rollback();
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
     }

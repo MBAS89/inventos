@@ -9,7 +9,9 @@ const {  createInvoice, editInvoice, removeInvoice, readInvoices, readSingleInvo
 const validateCreateAndEditInvoice = require('../middleware/validations/sales/validateCreateAndEditInvoice')
 const validateDeleteAndEditInvoice = require('../middleware/validations/sales/validateDeleteAndEditInvoice')
 const Auth = require('../middleware/auth/authMiddleware')
-const { createOuterInvoice, addOuterInvoiceHelper } = require('../controllers/outerInvoices')
+const { createOuterInvoice, addOuterInvoiceHelper, readSingleOuterInvoice, readOuterInvoices, removeOuterInvoice } = require('../controllers/outerInvoices')
+const validateDeleteAndEditOuterInvoice = require('../middleware/validations/sales/validateDeleteAndEditOuterInvoice')
+
 
 //routes
 router.get('/invoices/read', Auth, readInvoices)
@@ -20,7 +22,10 @@ router.post('/invoices/create', Auth, validateCreateAndEditInvoice,  createInvoi
 router.put('/invoices/edit/:invoiceId', Auth, validateDeleteAndEditInvoice, validateCreateAndEditInvoice,  editInvoice)
 router.delete('/invoices/remove/:invoiceId', Auth, validateDeleteAndEditInvoice, removeInvoice)
 
+router.get('/outer-invoices/read', Auth, readOuterInvoices)
 router.post('/outer-invoices/create', Auth, createOuterInvoice)
 router.get('/outer-invoices/helper', Auth, addOuterInvoiceHelper)
+router.get('/outer-invoices/read-snigle', Auth, readSingleOuterInvoice)
+router.delete('/outer-invoices/remove/:invoiceId', Auth, validateDeleteAndEditOuterInvoice, removeOuterInvoice)
 
 module.exports = router

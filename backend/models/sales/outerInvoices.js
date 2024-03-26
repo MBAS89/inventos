@@ -28,6 +28,15 @@ const OuterInvoices = sequelize.define('outer_invoices', {
         defaultValue: 0,
         allowNull: true,
     },
+    total_cost:{
+        type: DataTypes.FLOAT,
+    },
+    fully_paid_date:{
+        type:DataTypes.DATE
+    },
+    last_paid_date:{
+        type:DataTypes.DATE
+    },
     total_paid: {
         type: DataTypes.FLOAT,
         allowNull: false,
