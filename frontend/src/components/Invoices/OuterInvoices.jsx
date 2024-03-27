@@ -3,6 +3,8 @@ import { SearchComponents } from '../SearchComponents'
 import { TableToolsComponent } from '../TableToolsComponent'
 import { OuterInvoicesTable } from './OuterInvoicesTable'
 import { AddAndEditOuterInvoicePopup } from './AddAndEditOuterInvoicePopup'
+import { useReadOuterInvoicesQuery } from '../../features/api/sales/outerInvoicesApiSlice'
+import { DeletePopup } from '../DeletePopup'
 
 export const OuterInvoices = () => {
   const [openPopup, setOpenPopup] = useState(false)
@@ -13,6 +15,8 @@ export const OuterInvoices = () => {
   const [selectedInvoice, setSelectedInvoice] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1)
+
+  const {data:outerInvoices, isLoading, isFetching, isError, error } = useReadOuterInvoicesQuery({page:currentPage, searchQuery:searchQuery, sortBy:sortBy},'readOuterInvoices')
 
   const handleCheckboxChange = (invoiceId, imageId) => {
     setSelectedInvoice({
@@ -57,7 +61,13 @@ export const OuterInvoices = () => {
     <SearchComponents placeholder="Search for Invoice" actionName="Create Invoice" setOpenPopup={setOpenPopup} searchQuery={searchQuery} setsearchQuery={setsearchQuery}/>
     <TableToolsComponent setEditMode={setEditMode} setOpenPopup={setOpenPopup} setSortBy={setSortBy} sortBy={sortBy}  setOpenDeletePopup={setOpenDeletePopup} selected={selectedInvoice} department="outer-invoices" setReset={setSelectedInvoice}/>
     <OuterInvoicesTable 
-        headItems={headItems} 
+      headItems={headItems} 
+      data={outerInvoices} 
+      isLoading={isLoading}
+      currentPage={currentPage}
+      setCurrentPage={setCurrentPage}
+      selectedInvoice={selectedInvoice}
+      handleCheckboxChange={handleCheckboxChange}
     />
     {openPopup && 
         <AddAndEditOuterInvoicePopup selectedInvoice={selectedInvoice} editMode={editMode} setEditMode={setEditMode} setOpenPopup={setOpenPopup}/>

@@ -50,10 +50,11 @@ export const innerInvoicesApiSlice = apiSlice.injectEndpoints({
                     employeeId: data.employeeId, 
                     customerId:data.customerId,
                     items:data.items,
-                    customer_extra_info:data.customerExtraInfo
+                    customer_extra_info:data.customerExtraInfo,
+                    includeItemsDiscount:data.includeItemsDiscount
                 }
             }),
-            invalidatesTags: ['InnerInvoices']
+            invalidatesTags: ['InnerInvoices', 'Products']
         }),
         editInvoice: builder.mutation({
             query: (data) => ({
@@ -101,7 +102,7 @@ export const innerInvoicesApiSlice = apiSlice.injectEndpoints({
             transformResponse: (response) => {
                 return response;
             },
-            providesTags:['Products']
+            providesTags:['Products', 'InnerInvoices']
         })
 
     })

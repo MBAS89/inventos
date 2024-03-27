@@ -4,15 +4,15 @@ import { MdOutlineDelete } from "react-icons/md";
 import { AiOutlineMinus, AiOutlinePlus, AiOutlineCloseCircle } from "react-icons/ai";
 import { TbRulerMeasure } from "react-icons/tb";
 import { BiLoaderCircle } from "react-icons/bi";
-import { useProductSearchHelperQuery } from '../../features/api/sales/innerInvoicesApiSlice';
+import { useProductSearchHelperQuery, useReadInvoiceQuery } from '../../features/api/sales/innerInvoicesApiSlice';
 import { TableHead } from '../TableHead';
 import { MeasurementPopUp } from './MeasurementPopUp';
 import { MdOutlineEdit } from "react-icons/md";
-import { useAddOuterInvoiceHelperQuery, useAddOuterInvoiceMutation } from '../../features/api/sales/outerInvoicesApiSlice';
+import { useAddOuterInvoiceHelperQuery, useAddOuterInvoiceMutation, useReadOuterInvoiceQuery } from '../../features/api/sales/outerInvoicesApiSlice';
 import { toast } from 'react-toastify';
 
 
-export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode}) => {
+export const AddAndEditOuterInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice, setEditMode }) => {
     const [searchQuery, setSearchQuery] = useState('')
     const { data:search, isLoading } = useProductSearchHelperQuery({searchQuery},'productSearchHelper')
     const { data:helper } = useAddOuterInvoiceHelperQuery()
@@ -303,42 +303,6 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
         });
     }
 
-    const handleCostChange = (e, productId) => {
-
-        if(e.target.name === "costUnit"){
-            setItems(previousState => {
-                const index = previousState.findIndex(item => item.product_id === productId);
-                if (index !== -1) {
-                    if(e.target.value !== previousState.costUnit){
-                        const updatedState = [...previousState];
-                        updatedState[index] = {
-                            ...updatedState[index],
-                            costUnit: e.target.value
-                        };
-                        return updatedState;
-                    }
-                }
-                return previousState;
-            })
-        }else{
-            setItems(previousState => {
-                const index = previousState.findIndex(item => item.product_id === productId);
-                if (index !== -1) {
-    
-                    const updatedState = [...previousState];
-                    updatedState[index] = {
-                        ...updatedState[index],
-                        costPiece: e.target.value
-                    };
-                    return updatedState;
-                }
-                return previousState;
-            })
-        }
-
-    }
-
-
     const[priceMenu, setPriceMenu] = useState('')
 
     const periceMenuOnChange = (e, id) => {
@@ -447,6 +411,112 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
         }
     }
 
+
+    const { data:invoice } = editMode ? useReadOuterInvoiceQuery({ invoiceId:selectedInvoice.invoiceId }, 'readOuterInvoice') : { data: null, isLoading: false };
+
+
+    useEffect(() => {
+        setItems([])
+        if(invoice && helper && editMode){
+            invoice.items.forEach(item => {
+                // Check if the product already exists in the items array
+                const productExists = items.some(existingItem => existingItem.product_id === item.product_id);
+
+                // If the product doesn't exist, add it to the items array
+                if (!productExists) {
+
+                    setItems(previousState => [
+                        ...previousState,
+                        {
+                            product_id:item.product_id,
+                            qty:item.qty,
+                            image:item.product.image,
+                            name:item.product.name,
+                            unit:item.product.unit,
+                            price:item.product.retail_price_piece ? item.product.retail_price_piece : item.product.retail_price_unit,
+                            costUnit:item.product.cost_unit,
+                            costPiece:item.product.cost_piece ? item.product.cost_piece : item.product.cost_unit,
+                            defaultProductQty:item.product.qty,
+                            unitValue:item.product.unit_value,
+                            piecesPerUnit:item.product.pieces_per_unit,
+                            salePriceUnit:item.product.sale_price_unit,
+                            salePricePeice:item.product.sale_price_piece,
+                            retailPriceUnit: item.product.retail_price_unit ? item.product.retail_price_unit : 0,
+                            retailPricePiece: item.product.retail_price_piece ? item.product.retail_price_piece : 0,
+                            wholeSalePriceUnit: item.product.wholesale_price_unit ? item.product.wholesale_price_unit : 0,
+                            wholeSalePricePiece: item.product.wholesale_price_piece ? item.product.wholesale_price_piece : 0,
+                            unitOfMeasurement:item.product.unit_of_measurement,
+                            unitCategory:item.product.unit_catergory
+                        }
+                    ]);
+                }
+            });
+
+            setOldInventoryStatus(invoice.items[0].product.old_inventories.length > 0 ? invoice.items[0].product.old_inventories[0].status : 'sell-this-on-old-price')
+            setPickedSupplier(invoice.suppliersId);
+            setPickedEmployee(invoice.employeeId);
+            setTotalAmount(invoice.total_amount);
+            setExtraDiscount(invoice.extra_discount ? invoice.extra_discount : 0);
+            setTotalToPay(invoice.total_to_pay);
+            setTotalDue(invoice.total_due);
+            setTotalPaid(invoice.total_paid);
+            setStatus(invoice.status);
+
+        }
+    } ,[invoice, editMode])
+
+    console.log(invoice)
+
+    /*const [editInvoice, {isLoading:isEditLoading}] = useEditInvoiceMutation()
+
+    const handleEditInvoice = async (e) => {
+        e.preventDefault()
+
+        if(pickedEmployee === "Please select"){
+            return toast.error('Please Select A Cahser First!')
+        }
+
+        if(items.length == 0){
+            return toast.error('Invoice Should Have Items!')
+        }
+
+        const payload = {
+            invoiceId:invoice.id,
+            totalAmount,
+            itemsDiscount, 
+            customerDiscount,
+            extraDiscount,
+            totalDiscount, 
+            totalToPay, 
+            totalPaid, 
+            totalDue,
+            status, 
+            employeeId:pickedEmployee, 
+            customerId:pickedCustomer === "Please select -optinal-" ? null : pickedCustomer,
+            items
+        }
+
+        try {
+            const res = await editInvoice(payload).unwrap()
+            toast.success(res.message)
+            setItems([])
+            setTotalAmount(0);
+            setItemsDiscount(0);
+            setCustomerDiscount(0);
+            setExtraDiscount(0)
+            setTotalDiscount(0)
+            setTotalToPay(0)
+            setTotalDue(0)
+            setTotalPaid(0)
+            setIncludeItemsDiscount(false);
+            setStatus('No-status')
+            setOpenPopup(false)
+            setEditMode(false)
+        } catch (error) {
+            toast.error(error.data.error)
+        }
+    }*/
+
     return (
         <section className="overflow-auto bg-white left-[13%] top-[7%] h-[50rem] w-[90rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
             <div className='relative w-full bg-black'>
@@ -538,9 +608,11 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
                                 <th className="px-4 py-2 font-medium text-gray-900">
                                 Unit Cost 
                                 </th>
-                                <th className="px-4 py-2 font-medium text-gray-900">
-                                Piece Cost 
-                                </th>
+                                {items.some(item => item.piecesPerUnit > 1) && (
+                                    <th className="px-4 py-2 font-medium text-gray-900">
+                                    Piece Cost 
+                                    </th>
+                                )}
                                 <th className="px-4 py-2 font-medium text-gray-900">
                                 Delete
                                 </th>
@@ -615,27 +687,35 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
                                                         <th className="px-4 py-2 font-medium text-gray-900">
                                                         Unit Cost
                                                         </th>
-                                                        <th className="px-4 py-2 font-medium text-gray-900">
-                                                        Piece Cost 
-                                                        </th>
+                                                        {items.some(item => item.piecesPerUnit > 1) && (
+                                                            <th className="px-4 py-2 font-medium text-gray-900">
+                                                            Piece Cost 
+                                                            </th>
+                                                        )}
                                                         <th className="px-4 py-2 font-medium text-gray-900">
                                                         Retail Price Unit
                                                         </th>
-                                                        <th className="px-4 py-2 font-medium text-gray-900">
-                                                        Retail Price Piece
-                                                        </th>
+                                                        {items.some(item => item.piecesPerUnit > 1) && (
+                                                            <th className="px-4 py-2 font-medium text-gray-900">
+                                                            Retail Price Piece
+                                                            </th>
+                                                        )}    
                                                         <th className="px-4 py-2 font-medium text-gray-900">
                                                         Wholesale Price Unit
                                                         </th>
+                                                        {items.some(item => item.piecesPerUnit > 1) && ( 
                                                         <th className="px-4 py-2 font-medium text-gray-900">
                                                         Wholesale Price Piece 
                                                         </th>
+                                                        )}
                                                         <th className="px-4 py-2 font-medium text-gray-900">
                                                         Sale Price Unit
                                                         </th>
-                                                        <th className="px-4 py-2 font-medium text-gray-900">
-                                                        Sale Price Piece 
-                                                        </th>
+                                                        {items.some(item => item.piecesPerUnit > 1) && (
+                                                            <th className="px-4 py-2 font-medium text-gray-900">
+                                                            Sale Price Piece 
+                                                            </th>
+                                                        )}
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-200 text-center">
@@ -643,27 +723,35 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
                                                         <td className="px-4 py-2 ">
                                                             <input value={item.costUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='costUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number'pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
-                                                        <td className="px-4 py-2">
-                                                            <input value={item.costPiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='costPiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
-                                                        </td>
+                                                        {items.some(item => item.piecesPerUnit > 1) && (
+                                                            <td className="px-4 py-2">
+                                                                <input value={item.costPiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='costPiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
+                                                            </td>
+                                                        )}
                                                         <td className="px-4 py-2">
                                                             <input value={item.retailPriceUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='retailPriceUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>   
                                                         </td>
-                                                        <td className="px-4 py-2">
-                                                            <input value={item.retailPricePiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='retailPricePiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
-                                                        </td>
+                                                        {items.some(item => item.piecesPerUnit > 1) && (
+                                                            <td className="px-4 py-2">
+                                                                <input value={item.retailPricePiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='retailPricePiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
+                                                            </td>
+                                                        )}
                                                         <td className="px-4 py-2">
                                                             <input value={item.wholeSalePriceUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='wholeSalePriceUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
-                                                        <td className="px-4 py-2">
-                                                            <input value={item.wholeSalePricePiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='wholeSalePricePiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
-                                                        </td>
+                                                        {items.some(item => item.piecesPerUnit > 1) && (
+                                                            <td className="px-4 py-2">
+                                                                <input value={item.wholeSalePricePiece} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='wholeSalePricePiece' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
+                                                            </td>
+                                                        )}
                                                         <td className="px-4 py-2">
                                                             <input value={item.salePriceUnit} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='salePriceUnit' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
                                                         </td>
-                                                        <td className="px-4 py-2">
-                                                            <input value={item.salePricePeice} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='salePricePeice' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
-                                                        </td>
+                                                        {items.some(item => item.piecesPerUnit > 1) && (
+                                                            <td className="px-4 py-2">
+                                                                <input value={item.salePricePeice} onChange={(e) => periceMenuOnChange(e, item.product_id)} name='salePricePeice' className='w-16 remove-arrow rounded-md border-[#50B426] border-2' type='number' pattern="[0-9]+([\.,][0-9]+)?" step="0.01"/>
+                                                            </td>
+                                                        )}
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -671,11 +759,13 @@ export const AddAndEditOuterInvoicePopup = ({setOpenPopup, setEditMode, editMode
                                     </div>
                                     }
                                 </td>
-                                <td className="font-bold text-[#50B426]">
-                                    <div className='flex items-center justify-center ml-2'>
-                                        <span className='mr-1 text-[1.1rem]'>${item.costPiece}</span> <MdOutlineEdit onClick={() => setPriceMenu(item.product_id)}  className='text-[1.2rem] text-purple-600 cursor-pointer'/>
-                                    </div>
-                                </td>
+                                {items.some(item => item.piecesPerUnit > 1) && (
+                                    <td className="font-bold text-[#50B426]">
+                                        <div className='flex items-center justify-center ml-2'>
+                                            <span className='mr-1 text-[1.1rem]'>${item.costPiece}</span> <MdOutlineEdit onClick={() => setPriceMenu(item.product_id)}  className='text-[1.2rem] text-purple-600 cursor-pointer'/>
+                                        </div>
+                                    </td>
+                                )}
                                 <td className="px-4 py-2 text-red-500 cursor-pointer text-xl">
                                     <div onClick={() => handleRemoveItemFromItems(item)} className='flex justify-center hover:bg-slate-200 hover:rounded-full p-2'>
                                         <MdOutlineDelete  className='cursor-pointer hover:scale-110' />

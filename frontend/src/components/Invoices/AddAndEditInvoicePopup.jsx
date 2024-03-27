@@ -48,11 +48,12 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                                     name:search.product.name,
                                     unit:search.product.unit,
                                     sku:search.product.sku,
+                                    cost:search.product.pieces_per_unit > 1 ? search.product.cost_piece : search.product.cost_unit,
                                     price:oldestInventory.retail_price_piece ? oldestInventory.retail_price_piece : oldestInventory.retail_price_unit,
                                     defaultProductQty:oldestInventory.qty,
                                     unitValue:search.product.unit_value,
                                     piecesPerUnit:search.product.pieces_per_unit,
-                                    salePriceUnit:oldestInventory.sale_price_unit,
+                                    salePriceUnit:oldestInventory.sale_price_unit ? oldestInventory.sale_price_unit : 0,
                                     salePricePeice:oldestInventory.sale_price_piece ? oldestInventory.sale_price_piece : 0,
                                     wholeSalePrice: oldestInventory.wholesale_price_piece ? oldestInventory.wholesale_price_piece : oldestInventory.wholesale_price_unit ? oldestInventory.wholesale_price_unit : 0,
                                     unitOfMeasurement:search.product.unit_of_measurement,
@@ -72,12 +73,13 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                                     name:search.product.name,
                                     unit:search.product.unit,
                                     sku:search.product.sku,
+                                    cost:search.product.pieces_per_unit > 1 ? search.product.cost_piece : search.product.cost_unit,
                                     price:search.product.retail_price_piece ? search.product.retail_price_piece : search.product.retail_price_unit,
                                     defaultProductQty:search.product.qty,
                                     unitValue:search.product.unit_value,
                                     piecesPerUnit:search.product.pieces_per_unit,
-                                    salePriceUnit:search.product.sale_price_unit,
-                                    salePricePeice:search.product.sale_price_piece,
+                                    salePriceUnit:search.product.sale_price_unit ? search.product.sale_price_unit : 0,
+                                    salePricePeice:search.product.sale_price_piece ? search.product.sale_price_piece : 0,
                                     wholeSalePrice: search.product.wholesale_price_piece ? search.product.wholesale_price_piece : search.product.wholesale_price_unit ? search.product.wholesale_price_unit : 0,
                                     unitOfMeasurement:search.product.unit_of_measurement,
                                     unitCategory:search.product.unit_catergory,
@@ -100,12 +102,13 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                             name:search.product.name,
                             unit:search.product.unit,
                             sku:search.product.sku,
+                            cost:search.product.pieces_per_unit > 1 ? search.product.cost_piece : search.product.cost_unit,
                             price:search.product.retail_price_piece ? search.product.retail_price_piece : search.product.retail_price_unit,
                             defaultProductQty:search.product.qty,
                             unitValue:search.product.unit_value,
                             piecesPerUnit:search.product.pieces_per_unit,
-                            salePriceUnit:search.product.sale_price_unit,
-                            salePricePeice:search.product.sale_price_piece,
+                            salePriceUnit:search.product.sale_price_unit ? search.product.sale_price_unit : 0,
+                            salePricePeice:search.product.sale_price_piece ? search.product.sale_price_piece : 0,
                             wholeSalePrice: search.product.wholesale_price_piece ? search.product.wholesale_price_piece : search.product.wholesale_price_unit ? search.product.wholesale_price_unit : 0,
                             unitOfMeasurement:search.product.unit_of_measurement,
                             unitCategory:search.product.unit_catergory,
@@ -131,12 +134,13 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                     name:product.name,
                     unit:product.unit,
                     sku:product.sku,
+                    cost:product.pieces_per_unit > 1 ? product.cost_piece : product.cost_unit,
                     price:oldestInventory.retail_price_piece ? oldestInventory.retail_price_piece : oldestInventory.retail_price_unit,
                     defaultProductQty:oldestInventory.qty,
                     unitValue:product.unit_value,
                     piecesPerUnit:product.pieces_per_unit,
-                    salePriceUnit:oldestInventory.sale_price_unit,
-                    salePricePeice:oldestInventory.sale_price_piece,
+                    salePriceUnit:oldestInventory.sale_price_unit ? oldestInventory.sale_price_unit : 0,
+                    salePricePeice:oldestInventory.sale_price_piece ? oldestInventory.sale_price_piece : 0,
                     wholeSalePrice: oldestInventory.wholesale_price_piece ? oldestInventory.wholesale_price_piece : oldestInventory.wholesale_price_unit ? oldestInventory.wholesale_price_unit : 0,
                     unitOfMeasurement:product.unit_of_measurement,
                     unitCategory:product.unit_catergory,
@@ -153,12 +157,13 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                     name:product.name,
                     unit:product.unit,
                     sku:product.sku,
+                    cost:product.pieces_per_unit > 1 ? product.cost_piece : product.cost_unit,
                     price:product.retail_price_piece ? product.retail_price_piece : product.retail_price_unit,
                     defaultProductQty:product.qty,
                     unitValue:product.unit_value,
                     piecesPerUnit:product.pieces_per_unit,
-                    salePriceUnit:product.sale_price_unit,
-                    salePricePeice:product.sale_price_piece,
+                    salePriceUnit:product.sale_price_unit ? product.sale_price_unit : 0,
+                    salePricePeice:product.sale_price_piece ? product.sale_price_piece : 0,
                     wholeSalePrice: product.wholesale_price_piece ? product.wholesale_price_piece : product.wholesale_price_unit ? product.wholesale_price_unit : 0,
                     unitOfMeasurement:product.unit_of_measurement,
                     unitCategory:product.unit_catergory,
@@ -305,7 +310,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
         
                                 return total + itemTotal;
                             }, 0);
-                            setItemsDiscount(totalAmount - totalDiscountPrice);
+                            setItemsDiscount(totalDiscountPrice ? totalAmount - totalDiscountPrice : 0);
                         }else{
                             setItemsDiscount(0)
                         }
@@ -326,7 +331,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
         
                                 return total + itemTotal;
                             }, 0);
-                            setItemsDiscount(totalAmount - totalDiscountPrice);
+                            setItemsDiscount(totalDiscountPrice ? totalAmount - totalDiscountPrice : 0);
                         }else{
                             setItemsDiscount(0)
                         }
@@ -341,7 +346,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
 
                         return total + itemTotal;
                     }, 0);
-                    setItemsDiscount(totalAmount - totalDiscountPrice);
+                    setItemsDiscount(totalDiscountPrice ? totalAmount - totalDiscountPrice : 0);
                     setCustomerDiscount(0)
                 }
             }else{
@@ -354,9 +359,9 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
 
                     return total + itemTotal;
                 }, 0);
-                setItemsDiscount(totalAmount - totalDiscountPrice);
+                setItemsDiscount(totalDiscountPrice ? totalAmount - totalDiscountPrice : 0);
                 setCustomerDiscount(0)
-           }
+            }
 
            setTotalDiscount(itemsDiscount + customerDiscount + Number(extraDiscount))
            setTotalToPay(totalAmount - totalDiscount)
@@ -615,7 +620,8 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
             employeeId:pickedEmployee, 
             customerId:pickedCustomer === "Please select -optinal-" ? null : pickedCustomer,
             customerExtraInfo:selectedCustomer[0] ? selectedCustomer[0].customerType.wholeSalePrice ? 'This Invoice Counted This Customer As A Wholesaler And Take Whole Sale Price' : `This Invoice Counted This Customer As A ${selectedCustomer[0].customerType.type_name} And Have A Discount Value Of ${selectedCustomer[0].customerType.discount_value}%` : '',
-            items        
+            items,
+            includeItemsDiscount       
         }
 
         try {
@@ -875,7 +881,7 @@ export const AddAndEditInvoicePopup = ({ setOpenPopup, editMode, selectedInvoice
                                             </button>
                                             <span className="h-4 w-px bg-gray-300"></span>
                                             <div>
-                                                <input value={item.qty} onChange={(e) => handlePiecesChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty, item)} type="number"className="h-8 w-12 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1" max="1000"/>
+                                                <input value={item.qty} onChange={(e) => handlePiecesChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty, item)} type="number"className="h-8 w-12 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none" min="1"/>
                                             </div>
                                             <span className="h-4 w-px bg-gray-300"></span>
                                             <button type='button' onClick={() => handleIncreasePiecesQty(item.product_id, item.piecesPerUnit, item)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">

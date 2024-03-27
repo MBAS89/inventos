@@ -5,25 +5,24 @@ const OUTER_INVOICE_URL = '/api/v1/store/sales/outer-invoices'
 
 export const outerInvoicesApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        readInvoices:builder.query({
+        readOuterInvoices:builder.query({
             query: (data) => ({
                 url: `${OUTER_INVOICE_URL}/read?page=${data.page}&sort=${data.sortBy.sort || ''}&column=${data.sortBy.column || ''}&searchQuery=${data.searchQuery}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {
-                response.invoices.sort((a, b) => a.id - b.id)
                 return response;
             },
-            providesTags: ['InnerInvoices'],
+            providesTags: ['OuterInvoices'],
             providesTags: (result) =>
             result? [
-                  ...result.invoices.map(({ id }) => ({ type: 'InnerInvoices', id })),
-                  { type: 'InnerInvoices' },
+                  ...result.invoices.map(({ id }) => ({ type: 'OuterInvoices', id })),
+                  { type: 'OuterInvoices' },
                 ]
-              : [{ type: 'InnerInvoices', id }],
+              : [{ type: 'OuterInvoices', id }],
 
         }),
-        readInvoice:builder.query({
+        readOuterInvoice:builder.query({
             query: (data) => ({
                 url: `${OUTER_INVOICE_URL}/read-snigle?invoiceId=${data.invoiceId}`,
                 method: 'GET',
@@ -31,7 +30,7 @@ export const outerInvoicesApiSlice = apiSlice.injectEndpoints({
             transformResponse: (response) => {
                 return response;
             },
-            providesTags: (result, error, arg) => [{ type: 'InnerInvoices', id: arg }]
+            providesTags: (result, error, arg) => [{ type: 'OuterInvoices', id: arg }]
         }),
         addOuterInvoice: builder.mutation({
             query: (data) => ({
@@ -50,7 +49,7 @@ export const outerInvoicesApiSlice = apiSlice.injectEndpoints({
                     inventoryStatus:data.inventoryStatus
                 }
             }),
-            invalidatesTags: ['InnerInvoices']
+            invalidatesTags: ['OuterInvoices']
         }),
         editInvoice: builder.mutation({
             query: (data) => ({
@@ -71,14 +70,14 @@ export const outerInvoicesApiSlice = apiSlice.injectEndpoints({
                     items:data.items
                 }
             }),
-            invalidatesTags: ['OuterInnerInvoices']
+            invalidatesTags: ['OuterInvoices']
         }),
-        removeInvoice: builder.mutation({
+        removeOuterInvoice: builder.mutation({
             query: (data) => ({
                 url: `${OUTER_INVOICE_URL}/remove/${data.invoiceId}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['OuterInnerInvoices']
+            invalidatesTags: ['OuterInvoices']
         }),
         addOuterInvoiceHelper: builder.query({
             query: (data) => ({
@@ -95,5 +94,8 @@ export const outerInvoicesApiSlice = apiSlice.injectEndpoints({
 
 export const { 
     useAddOuterInvoiceMutation,
-    useAddOuterInvoiceHelperQuery
+    useAddOuterInvoiceHelperQuery,
+    useReadOuterInvoicesQuery,
+    useRemoveOuterInvoiceMutation,
+    useReadOuterInvoiceQuery
 } = outerInvoicesApiSlice
