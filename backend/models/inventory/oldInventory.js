@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/database');
 const Products = require('./products');
+const { OuterInvoices } = require('../sales/outerInvoices');
 
 const OldInventory = sequelize.define('old_inventory', {
     id: {
@@ -65,7 +66,8 @@ const OldInventory = sequelize.define('old_inventory', {
         },
     },
 });
-
+OuterInvoices.hasMany(OldInventory, { foreignKey: 'outer_invoice_id' })
+OldInventory.belongsTo(OuterInvoices, { foreignKey: 'outer_invoice_id' })
 Products.hasMany(OldInventory, { foreignKey: 'product_id' });
 OldInventory.belongsTo(Products, { foreignKey: 'product_id' });
 

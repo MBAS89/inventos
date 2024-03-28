@@ -44,7 +44,12 @@ exports.readSingleOuterInvoice = async (req, res, next) => {
                                 'product_id', 'name', 'image', 'sku', 'unit', 'retail_price_unit',
                                 'retail_price_piece', 'unit_value', 'pieces_per_unit', 'sale_price_unit',
                                 'sale_price_piece', 'wholesale_price_piece', 'wholesale_price_unit',
-                                'unit_of_measurement', 'unit_catergory', 'qty'
+                                'unit_of_measurement', 'unit_catergory', 'qty', 'cost_piece', 'cost_unit'
+                            ],
+                            include:[
+                                {
+                                    model:OldInventory
+                                }
                             ]
                         }
                     ]
@@ -211,7 +216,8 @@ exports.createOuterInvoice = async (req, res, next) => {
                             sale_price_piece:product.sale_price_piece,
                             on_sale:product.on_sale,
                             store_id,
-                            product_id: product.product_id
+                            product_id: product.product_id,
+                            outer_invoice_id:invoice.id,
                         })
 
 
@@ -236,7 +242,8 @@ exports.createOuterInvoice = async (req, res, next) => {
                             sale_price_piece:inventoryStatus === 'sell-this-on-old-price' ? product.sale_price_piece:item.salePriceUnit,
                             on_sale:inventoryStatus === 'sell-this-on-old-price' ? product.on_sale:item.salePriceUnit ? true : false,
                             store_id,
-                            product_id: product.product_id
+                            product_id: product.product_id,
+                            outer_invoice_id:invoice.id,
                         })
 
 
@@ -286,6 +293,196 @@ exports.createOuterInvoice = async (req, res, next) => {
         next(error)
     }
 }
+
+exports.editOuterInvoice = async (req, res, next) => {
+    try {
+        const { invoiceId } = req.query; // Assuming the ID of the outer invoice to edit is provided in the request params
+        const { 
+            total_amount, extra_discount, total_to_pay, total_due, total_paid, status,
+            employeeId, suppliersId, items, inventoryStatus } = req.body;
+
+        // Fetch the existing outer invoice
+        let invoice = await OuterInvoices.findByPk(invoiceId);
+
+        if (!invoice) {
+            return next(new ErrorResponse(`Outer invoice with ID ${invoiceId} not found.`, 404));
+        }
+
+        // Update the invoice details
+        invoice.total_amount = total_amount;
+        invoice.extra_discount = extra_discount || 0;
+        invoice.total_to_pay = total_to_pay;
+        invoice.total_due = total_due;
+        invoice.total_paid = total_paid;
+        invoice.status = status;
+        invoice.employeeId = employeeId || null;
+        invoice.suppliersId = suppliersId || null;
+
+        // Update the invoice in the database
+        await invoice.save();
+
+        // Handle inventory updates
+        for (const item of items) {
+            const product = await Products.findByPk(item.product_id);
+
+            if (!product) {
+                return next(new ErrorResponse(`Product with ID ${item.product_id} not found.`, 404));
+            }
+
+            if(product.cost_unit !== item.costUnit || (item.piecesPerUnit > 1 ? product.cost_piece !== item.costPiece : false)){
+                //price change we will create an old inventory with all the old
+                if(inventoryStatus === 'sell-on-old-price'){ //sell all on old prices reatil wholeSale and Sale price even though cost change 
+                    await OldInventory.create({
+                        status:inventoryStatus,
+                        cost_unit:product.cost_unit,
+                        pieces_per_unit:item.piecesPerUnit,
+                        retail_price_unit:product.retail_price_unit,
+                        wholesale_price_unit:product.wholesale_price_unit,
+                        cost_piece:product.cost_piece,
+                        retail_price_piece:product.retail_price_piece,
+                        wholesale_price_piece:product.wholesale_price_piece,
+                        qty:product.qty,
+                        sale_price_unit:product.sale_price_unit,
+                        sale_price_piece:product.sale_price_piece,
+                        on_sale:product.on_sale,
+                        store_id,
+                        product_id: product.product_id,
+                        outer_invoice_id:invoice.id,
+                    })
+
+
+                    await Products.update(
+                        { 
+                            qty: item.qty,
+                        },
+                        { where: { product_id: item.product_id }}
+                    );
+                }else{
+                    await OldInventory.create({
+                        status:inventoryStatus,
+                        pieces_per_unit:item.piecesPerUnit,
+                        cost_unit: inventoryStatus === 'sell-this-on-old-price' ? product.cost_unit : item.costUnit,
+                        retail_price_unit: inventoryStatus === 'sell-this-on-old-price' ? product.retail_price_unit : item.retailPriceUnit,
+                        wholesale_price_unit:inventoryStatus === 'sell-this-on-old-price' ? product.wholesale_price_unit : item.wholeSalePriceUnit,
+                        cost_piece:inventoryStatus === 'sell-this-on-old-price' ? product.cost_piece : item.costPiece,
+                        retail_price_piece: inventoryStatus === 'sell-this-on-old-price' ? product.retail_price_piece : item.retailPricePiece,
+                        wholesale_price_piece: inventoryStatus === 'sell-this-on-old-price' ? product.wholesale_price_piece : item.wholeSalePricePiece,
+                        qty:product.qty,
+                        sale_price_unit:inventoryStatus === 'sell-this-on-old-price' ? product.sale_price_unit:item.salePriceUnit,
+                        sale_price_piece:inventoryStatus === 'sell-this-on-old-price' ? product.sale_price_piece:item.salePriceUnit,
+                        on_sale:inventoryStatus === 'sell-this-on-old-price' ? product.on_sale:item.salePriceUnit ? true : false,
+                        store_id,
+                        product_id: product.product_id,
+                        outer_invoice_id:invoice.id,
+                    })
+
+
+                    await Products.update(
+                        { 
+                            qty: item.qty,
+                            cost_unit:item.costUnit,
+                            retail_price_unit:item.retailPriceUnit,
+                            wholesale_price_unit:item.wholeSalePriceUnit,
+                            cost_piece:item.costPiece,
+                            retail_price_piece:item.retailPricePiece,
+                            wholesale_price_piece:item.wholeSalePricePiece,
+                            sale_price_unit:item.salePriceUnit,
+                            sale_price_piece:item.salePricePeice
+                        },
+                        { where: { product_id: item.product_id }}
+                    );
+                }
+
+            }else{
+                //fetch old items add
+                const oldItemQty = await OuterInvoiceItems.findOne({
+                    where:{ invoiceId: invoiceId, product_id: item.product_id },
+                    attributes:['qty']
+                })
+
+                //price did not change add new qty to inventory
+                const updatedQty = (product.qty - oldItemQty.qty) + item.qty;
+
+                await Products.update(
+                    { qty: updatedQty },
+                    { where: { product_id: item.product_id }}
+                );  
+
+                // Check if the item exists in the invoice
+                let existingItem = await OuterInvoiceItems.findOne({ where: { invoiceId: invoiceId, product_id: item.product_id } });
+
+                if (existingItem) {
+                    // Update the existing item
+                    existingItem.qty = item.qty;
+                    await existingItem.save();
+                }
+            }
+
+            if (inventoryStatus === 'sell-on-old-price' || inventoryStatus === 'sell-this-on-old-price') {
+                // Find existing old inventory entry
+                let oldInventory = await OldInventory.findOne({ where: { product_id: item.product_id, outer_invoice_id: invoiceId } });
+
+                if (oldInventory) {
+                    // Update old inventory details
+                    oldInventory.status = inventoryStatus;
+                    oldInventory.pieces_per_unit = item.piecesPerUnit;
+                    oldInventory.cost_unit = inventoryStatus === 'sell-this-on-old-price' ? item.costUnit : product.cost_unit;
+                    oldInventory.retail_price_unit = inventoryStatus === 'sell-this-on-old-price' ? item.retailPriceUnit : product.retail_price_unit;
+                    oldInventory.wholesale_price_unit = inventoryStatus === 'sell-this-on-old-price' ? item.wholeSalePriceUnit : product.wholesale_price_unit;
+                    oldInventory.cost_piece = inventoryStatus === 'sell-this-on-old-price' ? item.costPiece : product.cost_piece;
+                    oldInventory.retail_price_piece = inventoryStatus === 'sell-this-on-old-price' ? item.retailPricePiece : product.retail_price_piece;
+                    oldInventory.wholesale_price_piece = inventoryStatus === 'sell-this-on-old-price' ? item.wholeSalePricePiece : product.wholesale_price_piece;
+                    oldInventory.qty = product.qty;
+                    oldInventory.sale_price_unit = inventoryStatus === 'sell-this-on-old-price' ? item.salePriceUnit : product.sale_price_unit;
+                    oldInventory.sale_price_piece = inventoryStatus === 'sell-this-on-old-price' ? item.salePriceUnit : product.sale_price_piece;
+                    oldInventory.on_sale = inventoryStatus === 'sell-this-on-old-price' ? (item.salePriceUnit ? true : false) : product.on_sale;
+
+                    // Save the updated old inventory
+                    await oldInventory.save();
+
+                    // Update product details if inventory status is 'sell-this-on-old-price'
+                    if (inventoryStatus === 'sell-this-on-old-price') {
+                        await Products.update({
+                            qty: item.qty,
+                            cost_unit: item.costUnit,
+                            retail_price_unit: item.retailPriceUnit,
+                            wholesale_price_unit: item.wholeSalePriceUnit,
+                            cost_piece: item.costPiece,
+                            retail_price_piece: item.retailPricePiece,
+                            wholesale_price_piece: item.wholeSalePricePiece,
+                            sale_price_unit: item.salePriceUnit,
+                            sale_price_piece: item.salePricePeice
+                        }, {
+                            where: { product_id: item.product_id }
+                        });
+                    }
+                }
+
+
+            } else {
+                // Price did not change, add new quantity to inventory
+                const updatedQty = product.qty + item.qty;
+                await Products.update(
+                    { qty: updatedQty },
+                    { where: { product_id: item.product_id } }
+                );
+            }
+        }
+
+        // Return success response
+        res.status(200).json({
+            status: "success",
+            message: "Outer Invoice updated successfully",
+            data: {
+                invoice
+            }
+        });
+    } catch (error) {
+        // Handle errors
+        next(error);
+    }
+};
+
 
 exports.removeOuterInvoice = async (req, res, next) => {
 

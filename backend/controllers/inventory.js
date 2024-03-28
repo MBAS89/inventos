@@ -746,6 +746,7 @@ exports.addProduct = async (req, res, next) => {
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
+        console.log(error.message)
         next(error)
     }
 }
