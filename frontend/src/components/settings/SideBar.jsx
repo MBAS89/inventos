@@ -24,12 +24,12 @@ export const SideBar = () => {
         },
         {
             title:'customers',
-            link:'',
+            link:'/dashboard/settings/customers',
             icon: <IoPeopleSharp className='text-[1.5rem]' />
         },
         {
             title:'suppliers',
-            link:'',
+            link:'/dashboard/settings/suppliers',
             icon: <FaTruck className='text-[1.5rem]' />
         }
     ]

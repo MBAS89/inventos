@@ -34,6 +34,7 @@ import { InnerInvoices } from "./components/Invoices/InnerInvoices"
 import { OuterInvoices } from "./components/Invoices/OuterInvoices"
 import { InvoiceInfoPage } from "./pages/dashboard/invoices/InvoiceInfoPage"
 import { CustomersSettings } from "./pages/dashboard/settings/CustomersSettings"
+import { SuppliersSettings } from "./pages/dashboard/settings/SuppliersSettings"
 
 function App() {
   return (
@@ -125,10 +126,17 @@ function App() {
             </SettingsLayout>
           </DashLayout>
         }></Route>
-        <Route path="/dashboard/settings/Customers" element={
+        <Route path="/dashboard/settings/customers" element={
           <DashLayout>
             <SettingsLayout>
               <CustomersSettings />
+            </SettingsLayout>
+          </DashLayout>
+        }></Route>
+        <Route path="/dashboard/settings/suppliers" element={
+          <DashLayout>
+            <SettingsLayout>
+              <SuppliersSettings />
             </SettingsLayout>
           </DashLayout>
         }></Route>
