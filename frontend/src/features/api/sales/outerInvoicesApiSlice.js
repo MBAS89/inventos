@@ -51,23 +51,21 @@ export const outerInvoicesApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['OuterInvoices']
         }),
-        editInvoice: builder.mutation({
+        editOuterInvoice: builder.mutation({
             query: (data) => ({
-                url: `${OUTER_INVOICE_URL}/edit/${data.invoiceId}`,
+                url: `${OUTER_INVOICE_URL}/edit?invoiceId=${data.invoiceId}`,
                 method: 'PUT',
                 body:{
                     total_amount: data.totalAmount,
-                    items_discount: data.itemsDiscount, 
-                    customer_discount:data.customerDiscount,
                     extra_discount:data.extraDiscount,
-                    total_discount: data.totalDiscount, 
                     total_to_pay: data.totalToPay, 
                     total_paid: data.totalPaid, 
                     total_due:data.totalDue,
                     status: data.status, 
                     employeeId: data.employeeId, 
-                    customerId:data.customerId,
-                    items:data.items
+                    suppliersId:data.suppliersId,
+                    items:data.items,
+                    inventoryStatus:data.inventoryStatus
                 }
             }),
             invalidatesTags: ['OuterInvoices']
@@ -97,5 +95,6 @@ export const {
     useAddOuterInvoiceHelperQuery,
     useReadOuterInvoicesQuery,
     useRemoveOuterInvoiceMutation,
-    useReadOuterInvoiceQuery
+    useReadOuterInvoiceQuery,
+    useEditOuterInvoiceMutation
 } = outerInvoicesApiSlice

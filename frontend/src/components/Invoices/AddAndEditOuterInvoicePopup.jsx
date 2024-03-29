@@ -8,7 +8,7 @@ import { useProductSearchHelperQuery, useReadInvoiceQuery } from '../../features
 import { TableHead } from '../TableHead';
 import { MeasurementPopUp } from './MeasurementPopUp';
 import { MdOutlineEdit } from "react-icons/md";
-import { useAddOuterInvoiceHelperQuery, useAddOuterInvoiceMutation, useReadOuterInvoiceQuery } from '../../features/api/sales/outerInvoicesApiSlice';
+import { useAddOuterInvoiceHelperQuery, useAddOuterInvoiceMutation, useEditOuterInvoiceMutation, useReadOuterInvoiceQuery } from '../../features/api/sales/outerInvoicesApiSlice';
 import { toast } from 'react-toastify';
 
 
@@ -437,7 +437,7 @@ export const AddAndEditOuterInvoicePopup = ({ setOpenPopup, editMode, selectedIn
                             costUnit:item.product.cost_unit,
                             costPiece:item.product.cost_piece ? item.product.cost_piece : item.product.cost_unit,
                             defaultProductQty:item.product.qty,
-                            unitValue:item.product.unit_value,
+                            unitValue:item.product.pieces_per_unit > 1 ? item.qty / item.product.pieces_per_unit : item.qty,
                             piecesPerUnit:item.product.pieces_per_unit,
                             salePriceUnit:item.product.sale_price_unit,
                             salePricePeice:item.product.sale_price_piece,
@@ -467,13 +467,17 @@ export const AddAndEditOuterInvoicePopup = ({ setOpenPopup, editMode, selectedIn
 
     console.log(invoice)
 
-    /*const [editInvoice, {isLoading:isEditLoading}] = useEditInvoiceMutation()
+    const [editOuterInvoice, {isLoading:isEditLoading}] = useEditOuterInvoiceMutation()
 
     const handleEditInvoice = async (e) => {
         e.preventDefault()
 
         if(pickedEmployee === "Please select"){
             return toast.error('Please Select A Cahser First!')
+        }
+
+        if(pickedSupplier === "Please select"){
+            return toast.error('Please Select A Supplier First!')
         }
 
         if(items.length == 0){
@@ -483,39 +487,34 @@ export const AddAndEditOuterInvoicePopup = ({ setOpenPopup, editMode, selectedIn
         const payload = {
             invoiceId:invoice.id,
             totalAmount,
-            itemsDiscount, 
-            customerDiscount,
             extraDiscount,
-            totalDiscount, 
             totalToPay, 
             totalPaid, 
             totalDue,
             status, 
             employeeId:pickedEmployee, 
-            customerId:pickedCustomer === "Please select -optinal-" ? null : pickedCustomer,
-            items
+            suppliersId:pickedSupplier,
+            items,
+            inventoryStatus:oldInventoryStatus
         }
 
         try {
-            const res = await editInvoice(payload).unwrap()
+            const res = await editOuterInvoice(payload).unwrap()
             toast.success(res.message)
             setItems([])
             setTotalAmount(0);
-            setItemsDiscount(0);
-            setCustomerDiscount(0);
             setExtraDiscount(0)
-            setTotalDiscount(0)
             setTotalToPay(0)
             setTotalDue(0)
             setTotalPaid(0)
-            setIncludeItemsDiscount(false);
             setStatus('No-status')
+            setOldInventoryStatus('sell-this-on-old-price')
             setOpenPopup(false)
             setEditMode(false)
         } catch (error) {
             toast.error(error.data.error)
         }
-    }*/
+    }
 
     return (
         <section className="overflow-auto bg-white left-[13%] top-[7%] h-[50rem] w-[90rem] border-gray-500 border-solid border-[1px] absolute rounded-lg shadow-2xl">
@@ -523,7 +522,7 @@ export const AddAndEditOuterInvoicePopup = ({ setOpenPopup, editMode, selectedIn
                 <AiOutlineCloseCircle onClick={() => {setOpenPopup(false); setItems([]); setEditMode(false)}} className='text-gray-600 rounded-full cursor-pointer bg-white text-[2rem]  hover:scale-105 absolute right-4 top-4'/>
             </div>
             <h2 className='text-[2.5rem] font-bold text-center text-gray-500 capitalize mt-12'>{editMode ? 'Edit Outer Invoice' : 'Add Outer Invoice' }</h2>
-            <form onSubmit={handleAddOuterInvoice} className='flex flex-col gap-10 w-[70%] mx-auto mt-5 mb-24 relative'>
+            <form onSubmit={editMode ? handleEditInvoice : handleAddOuterInvoice} className='flex flex-col gap-10 w-[70%] mx-auto mt-5 mb-24 relative'>
                 <div className='w-full'>
                     <label htmlFor="Casher" className="block text-sm font-medium text-gray-900">
                     Casher
@@ -640,7 +639,7 @@ export const AddAndEditOuterInvoicePopup = ({ setOpenPopup, editMode, selectedIn
                                         </button>
                                         <span className="h-4 w-px bg-gray-300"></span>
                                         <div>
-                                            <input onChange={(e) => handleUnitChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty)}  value={item.unitValue} type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"/>
+                                            <input value={item.unitValue} onChange={(e) => handleUnitChange(item.product_id, parseInt(e.target.value), item.piecesPerUnit, item.defaultProductQty)}   type="number"className="h-8 w-7 rounded border-none bg-transparent font-medium p-0 text-center text-s [-moz-appearance:_textfield] focus:outline-none-inset-white [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"/>
                                         </div>
                                         <span className="h-4 w-px bg-gray-300"></span>
                                         <button type='button' onClick={() => increaseQuantity(item.product_id, item.piecesPerUnit)} className="inline-flex h-8 w-8 items-center justify-center rtl:rotate-180">
