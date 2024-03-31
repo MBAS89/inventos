@@ -5,6 +5,16 @@ const CUSTOMERSTYPES_URL = '/api/v1/store/customers/types'
 
 export const customersApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
+        readCustomersTypes: builder.query({
+            query: (storeId) => ({
+                url: `${CUSTOMERSTYPES_URL}/get`,
+                method: 'GET'
+            }),
+            transformResponse: (response) => {
+                return response;
+            },
+            providesTags:['CustomerTypes']
+        }),
         getCustomersTypes: builder.mutation({
             query: (storeId) => ({
                 url: `${CUSTOMERSTYPES_URL}/get?storeId=${storeId}`,
@@ -19,11 +29,12 @@ export const customersApiSlice = apiSlice.injectEndpoints({
                 url:`${CUSTOMERSTYPES_URL}/add`,
                 method: 'POST',
                 body:{
-                    store_id:data.storeId,
                     type_name:data.typeName,
-                    discount_value:data.discountValue
+                    discount_value:data.discountValue,
+                    wholeSalePrice:data.wholeSalePrice
                 }
-            })
+            }),
+            invalidatesTags: ['CustomerTypes']
         }),
         editCustomersTypes: builder.mutation({
             query: (data) => ({
@@ -31,16 +42,26 @@ export const customersApiSlice = apiSlice.injectEndpoints({
                 method:'PUT',
                 body:{
                     type_name:data.typeName,
-                    discount_value:data.discountValue
+                    discount_value:data.discountValue,
+                    wholeSalePrice:data.wholeSalePrice
                 }
-            })
+            }),
+            invalidatesTags: ['CustomerTypes']
         }),
         removeCustomersTypes: builder.mutation({
             query: (data) => ({
-                url: `${CUSTOMERSTYPES_URL}/remove/${data.typeId}`
-            })
+                url: `${CUSTOMERSTYPES_URL}/remove/${data.typeId}`,
+                method:'DELETE',
+            }),
+            invalidatesTags: ['CustomerTypes']
         })
     })
 })
 
-export const { useGetCustomersTypesMutation, useAddCustomersTypesMutation, useEditCustomersTypesMutation, useRemoveCustomersTypesMutation } = customersApiSlice
+export const { 
+    useGetCustomersTypesMutation, 
+    useAddCustomersTypesMutation, 
+    useEditCustomersTypesMutation, 
+    useRemoveCustomersTypesMutation,
+    useReadCustomersTypesQuery
+} = customersApiSlice

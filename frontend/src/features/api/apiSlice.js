@@ -7,7 +7,7 @@ export const apiSlice = createApi({
     tagTypes: [
         'Store', 'Customers', 'Categories', 'Brands',
         'Products', 'Roles', 'Departments', 'Employees', 'SalaryTypes',
-        'InnerInvoices','Suppliers','SupplierTypes', 'OuterInvoices'
+        'InnerInvoices','Suppliers','SupplierTypes', 'OuterInvoices', 'CustomerTypes'
     ],
     endpoints: (builder) => ({})
 })

@@ -33,6 +33,7 @@ import { Permissions } from "./pages/dashboard/settings/Permissions"
 import { InnerInvoices } from "./components/Invoices/InnerInvoices"
 import { OuterInvoices } from "./components/Invoices/OuterInvoices"
 import { InvoiceInfoPage } from "./pages/dashboard/invoices/InvoiceInfoPage"
+import { CustomersSettings } from "./pages/dashboard/settings/CustomersSettings"
 
 function App() {
   return (
@@ -121,6 +122,13 @@ function App() {
           <DashLayout>
             <SettingsLayout>
               <Permissions />
+            </SettingsLayout>
+          </DashLayout>
+        }></Route>
+        <Route path="/dashboard/settings/Customers" element={
+          <DashLayout>
+            <SettingsLayout>
+              <CustomersSettings />
             </SettingsLayout>
           </DashLayout>
         }></Route>
