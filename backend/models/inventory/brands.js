@@ -21,7 +21,7 @@ const Brands = sequelize.define('brands', {
     name: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        unique: true,
+        unique: false,
     },
     store_id: {
         type: DataTypes.INTEGER,

@@ -11,7 +11,7 @@ const Products = sequelize.define('products', {
     name: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        unique: true,
+        unique: false,
     },
     image: {
         type: DataTypes.TEXT,

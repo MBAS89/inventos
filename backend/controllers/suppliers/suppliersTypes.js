@@ -11,7 +11,8 @@ exports.readSupplierTypes = async (req, res, next) => {
 
         //Fetch All Suppliers type
         const supplierTypes = await SuppliersTypes.findAll({
-            where:{ store_id }
+            where:{ store_id },
+            order: [['id', 'ASC']] 
         })
 
         //if response with an error

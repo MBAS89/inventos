@@ -21,7 +21,7 @@ const Categories = sequelize.define('categories', {
     name: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        unique: true,
+        unique: false,
     },
     store_id: {
         type: DataTypes.INTEGER,

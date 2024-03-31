@@ -12,7 +12,8 @@ exports.getCustomerTypes = async (req, res, next) => {
         const customersTypes = await CustomersTypes.findAll({
             where:{
                 store_id:storeId
-            }
+            },
+            order: [['id', 'ASC']] 
         })
 
 
@@ -40,13 +41,14 @@ exports.addCustomerType = async (req, res, next) => {
     try {
         //retrieve values from req.body 
         const storeId = req.authData.store_id
-        const { type_name, discount_value } = req.body
+        const { type_name, discount_value, wholeSalePrice } = req.body
 
         //create cutomer type
         const customerType = await CustomersTypes.create({
             store_id:storeId,
             type_name:type_name.toLowerCase(),
-            discount_value
+            discount_value,
+            wholeSalePrice
         })
 
         //return response of the req
@@ -72,13 +74,14 @@ exports.editCustomerType = async (req, res, next) => {
         //retrieve typeId from the req params
         const { typeId } = req.params
         //retrieve new values from req.body 
-        const { type_name, discount_value } = req.body
+        const { type_name, discount_value, wholeSalePrice } = req.body
 
         //update cutomer type with the new values 
         await CustomersTypes.update(
             {
                 type_name:type_name.toLowerCase(),
-                discount_value
+                discount_value,
+                wholeSalePrice
             },
             {
                 where: { id: typeId }

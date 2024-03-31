@@ -10,6 +10,10 @@ const SuppliersTypes = require('../../../models/suppliers/suppliersType');
 // Validation middleware for add edit and remove supplier type 
 const ValidateAddEditRemoveSuppliersType = async (req, res, next) => {
     try {
+
+        const store_id = req.authData.store_id
+
+        const { type_name } = req.body
         //declare a variable that takes all the required fileds
         let requiredFields;
 
@@ -66,6 +70,19 @@ const ValidateAddEditRemoveSuppliersType = async (req, res, next) => {
         if(validationError){
             //this Will Tell the user which fields they need to fill
             return next(new ErrorResponse(validationError, 422));
+        }
+
+        const type = await SuppliersTypes.findOne({
+            where: { 
+                type_name: type_name,
+                store_id 
+            }
+
+        });
+
+        if(type){
+            //this Will Tell the user which fields they need to fill
+            return next(new ErrorResponse('Type Is ALready There', 406));
         }
 
         next();
