@@ -70,6 +70,8 @@ app.use('/api/v1/store/suppliers', require('./routes/suppliers'));
 //Suppliers routes
 app.use('/api/v1/store/employees', require('./routes/employees'));
 
+//Casher routes
+app.use('/api/v1/store/casher', require('./routes/casher'));
 //test routes
 app.use('/api/v1/store/test', require('./routes/test'))
 

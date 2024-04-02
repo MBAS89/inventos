@@ -48,7 +48,7 @@ exports.getCustomers = async (req, res, next) => {
             include: [{
                 model: CustomersTypes,
                 as: 'customerType',
-                attributes: ['type_name', 'id']
+                attributes: ['type_name', 'id', 'discount_value', 'wholeSalePrice']
             }],
             order:column && sort ? getOrderOptions(column, sort) : []
         });
