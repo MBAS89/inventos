@@ -1,7 +1,7 @@
 const { Sequelize } = require("sequelize");
+const { Op } = require('sequelize');
 const Coupon = require("../models/inventory/coupon");
 const ErrorResponse = require("../utils/errorResponse");
-
 const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds');
 const { getOrderOptions } = require("../utils/functions/orderOptions");
 
@@ -9,7 +9,7 @@ const { getOrderOptions } = require("../utils/functions/orderOptions");
 exports.readCoupons = async (req, res, next) => {
     try {
         const storeId = req.authData.store_id
-        const { page, limit = 10, searchQuery, sort, column } = req.query;
+        const { page, limit = 13, searchQuery, sort, column } = req.query;
 
         if (!page || !storeId) {
             return next(new ErrorResponse('Page Number and Store ID are required', 400));
@@ -32,7 +32,7 @@ exports.readCoupons = async (req, res, next) => {
             where: whereClause,
             limit: searchQuery ? null : parseInt(limit),
             offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
-            order:column && sort ? getOrderOptions(column, sort) : []
+            order:column && sort ? getOrderOptions(column, sort) : [['id', 'ASC']]
         });
 
         return res.status(200).json({ totalCount, totalPages, currentPage, coupon });
@@ -43,7 +43,7 @@ exports.readCoupons = async (req, res, next) => {
     }
 }
 
-exports.checkCoupon = async (req, res, next) => {
+exports.readCoupon = async (req, res, next) => {
     try {
         const { couponId } = req.query
         
@@ -55,15 +55,45 @@ exports.checkCoupon = async (req, res, next) => {
 
         if(coupon){
 
-            if(coupon.used && coupon.expires_in && coupon.can_be_used_times > 0){
-                return next(new ErrorResponse("Coupon Is Expired", 406));
+            return res.status(200).json({coupon})
+
+        }else{
+            return next(new ErrorResponse("There Is No Coupon With This ID ", 404));
+        }
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.checkCoupon = async (req, res, next) => {
+    try {
+        const storeId = req.authData.store_id
+        const { code } = req.query
+        
+        const coupon = await Coupon.findOne({
+            where:{
+                code,
+                store_id:storeId
+            }
+        })
+
+        if(coupon){
+
+            if(coupon.used && coupon.can_be_used_times > 0){
+                return next(new ErrorResponse("Coupon Used", 406));
             }else{
+                if(coupon.expires_in < new Date()){
+                    return next(new ErrorResponse("Coupon Is Expired", 406));
+                }
+
                 //return success response with message
                 res.status(200).json({coupon})
             }
 
         }else{
-            return next(new ErrorResponse("There Is No Coupon With This ID ", 404));
+            return next(new ErrorResponse("There Is No Coupon With This Code ", 404));
         }
 
     } catch (error) {

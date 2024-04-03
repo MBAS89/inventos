@@ -10,6 +10,7 @@ const Products = require('../models/inventory/products');
 const Employees = require('../models/employees/employees');
 const Customers = require('../models/cutomers/cutomers');
 const CustomerTypes = require('../models/cutomers/customersTypes')
+const Coupon = require("../models/inventory/coupon");
 
 //reusable funtions 
 const {getOrderOptions} = require('../utils/functions/orderOptions');
@@ -143,8 +144,11 @@ exports.createInvoice = async (req, res, next) => {
         //retrieve values from req.body  
         const { total_amount, items_discount, extra_discount, total_discount, customer_discount, 
             total_to_pay, total_due, total_paid, status, items, customerId,
-            employeeId, customer_extra_info, includeItemsDiscount
+            employeeId, customer_extra_info, includeItemsDiscount, couponCode,
+            employee_name
         } = req.body
+
+        console.log(employeeId)
 
         //calculate total cost 
         const totalCost = items.reduce((accumulator, currentItem) => {
@@ -169,6 +173,7 @@ exports.createInvoice = async (req, res, next) => {
             total_to_pay,
             total_due,
             total_paid,
+            employee_name,
             status,
             employeeId:employeeId || null,
             customerId:customerId || null,
@@ -272,6 +277,29 @@ exports.createInvoice = async (req, res, next) => {
             }
 
         }
+
+        if(couponCode){
+            const coupon = await Coupon.findOne(
+                {
+                    where:{
+                        code:couponCode,
+                        store_id:storeId
+                    }
+                }
+            )
+    
+            if(coupon.can_be_used_times > 1){
+                coupon.can_be_used_times = coupon.can_be_used_times - 1
+            }else{
+                coupon.can_be_used_times = 0
+                coupon.used = true
+                coupon.usedDate = new Date()
+                coupon.expires_in = null
+            }
+    
+            await coupon.save();
+        }
+
 
         //return response of the req
         res.status(201).json({

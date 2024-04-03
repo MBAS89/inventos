@@ -21,6 +21,10 @@ const Coupon = sequelize.define('coupon', {
         type:DataTypes.BOOLEAN,
         defaultValue:false
     },
+    usedDate:{
+        type: DataTypes.DATE,
+        allowNull:true
+    },
     kind: {
         type: DataTypes.ENUM('percent', 'cash'),
         defaultValue:'percent'

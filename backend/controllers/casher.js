@@ -52,7 +52,7 @@ exports.readSingleBrandAndCategory = async (req, res, next) => {
 
         const storeId = req.authData.store_id
 
-        const { page, limit = 16, searchQuery, brandId, categoryId } = req.query;
+        const { page, limit = 12, searchQuery, brandId, categoryId } = req.query;
 
         if (!page || !storeId) {
             return next(new ErrorRes('Page Number and Store ID are required', 400));
