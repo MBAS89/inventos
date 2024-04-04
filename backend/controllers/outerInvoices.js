@@ -224,6 +224,8 @@ exports.createOuterInvoice = async (req, res, next) => {
                         await Products.update(
                             { 
                                 qty: item.qty,
+                                cost_unit:item.costUnit,
+                                cost_piece:item.costPiece
                             },
                             { where: { product_id: item.product_id }}
                         );
@@ -231,10 +233,10 @@ exports.createOuterInvoice = async (req, res, next) => {
                         await OldInventory.create({
                             status:inventoryStatus,
                             pieces_per_unit:item.piecesPerUnit,
-                            cost_unit: inventoryStatus === 'sell-this-on-old-price' ? product.cost_unit : item.costUnit,
+                            cost_unit: product.cost_unit,
                             retail_price_unit: inventoryStatus === 'sell-this-on-old-price' ? product.retail_price_unit : item.retailPriceUnit,
                             wholesale_price_unit:inventoryStatus === 'sell-this-on-old-price' ? product.wholesale_price_unit : item.wholeSalePriceUnit,
-                            cost_piece:inventoryStatus === 'sell-this-on-old-price' ? product.cost_piece : item.costPiece,
+                            cost_piece:product.costPiece,
                             retail_price_piece: inventoryStatus === 'sell-this-on-old-price' ? product.retail_price_piece : item.retailPricePiece,
                             wholesale_price_piece: inventoryStatus === 'sell-this-on-old-price' ? product.wholesale_price_piece : item.wholeSalePricePiece,
                             qty:product.qty,

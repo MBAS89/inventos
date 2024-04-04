@@ -148,7 +148,6 @@ exports.createInvoice = async (req, res, next) => {
             employee_name
         } = req.body
 
-        console.log(employeeId)
 
         //calculate total cost 
         const totalCost = items.reduce((accumulator, currentItem) => {
