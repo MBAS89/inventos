@@ -35,6 +35,7 @@ import { OuterInvoices } from "./components/Invoices/OuterInvoices"
 import { InvoiceInfoPage } from "./pages/dashboard/invoices/InvoiceInfoPage"
 import { CustomersSettings } from "./pages/dashboard/settings/CustomersSettings"
 import { SuppliersSettings } from "./pages/dashboard/settings/SuppliersSettings"
+import { Coupons } from "./components/inventory/Coupons"
 
 function App() {
   return (
@@ -74,6 +75,7 @@ function App() {
           <Route path="products" element={< Products/>}/>
           <Route path="categories" element={<Categories/>}/>
           <Route path="brands" element={<Brands/>}/>
+          <Route path="coupons" element={<Coupons/>}/>
         </Route> 
         <Route path="/dashboard/inventory/single-product" element={<SingleProduct />}></Route>
         <Route path="/dashboard/inventory/single-category/:categoryId" element={<SingleCategory />}></Route>

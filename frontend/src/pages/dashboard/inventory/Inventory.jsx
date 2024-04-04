@@ -1,6 +1,7 @@
 import React from 'react'
 import { BiCategory } from 'react-icons/bi'
 import { TbBrandZeit } from 'react-icons/tb'
+import { RiCoupon2Line } from "react-icons/ri";
 import { MdOutlineProductionQuantityLimits } from 'react-icons/md'
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
@@ -29,6 +30,12 @@ export const Inventory = () => {
                         <div className='inline-flex shrink-0 items-center gap-2  px-1 pb-4 text-sm font-medium'>
                             <TbBrandZeit className='text-lg'/>
                             Brands
+                        </div>
+                    </NavLink>
+                    <NavLink to='coupons' className={({isActive}) => isActive ? 'border-[#50B426] text-[#50B426] border-b-2' : 'text-gray-500 hover:border-b-1'}>
+                        <div className='inline-flex shrink-0 items-center gap-2  px-1 pb-4 text-sm font-medium'>
+                            <RiCoupon2Line className='text-lg'/>
+                            Coupons
                         </div>
                     </NavLink>
                 </nav>

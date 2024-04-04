@@ -48,10 +48,12 @@ export const innerInvoicesApiSlice = apiSlice.injectEndpoints({
                     total_due:data.totalDue,
                     status: data.status, 
                     employeeId: data.employeeId, 
+                    employee_name: data.employeeName,
                     customerId:data.customerId,
                     items:data.items,
                     customer_extra_info:data.customerExtraInfo,
-                    includeItemsDiscount:data.includeItemsDiscount
+                    includeItemsDiscount:data.includeItemsDiscount,
+                    couponCode:data.couponCode
                 }
             }),
             invalidatesTags: ['InnerInvoices', 'Products']

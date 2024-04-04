@@ -1,7 +1,7 @@
 //icons
 import { MdKeyboardArrowRight, MdKeyboardArrowLeft } from 'react-icons/md'
 
-export const TablePagination = ({ currentPage, totalPages, setCurrentPage, totalCount, count }) => {
+export const TablePagination = ({ currentPage, totalPages, setCurrentPage, totalCount, count, casher }) => {
     let pagesAfter = [];
     let pagesBefore = [];
 
@@ -20,7 +20,7 @@ export const TablePagination = ({ currentPage, totalPages, setCurrentPage, total
     }
 
     return (
-        <div className='flex font-bold bg-white py-2 items-center justify-center px-8 relative'>
+        <div className={`flex font-bold ${casher ? 'bg-transparent' : 'bg-white '} py-2 items-center justify-center px-8 relative`}>
             <div className='absolute left-5 font-medium'>{count} | {totalCount}</div>
             <ol className="flex justify-center gap-1 text-xs">
                 <li>

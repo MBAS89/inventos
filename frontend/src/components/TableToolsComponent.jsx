@@ -101,6 +101,16 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
                         value:{sort:'desc', column:'id'}
                     }
                 ])
+            }else if(department === "Coupons"){
+                setSortElements([
+                    {
+                        title:'Ascending',
+                        value:{sort:'asc', column:'id'}
+                    },{
+                        title:'Descending',
+                        value:{sort:'desc', column:'id'}
+                    }
+                ])
             }
         }
     
@@ -137,7 +147,6 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
         }
     }
 
-
     return (
     <div className='flex justify-between items-center px-6'>
         <div className='flex items-center gap-6 capitalize'>
@@ -151,7 +160,7 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
                 <SiMicrosoftexcel className='text-[#50B426] text-xl'/>
                 <span>export to excel</span>
             </button>
-            {selected && 
+            {(selected && department !== 'Coupons') && 
                 <button onClick={handleView} className='capitalize flex items-center gap-1 cursor-pointer hover:scale-105'>
                     <MdOutlineRemoveRedEye className='text-[#50B426] text-xl'/>
                     <span>view</span>

@@ -54,14 +54,18 @@ export const InvoicesTable = ({headItems, data, isLoading, currentPage, setCurre
                                 <td className="px-4 py-2 text-gray-700">
                                     {handleStatus(invoice.status)}
                                 </td>
-                                <td className="px-4 py-2 font-medium text-gray-900">
-                                    <div className='flex items-center gap-4'>
-                                        <div className=' bg-gray-100 p-1 rounded-md w-[20%] flex items-center justify-center'>
-                                            <img width="50" height="50" src={invoice.employee.image} alt={invoice.employee.full_name}/>
+                                {invoice.employeeId ? (
+                                    <td className="px-4 py-2 font-medium text-gray-900">
+                                        <div className='flex items-center gap-4'>
+                                            <div className=' bg-gray-100 p-1 rounded-md w-[20%] flex items-center justify-center'>
+                                                <img width="50" height="50" src={invoice.employee.image} alt={invoice.employee.full_name}/>
+                                            </div>
+                                            <div>{invoice.employee.full_name}</div>
                                         </div>
-                                        <div>{invoice.employee.full_name}</div>
-                                    </div>
-                                </td>
+                                    </td>
+                                ):(
+                                    <td className="px-4 py-2 font-medium text-gray-900">{invoice.employee_name}</td>
+                                )}
                                 <td className="px-4 py-2 text-gray-700">{format(parseISO(invoice.createdAt), "dd/MM/yyyy h:mmaaa")}</td>
                                 <td className="px-4 py-2 text-gray-700">{format(parseISO(invoice.updatedAt), "dd/MM/yyyy h:mmaaa")}</td>
                             </tr>
