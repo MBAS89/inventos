@@ -134,6 +134,7 @@ exports.storeLogin = async (req, res, next) => {
             const payload = {
                 store_id:store.id,
                 store_name:store.store_name,
+                image:store.store_image,
                 id:owner.id,
                 email:owner.email,
                 name:`${owner.first_name} ${owner.last_name}`,
@@ -219,6 +220,7 @@ exports.storeLogin = async (req, res, next) => {
                 store_id:store.id,
                 store_name:store.store_name,
                 id:employee.id,
+                image:employee.image,
                 email:employee.email,
                 name:employee.full_name,
                 role:employee.roleId,
@@ -246,22 +248,24 @@ exports.storelogout = async (req, res, next) => {
         //verify token and set all token value in decoded variable this will hold the key jwt the payload the data and the expiration
         const decoded = jwt.verify(token, process.env.JWT_SECRT)
 
-        // Find the latest sign-in log for the employee
-        const latestLog = await Log.findOne({
-            where: {
-            employeeId: decoded.payload.id,
-            signOutTime: null
-            },
-            order: [['signInTime', 'DESC']]
-        });
-  
-        if (!latestLog) {
-            return res.status(400).send("Employee has not signed in");
+        if(decoded.payload.role  !== 'owner'){
+            // Find the latest sign-in log for the employee
+            const latestLog = await Log.findOne({
+                where: {
+                employeeId: decoded.payload.id,
+                signOutTime: null
+                },
+                order: [['signInTime', 'DESC']]
+            });
+    
+            if (!latestLog) {
+                return res.status(400).send("Employee has not signed in");
+            }
+    
+            // Update the sign-out time for the latest sign-in log
+            latestLog.signOutTime = new Date();
+            await latestLog.save();
         }
-  
-        // Update the sign-out time for the latest sign-in log
-        latestLog.signOutTime = new Date();
-        await latestLog.save();
 
         //remove the token form the request by setting expire time to 0 
         res.cookie('jwt', '', {

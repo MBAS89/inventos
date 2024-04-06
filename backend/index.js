@@ -14,6 +14,8 @@ const { Invoices, InvoiceItems } = require('./models/sales/invoices');
 const CustomersTypes = require('./models/cutomers/customersTypes');
 const Suppliers = require('./config/associations/suppliers');
 const SuppliersTypes = require('./config/associations/suppliers');
+const Expenses = require('./config/associations/expenses');
+const ExpensesTypes = require('./config/associations/expenses');
 const SalaryTypes = require('./models/employees/salarytypes');
 const Employees = require('./config/associations/employees');
 const Contracts = require('./config/associations/employees');
@@ -72,6 +74,11 @@ app.use('/api/v1/store/employees', require('./routes/employees'));
 
 //Casher routes
 app.use('/api/v1/store/casher', require('./routes/casher'));
+
+//Casher routes
+app.use('/api/v1/store/expenses', require('./routes/expenses'));
+
+
 //test routes
 app.use('/api/v1/store/test', require('./routes/test'))
 
