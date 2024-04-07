@@ -1,12 +1,26 @@
 import React from 'react'
 import { MdOutlineRemoveRedEye } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
+import { handleStatus } from '../../../functions/handleStatus'
 
 export const InvoiceItems = ({ data }) => {
 
     const negative = useNavigate()
     
     console.log(data)
+
+    const handleInventoryQty = (oldInventory, item) => {
+        if(oldInventory){
+
+            console.log(oldInventory)
+            const foundItem = item.product.old_inventories.find(item => item.id === oldInventory);
+
+            return foundItem.qty
+        }else{
+
+        }
+    }
+
     return (
         <div className='w-[80%] mx-auto min-h-[10rem] bg-white rounded-lg mt-5 p-5'>
             <h2 className='font-bold text-[1.3rem] pl-4 mb-2'>Invoice Items</h2>
@@ -47,17 +61,22 @@ export const InvoiceItems = ({ data }) => {
                                 <th className="px-4 py-2 font-medium text-gray-900">
                                     Sale Price Unit
                                 </th>
-                                <th className="px-4 py-2 font-medium text-gray-900">
-                                    Sale Price Piece
-                                </th>
+                                {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
+                                    <th className="px-4 py-2 font-medium text-gray-900">
+                                        Sale Price Piece
+                                    </th>
+                                )}
                                 <th className="px-4 py-2 font-medium text-gray-900">
                                     WholeSale Price Unit
                                 </th>
-                                {data && data.items.some(item => item.product.wholesale_price_piece !== null) && (
-                                <th className="px-4 py-2 font-medium text-gray-900">
-                                    WholeSale Price Piece
-                                </th>
+                                {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
+                                    <th className="px-4 py-2 font-medium text-gray-900">
+                                        WholeSale Price Piece
+                                    </th>
                                 )}
+                                <th className="px-4 py-2 font-medium text-gray-900">
+                                    Old Inventory
+                                </th>
                                 <th className="px-4 py-2 font-medium text-gray-900">
                                     Inventory Qty
                                 </th>
@@ -88,32 +107,37 @@ export const InvoiceItems = ({ data }) => {
                                     {item.product.unit_value}
                                 </td>
                                 <td className="px-4 py-2 font-bold text-[#50B426]">
-                                    ${item.product.retail_price_unit}
+                                    ${item.price * item.product.pieces_per_unit}
                                 </td>
                                 <td className="px-4 py-2 font-bold ">
                                     {item.product.pieces_per_unit}
                                 </td>
-                                {data && data.items.some(item => item.product.retail_price_piece !== null) && (
+                                {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
                                     <td className="px-4 py-2 font-bold text-[#50B426]">
-                                        {item.product.retail_price_piece ? `$${item.product.retail_price_piece}` : '-'}
+                                        {item.product.retail_price_piece ? `$${item.price}` : '-'}
                                     </td>
                                 )}
                                 <td className="px-4 py-2 font-bold text-[#50B426]">
                                     {item.product.sale_price_unit ? `$${item.product.sale_price_unit}` : 'No Sale'}
                                 </td>
-                                <td className="px-4 py-2 font-bold text-[#50B426]">
-                                    {item.product.sale_price_piece ? `$${item.product.sale_price_piece}` : 'No Sale'}
-                                </td>
+                                {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
+                                    <td className="px-4 py-2 font-bold text-[#50B426]">
+                                        {item.product.sale_price_piece ? `$${item.product.sale_price_piece}` : 'No Sale'}
+                                    </td>
+                                )}
                                 <td className="px-4 py-2 font-bold text-[#50B426]">
                                     {item.product.wholesale_price_unit ? `$${item.product.wholesale_price_unit}` : '-'}
                                 </td>
-                                {data && data.items.some(item => item.product.wholesale_price_piece !== null) && (
+                                {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
                                     <td className="px-4 py-2 font-bold text-[#50B426]">
                                         {item.product.wholesale_price_piece ? `$${item.product.wholesale_price_piece}` : '-'}
                                     </td>
                                 )}
-                                <td className="px-4 py-2 font-bold text-[#dd8b33]">
-                                    {item.product.qty ? item.product.qty : '-'}
+                                <td className="px-4 py-2 font-bold">
+                                    {handleStatus(item.oldInventory)}
+                                </td>
+                                <td className="px-4 py-2 font-bold">
+                                    {handleInventoryQty(item.oldInventory, item)}
                                 </td>
                             </tr>
                             ))}

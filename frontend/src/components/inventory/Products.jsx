@@ -71,12 +71,6 @@ export const Products = () => {
         },
         {
             title:"brand"
-        },
-        {
-            title:"created date"
-        },
-        {
-            title:"updated date"
         }
     ]
     
@@ -134,21 +128,21 @@ export const Products = () => {
                                     <td className="px-4 py-2 text-gray-700">{product.qty}</td>
                                     <td className="px-4 py-2 text-[#0070E0] font-bold">${product.cost_unit}</td>
                                     <td className="px-4 py-2 text-[#50B426] font-bold">${product.retail_price_unit}</td>
-                                    <td className="px-4 py-2 font-bold text-[#4454DC]">${product.wholesale_price_unit}</td>
+                                    <td className="px-4 py-2 font-bold text-[#dc44d2]">${product.wholesale_price_unit}</td>
                                     <td className="px-4 py-2 text-[#0070E0] font-bold">
                                         {product.wholesale_price_piece ? `$${parseFloat(product.cost_piece).toFixed(2)}` : '-'}
                                     </td>
                                     <td className="px-4 py-2 text-[#50B426] font-bold">
                                         {product.wholesale_price_piece ? `$${parseFloat(product.retail_price_piece).toFixed(2)}` : '-'}
                                     </td>
-                                    <td className="px-4 py-2 font-bold text-[#4454DC]">
+                                    <td className="px-4 py-2 font-bold text-[#dc44d2]">
                                         {product.wholesale_price_piece ? `$${parseFloat(product.wholesale_price_piece).toFixed(2)}` : '-'}
                                     </td>
                                     <td className="px-4 py-2 text-gray-700">
                                         {handleOnSaleStatus(product.on_sale)}
                                     </td>
-                                    <td className="px-4 py-2 font-bold text-orange-300">${product.on_sale ? product.sale_price_unit : '-'}</td>
-                                    <td className="px-4 py-2 font-bold text-orange-300">
+                                    <td className="px-4 py-2 font-bold text-orange-400">${product.on_sale ? product.sale_price_unit : '-'}</td>
+                                    <td className="px-4 py-2 font-bold text-orange-400">
                                         {product.wholesale_price_piece && product.on_sale ? `$${parseFloat(product.sale_price_piece).toFixed(2)}` : '-'}
                                     </td>
                                     <td className="px-4 py-2 text-gray-700">
@@ -161,8 +155,6 @@ export const Products = () => {
                                             {product.brand ?  product.brand.name : 'no brand'}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-2 text-gray-700">{format(parseISO(product.createdAt), "dd/MM/yyyy h:mmaaa")}</td>
-                                    <td className="px-4 py-2 text-gray-700">{format(parseISO(product.updatedAt), "dd/MM/yyyy h:mmaaa")}</td>
                                 </tr>
                             ))}
                         </tbody>

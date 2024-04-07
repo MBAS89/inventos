@@ -40,6 +40,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
         pieceCost:'',
         retailPiece:'',
         wholesalePiece:'',
+        qtyUnit:'',
         qty:'',
         unitSalePrice:'',
         pieceSalePrice:'',
@@ -53,7 +54,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
         unitValue, costUnit, retailUnitPrice, wholesaleUnitPrice,
         piecesPerUnit, pieceCost, retailPiece, wholesalePiece,
         qty, unitSalePrice, pieceSalePrice, onSale, description, 
-        brand, category, unitOfMeasurement
+        brand, category, unitOfMeasurement, qtyUnit
     } = productData
 
 
@@ -68,7 +69,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                 wholesalePiece:wholesaleUnitPrice,
                 piecesPerUnit:1
             }));
-        }else if(unit === "pk" || unit === "set" || unit === "box" || unit === "carton"){
+        }else if((unit === "pk" || unit === "set" || unit === "box" || unit === "carton")){
             setShowPieceFileds(true)
             setProductData((prevState) => ({
                 ...prevState,
@@ -76,7 +77,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                 pieceCost:costUnit/piecesPerUnit,
                 retailPiece:retailUnitPrice/piecesPerUnit,
                 wholesalePiece:wholesaleUnitPrice/piecesPerUnit,
-                qty:piecesPerUnit
+                qty:editMode ? qtyUnit ? qtyUnit * piecesPerUnit : prevState.qty : qtyUnit ? qtyUnit * piecesPerUnit : piecesPerUnit
             }));
         }else if(unit === "cart" || unit === "bag" || unit === "pieces"){
             setShowPieceFileds(true)
@@ -87,7 +88,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                 unitValue:1,
             }));
         }
-    },[unit, costUnit, retailUnitPrice, wholesaleUnitPrice, piecesPerUnit])
+    },[unit, costUnit, retailUnitPrice, wholesaleUnitPrice, piecesPerUnit, qtyUnit])
 
     const [file, setFile] = useState(null)
 
@@ -313,7 +314,7 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                 onSale:data.product.on_sale,
                 description:data.product.description,
                 brand:data.product.brand_id,
-                category:data.product.store_id
+                category:data.product.category_id
             }))
         }
     },[editMode, data])
@@ -541,6 +542,14 @@ export const AddAndEditProductPopup = ({ setOpenPopup, editMode, selected, setEd
                     </div>
                 )}
                 <div className='flex items-center w-full gap-4'>
+                    {unitCatergory === "Others" && 
+                        <label htmlFor="qtyUnit" className="relative block overflow-hidden w-full rounded-md border-2 border-[#ffa347] px-3 pt-3 shadow-sm focus-within:border-[#ff7045] focus-within:ring-1 focus-within:ring-[#50B426]">
+                            <input value={qtyUnit} onChange={onChange} type="number" id="qtyUnit" name='qtyUnit'  placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
+                            <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">
+                                Qty Unit
+                            </span>
+                        </label>
+                    }
                     <label htmlFor="qty" className="relative block overflow-hidden w-full rounded-md border-2 border-[#ffa347] px-3 pt-3 shadow-sm focus-within:border-[#ff7045] focus-within:ring-1 focus-within:ring-[#50B426]">
                         <input value={qty} onChange={onChange} type="number" id="qty" name='qty'  placeholder='' className="peer h-12 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm" />
                         <span className="absolute start-3 top-3 -translate-y-1/2 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs">

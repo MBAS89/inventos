@@ -79,7 +79,7 @@ function App() {
           <Route path="brands" element={<Brands/>}/>
           <Route path="coupons" element={<Coupons/>}/>
         </Route> 
-        <Route path="/dashboard/inventory/single-product" element={<SingleProduct />}></Route>
+        <Route path="/dashboard/inventory/single-product/:productId" element={<SingleProduct />}></Route>
         <Route path="/dashboard/inventory/single-category/:categoryId" element={<SingleCategory />}></Route>
         <Route path="/dashboard/inventory/single-brand/:brandId" element={<SingleBrand />}></Route>
         <Route path="/dashboard/customers" element={

@@ -79,7 +79,7 @@ export const InvoiceBasicInfo = ({data}) => {
                             </div>
                         </div>
                         }
-                        {data ? 
+                        {data ? data.employeeId ? (
                             <div className='p-4 border-2 border-[#50B426] rounded-lg w-[40%]'>
                                 <div className='flex justify-between'>
                                     <h4 className='font-bold'>Casher Info</h4>
@@ -95,6 +95,12 @@ export const InvoiceBasicInfo = ({data}) => {
                                     </div>
                                 </div>
                             </div>
+                        ) : (
+                            <div className='p-4 border-2 border-[#50B426] rounded-lg w-[40%]'>
+                                <h5 className='text-gray-600'>Full Name</h5>
+                                <p className='font-bold'>{data.employee_name}</p>
+                            </div>
+                        )
                         :
                             <div className='p-4 border-2 border-[#50B426] rounded-lg pb-5 w-[40%]'>
                                 <div className='flex justify-between'>

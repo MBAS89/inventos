@@ -25,7 +25,7 @@ export const suppliersApiSlice = apiSlice.injectEndpoints({
 
         readSupplier: builder.query({
             query: (data) => ({
-                url: `${SUPPLIERS_URL}/read/single?supplierId=${data.supplierId}`,
+                url: `${SUPPLIERS_URL}/read/single?supplierId=${data.supplierId}&page=${data.page || '1'}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {

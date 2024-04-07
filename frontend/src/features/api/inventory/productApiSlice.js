@@ -7,7 +7,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         readProducts: builder.query({
             query: (data) => ({
-                url: `${PRODUCT_URL}/read?page=${data.page}&sort=${data.sortBy.sort}&column=${data.sortBy.column}&searchQuery=${data.searchQuery ? data.searchQuery : ''}`,
+                url: `${PRODUCT_URL}/read?page=${data.page}&sort=${data.sortBy.sort || ''}&column=${data.sortBy.column || ''}&searchQuery=${data.searchQuery}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {

@@ -18,7 +18,7 @@ export const CustomersTable = ({ headItems, selectedCustomers, setSelectedCustom
 
     const [currentPage, setCurrentPage] = useState(1)
 
-    const {data:cutomers, isLoading, isFetching, isError, error } = useReadCustomersQuery({storeId:authInfo.store_id,page:currentPage, searchQuery:searchQuery, sortBy:sortBy},'readCustomers')
+    const {data:cutomers, isLoading } = useReadCustomersQuery({storeId:authInfo.store_id,page:currentPage, searchQuery:searchQuery, sortBy:sortBy},'readCustomers')
 
     const handleCheckboxChange = (customerId, imageId) => {
         setSelectedCustomers({
@@ -26,9 +26,6 @@ export const CustomersTable = ({ headItems, selectedCustomers, setSelectedCustom
             imageId
         })
     };
-
-    console.log(selectedCustomers)
-
 
     return (
         <div className='px-6 mt-2'>

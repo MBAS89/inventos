@@ -25,7 +25,7 @@ export const customersApiSlice = apiSlice.injectEndpoints({
 
         readCustomer: builder.query({
             query: (data) => ({
-                url: `${CUSTOMERS_URL}/read/single?storeId=${data.storeId}&customerId=${data.customerId}`,
+                url: `${CUSTOMERS_URL}/read/single?storeId=${data.storeId}&customerId=${data.customerId}&page=${data.page || '1'}`,
                 method: 'GET',
             }),
             transformResponse: (response) => {

@@ -8,6 +8,7 @@ import { TablePagination } from '../TablePagination'
 
 export const OuterInvoicesTable = ({headItems, data, isLoading, currentPage, setCurrentPage, selectedInvoice, handleCheckboxChange}) => {
 
+    console.log(data)
     return (
         <div className='px-6 mt-2'>
             <div className="overflow-x-auto">
@@ -39,7 +40,7 @@ export const OuterInvoicesTable = ({headItems, data, isLoading, currentPage, set
                                             </div>
                                             <div className='w-[80%] flex flex-col gap-2'>
                                                 <span className='capitalize'>{item.product.name}</span>
-                                                <span className='font-bold text-[#4454DC]'>$</span>
+                                                <span className='font-bold text-[#4454DC]'>${item.product.pieces_per_unit > 1 ? item.product.retail_price_piece : item.product.retail_price_unit}</span>
                                             </div>
                                         </div>
                                     ))}

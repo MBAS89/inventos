@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { SuppliersProfile } from '../../../components/suppliers/SuppliersProfile'
 import { SuppliersProfileStatus } from '../../../components/suppliers/SuppliersProfileStatus'
 import { DashHeader } from '../../../components/DashHeader'
@@ -11,11 +11,12 @@ import { Breadcrumb } from '../../../components/Breadcrumb'
 export const SingleSuppliers = () => {
     const { supplierId } = useParams();
 
-    const { data, isLoading } = useReadSupplierQuery({supplierId}, 'readSupplier')
+    const [currentPage, setCurrentPage] = useState(1)
 
-    console.log(data)
+    const { data, isLoading } = useReadSupplierQuery({supplierId, page:currentPage}, 'readSupplier')
+
     return (
-        <div className='bg-slate-200 min-h-[calc(100vh-64px)] pb-10'>
+        <div className='bg-slate-200 min-h-[100vh] pb-10'>
         <DashHeader/>
         <div>
             {data ? 
@@ -29,7 +30,7 @@ export const SingleSuppliers = () => {
             }
             <SuppliersProfile data={data} isLoading={isLoading}/>
             <SuppliersProfileStatus data={data} isLoading={isLoading}/>
-            <SuppliersInvoicesTable/>
+            <SuppliersInvoicesTable data={data} isLoading={isLoading} setCurrentPage={setCurrentPage} currentPage={currentPage}/>
         </div>
     </div>
   )
