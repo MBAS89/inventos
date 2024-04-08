@@ -1,6 +1,8 @@
 import React from 'react'
 
 import { handleStatus } from '../../functions/handleStatus'
+import { format, parseISO } from 'date-fns'
+
 
 export const ProductPriceAndType = ({data, isLoading}) => {
 
@@ -9,7 +11,7 @@ export const ProductPriceAndType = ({data, isLoading}) => {
         <div className={` ${!isLoading && data.product.pieces_per_unit > 1 ? 'h-[18rem]' : 'h-[13rem]'} mt-10 flex gap-5`}>
             <div className='w-[90%] bg-white h-full rounded-md border-gray-200 border-2 p-4'>
                 <h2 className='font-bold text-[1.3rem] pl-4 mb-2'>Product Price Informations</h2>
-                <div className='flex items-center gap-10 justify-center my-10 ml-8'>
+                <div className='flex items-center gap-10 justify-center mt-10 ml-8 mb-4'>
                     <div>
                         <div className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
                             <img width="50" height="50" src="https://img.icons8.com/dusk/64/average-2.png" alt="average-2" className='bg-[#50B426] rounded-full p-2'/>
@@ -147,6 +149,26 @@ export const ProductPriceAndType = ({data, isLoading}) => {
                                     )}
                                     
                                 </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className='w-full text-gray-500 justify-between flex p-3'>
+                    <div>
+                        {isLoading ? (
+                            <div className='bg-slate-500 animate-pulse h-[18px] w-[200px] rounded-lg'></div>
+                        ) : (
+                            <div>
+                                Created At: {format(parseISO(data.product.createdAt), "dd/MM/yyyy h:mmaaa")}
+                            </div>
+                        )}
+                    </div>
+                    <div>
+                        {isLoading ? (
+                            <div className='bg-slate-500 animate-pulse h-[18px] w-[200px] rounded-lg'></div>
+                        ) : (
+                            <div>
+                                Updated At: {format(parseISO(data.product.updatedAt), "dd/MM/yyyy h:mmaaa")}
                             </div>
                         )}
                     </div>

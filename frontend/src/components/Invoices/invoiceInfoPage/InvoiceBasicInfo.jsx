@@ -121,7 +121,7 @@ export const InvoiceBasicInfo = ({data}) => {
                     <div className='bg-white w-[60%] h-full rounded-md border-2 border-gray-200 p-4 text-center flex flex-col justify-center items-center'>
                         {data ? (
                             <dd className="text-4xl font-extrabold text-[#50B426] md:text-5xl">
-                                ${millify(data.total_to_pay)}
+                                ${data.total_to_pay.toFixed(1)}
                             </dd>
                         ) : (
                             <dd className='bg-slate-500 animate-pulse h-[65px] w-[140px] rounded-lg'></dd>

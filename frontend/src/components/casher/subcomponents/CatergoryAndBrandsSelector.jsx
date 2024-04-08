@@ -39,7 +39,7 @@ export const CatergoryAndBrandsSelector = ({category, setCategory, data, isLoadi
                     modules={[Navigation, Pagination, A11y]}
                     spaceBetween={30}
                     slidesPerView="auto"
-                    className='z-10 flex flex-col-reverse'
+                    className={`z-10 flex ${isLoading ? 'flex-col' : 'flex-col-reverse'}`}
                 >
                 <div className='flex items-center justify-between -z-10 mb-4'>
                     <nav className="flex gap-4" aria-label="Tabs">
@@ -78,19 +78,17 @@ export const CatergoryAndBrandsSelector = ({category, setCategory, data, isLoadi
                     ))
                 ):(
                     <div className='flex gap-4'>
-                        <div className='bg-slate-500 animate-pulse w-[9rem] h-[8rem] rounded-lg'>
+                        <div className='bg-slate-500 animate-pulse w-[14rem] h-[8rem] rounded-lg'>
                         </div>
-                        <div className='bg-slate-500 animate-pulse w-[9rem] h-[8rem] rounded-lg'>
+                        <div className='bg-slate-500 animate-pulse w-[14rem] h-[8rem] rounded-lg'>
                         </div>
-                        <div className='bg-slate-500 animate-pulse w-[9rem] h-[8rem] rounded-lg'>
+                        <div className='bg-slate-500 animate-pulse w-[14rem] h-[8rem] rounded-lg'>
                         </div>
-                        <div className='bg-slate-500 animate-pulse w-[9rem] h-[8rem] rounded-lg'>
+                        <div className='bg-slate-500 animate-pulse w-[14rem] h-[8rem] rounded-lg'>
                         </div>
-                        <div className='bg-slate-500 animate-pulse w-[9rem] h-[8rem] rounded-lg'>
+                        <div className='bg-slate-500 animate-pulse w-[14rem] h-[8rem] rounded-lg'>
                         </div>
-                        <div className='bg-slate-500 animate-pulse w-[9rem] h-[8rem] rounded-lg'>
-                        </div>
-                        <div className='bg-slate-500 animate-pulse w-[9rem] h-[8rem] rounded-lg'>
+                        <div className='bg-slate-500 animate-pulse w-[14rem] h-[8rem] rounded-lg'>
                         </div>
                     </div>
                 )}

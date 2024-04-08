@@ -6,24 +6,23 @@ import { handleStatus } from '../../../functions/handleStatus'
 export const InvoiceItems = ({ data }) => {
 
     const negative = useNavigate()
-    
-    console.log(data)
+
 
     const handleInventoryQty = (oldInventory, item) => {
         if(oldInventory){
 
-            console.log(oldInventory)
-            const foundItem = item.product.old_inventories.find(item => item.id === oldInventory);
+            const foundItem = item.product.old_inventories.find(item => item.id == oldInventory);
 
-            return foundItem.qty
+            return foundItem?.qty || 0
         }else{
-
+            return item.product.qty
         }
     }
 
     return (
         <div className='w-[80%] mx-auto min-h-[10rem] bg-white rounded-lg mt-5 p-5'>
             <h2 className='font-bold text-[1.3rem] pl-4 mb-2'>Invoice Items</h2>
+            <span className='ml-10 mb-4 text-[#50B426] italic'>"Invoice prices reflect historical rates; current prices may vary."</span>
             {data ? (
                 <div className="overflow-x-auto">
                     <table className="w-[98%] mx-auto relative min-h-[5rem] divide-y-2 divide-gray-200 bg-white text-sm">
@@ -118,19 +117,19 @@ export const InvoiceItems = ({ data }) => {
                                     </td>
                                 )}
                                 <td className="px-4 py-2 font-bold text-[#50B426]">
-                                    {item.product.sale_price_unit ? `$${item.product.sale_price_unit}` : 'No Sale'}
+                                    {item.sale_price_unit ? `$${item.sale_price_unit}` : 'No Sale'}
                                 </td>
                                 {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
                                     <td className="px-4 py-2 font-bold text-[#50B426]">
-                                        {item.product.sale_price_piece ? `$${item.product.sale_price_piece}` : 'No Sale'}
+                                        {item.sale_price_peice ? `$${item.sale_price_peice}` : 'No Sale'}
                                     </td>
                                 )}
                                 <td className="px-4 py-2 font-bold text-[#50B426]">
-                                    {item.product.wholesale_price_unit ? `$${item.product.wholesale_price_unit}` : '-'}
+                                    {item.whole_sale_price ? item.product.pieces_per_unit > 1 ?  `$${item.whole_sale_price * item.product.pieces_per_unit}` : `$${item.whole_sale_price}` : '-'}
                                 </td>
                                 {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
                                     <td className="px-4 py-2 font-bold text-[#50B426]">
-                                        {item.product.wholesale_price_piece ? `$${item.product.wholesale_price_piece}` : '-'}
+                                        {item.whole_sale_price ? `$${item.whole_sale_price * item.product.pieces_per_unit}` : '-'}
                                     </td>
                                 )}
                                 <td className="px-4 py-2 font-bold">

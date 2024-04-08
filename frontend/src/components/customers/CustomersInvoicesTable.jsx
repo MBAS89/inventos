@@ -15,8 +15,7 @@ import { format, parseISO } from 'date-fns'
 
 
 export const CustomersInvoicesTable = ({data, isLoading, setCurrentPage, currentPage}) => {
-
-
+    
     const headItems = [
         {
             title:"items"
@@ -103,7 +102,7 @@ export const CustomersInvoicesTable = ({data, isLoading, setCurrentPage, current
                                             </div>
                                             <div className='w-[80%] flex flex-col gap-2'>
                                                 <span className='capitalize'>{item.product.name}</span>
-                                                <span className='font-bold text-[#4454DC]'>${item.product.pieces_per_unit > 1 ? item.product.retail_price_piece : item.product.retail_price_unit}</span>
+                                                <span className='font-bold text-[#4454DC]'>${item.price}</span>
                                             </div>
                                         </div>
                                     ))}

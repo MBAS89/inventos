@@ -55,10 +55,14 @@ export const ProductsProfile = ({data, isLoading}) => {
                         </div>
                     </div>
                 </div>
-                <div className='bg-white w-[40%] h-full rounded-md border-2 border-gray-200 p-4 text-center flex flex-col justify-center'>
-                    <dd className="text-4xl font-extrabold text-[#50B426] md:text-5xl">
-                        $4.8m
-                    </dd>
+                <div className='bg-white w-[40%] h-full rounded-md border-2 border-gray-200 p-4 text-center flex flex-col justify-center items-center'>
+                    {isLoading ? (
+                        <div className='bg-slate-500 animate-pulse h-[50px] w-[240px] rounded-lg'></div>
+                    ):(
+                        <dd className="text-4xl font-extrabold text-[#50B426] md:text-5xl">
+                            ${data.totalSales}
+                        </dd>
+                    )}
                     <dt className="text-lg font-medium text-gray-500">
                         Total Sales
                     </dt>
