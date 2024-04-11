@@ -11,7 +11,12 @@ const { checkRequiredFields } = require('../../utils/functions/checkRequiredFile
 const SuppliersTypes = require('../../models/suppliers/suppliersType');
 const { Op } = require('sequelize');
 const ErrorResponse = require('../../utils/errorResponse');
-const { getOrderOptions } = require('../../utils/functions/orderOptions')
+const { getOrderOptions } = require('../../utils/functions/orderOptions');
+const { OuterInvoices, OuterInvoiceItems } = require('../../models/sales/outerInvoices');
+const Products = require('../../models/inventory/products');
+const OldInventory = require('../../models/inventory/oldInventory');
+const Employees = require('../../models/employees/employees');
+
 
 exports.getSuppliers = async (req, res, next) => {
     try {
@@ -65,7 +70,7 @@ exports.getSuppliers = async (req, res, next) => {
 exports.getSingleSuppliers = async (req, res, next) => {
     try {
         const storeId = req.authData.store_id
-        const { supplierId } = req.query;
+        const { supplierId, page, limit = 10 } = req.query;
 
         if (!supplierId || !storeId) {
             return next(new ErrorResponse('Supplier ID and Store ID are required', 400));
@@ -88,7 +93,43 @@ exports.getSingleSuppliers = async (req, res, next) => {
             return  next(new ErrorResponse('No Supplier Found!', 404))
         }
 
-        res.status(200).json({ supplier });
+        const totalCount = await OuterInvoices.count({ where: { store_id: storeId,  suppliersId:supplier.id } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const invoices = await OuterInvoices.findAll({
+            where:{
+                store_id: storeId,
+                suppliersId:supplier.id
+            },
+            limit:parseInt(limit),
+            offset:(currentPage - 1) * parseInt(limit),
+            include: [
+                {
+                    model: OuterInvoiceItems,
+                    as: 'items',
+                    include: [
+                        {
+                            model: Products,
+                            attributes: ['product_id', 'name', 'image', 'sku', 'retail_price_unit', 'pieces_per_unit', 'retail_price_piece'],
+                            include:[
+                                {
+                                    model:OldInventory
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model:Employees,
+                    attributes: ['id', 'full_name', 'image'],
+                }
+            ]
+        })
+
+        res.status(200).json({ supplier, invoices, totalCount, totalPages, currentPage });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 

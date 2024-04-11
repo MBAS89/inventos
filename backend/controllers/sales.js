@@ -38,10 +38,14 @@ exports.readSingleInvoice = async (req, res, next) => {
                         {
                             model: Products,
                             attributes: [
-                                'product_id', 'name', 'image', 'sku', 'unit', 'retail_price_unit',
-                                'retail_price_piece', 'unit_value', 'pieces_per_unit', 'sale_price_unit',
-                                'sale_price_piece', 'wholesale_price_piece', 'wholesale_price_unit',
+                                'product_id', 'name', 'image', 'sku', 'unit',
+                                'retail_price_piece', 'unit_value', 'pieces_per_unit',
                                 'unit_of_measurement', 'unit_catergory', 'qty'
+                            ],
+                            include:[
+                                {
+                                    model:OldInventory
+                                }
                             ]
                         }
                     ]
@@ -186,7 +190,6 @@ exports.createInvoice = async (req, res, next) => {
                 where:{
                     id:customerId
                 },
-                attributes:['id','full_name'],
                 include:[
                     {
                         model:CustomerTypes,
@@ -195,8 +198,16 @@ exports.createInvoice = async (req, res, next) => {
                     }
                 ]
             })
+
+            customer.total_transactions = customer.total_transactions  ? customer.total_transactions + total_to_pay : total_to_pay
+            customer.total_debt = customer.total_debt  ? customer.total_debt + total_due : total_due
+            customer.total_paid = customer.total_paid  ? customer.total_paid + total_paid : total_paid
+
+            await customer.save();
         }
         
+
+        console.log(items)
 
 
 
@@ -204,28 +215,14 @@ exports.createInvoice = async (req, res, next) => {
         for (const item of items) {
             await InvoiceItems.create({
                 product_id:item.product_id,
-                qty: item.qty,//
-                profit:customer ? 
-                    !customer.customerType.wholeSalePrice ?
-                            includeItemsDiscount ? 
-                                item.piecesPerUnit > 1 ? 
-                                    ((item.qty * item.salePricePeice) * (customer.customerType.discount_value / 100)) - (item.qty * item.cost) 
-                                : ((item.qty * item.salePriceUnit) * (customer.customerType.discount_value / 100)) - (item.qty * item.cost) 
-                            : ((item.qty * item.price) * (customer.customerType.discount_value / 100)) - (item.qty * item.cost) 
-                        :   includeItemsDiscount ?  
-                                item.piecesPerUnit > 1 ? 
-                                    ((item.qty * item.wholeSalePrice) - ((item.qty * item.price) - (item.qty * item.salePricePeice))) - (item.qty * item.cost)
-                                :
-                                ((item.qty * item.wholeSalePrice) - ((item.qty * item.price) - (item.qty * item.salePriceUnit))) - (item.qty * item.cost)
-                            :   (item.qty * item.wholeSalePrice) - (item.qty * item.cost)  
-                    : item.piecesPerUnit > 1 ? 
-                        (item.qty * (item.salePricePeice ? 
-                            item.salePricePeice 
-                        : item.price)) - (item.qty * item.cost) 
-                    : (item.qty * (item.salePriceUnit ? 
-                        item.salePriceUnit 
-                    : item.price)) - (item.qty * item.cost),
-                cost:item.cost * item.qty,
+                qty: item.qty,
+                oldInventory:item.inventoryId,
+                total_cost:item.cost * item.qty,
+                cost:item.cost,
+                price:item.price,
+                sale_price_unit:item.salePriceUnit,
+                sale_price_peice:item.salePricePeice,
+                whole_sale_price:item.wholeSalePrice,
                 invoiceId:invoice.id
             });
 
@@ -282,7 +279,7 @@ exports.createInvoice = async (req, res, next) => {
                 {
                     where:{
                         code:couponCode,
-                        store_id:storeId
+                        store_id
                     }
                 }
             )
@@ -298,6 +295,8 @@ exports.createInvoice = async (req, res, next) => {
     
             await coupon.save();
         }
+
+
 
 
         //return response of the req

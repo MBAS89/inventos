@@ -618,8 +618,8 @@ exports.readProducts = async (req, res, next) => {
             offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
             order:column && sort ? getOrderOptions(column, sort) : [],
             include: [
-                { model: Categories, attributes: ['name'] }, // Include category name
-                { model: Brands, attributes: ['name'] } // Include brand name
+                { model: Categories, attributes: ['name','category_id'] },
+                { model: Brands, attributes: ['name','brand_id'] }
             ]
         });
 
@@ -647,7 +647,12 @@ exports.readSingleProduct = async (req, res, next) => {
             where: { 
                 store_id: storeId,
                 product_id: productId
-            }
+            },
+            include: [
+                { model: Categories, attributes: ['name','category_id'] },
+                { model: Brands, attributes: ['name','brand_id'] },
+                {model: OldInventory}
+            ]
         })
 
         if(!product){
@@ -768,36 +773,59 @@ exports.removeProduct = async (req, res, next) => {
             return next(new ErrorResponse("Product ID Is required", 422));
         }
 
-        //DELETE Product FROM DATA BASE WITH THE DISRE ID VALUE
-        const product = await Products.destroy({
-            where: {
-                product_id: productId
-            }
-        });
-
-        if(!product){
-            return next(new ErrorResponse("Something went wrong!", 500));
-        }
-
-        const oldInventories = await OldInventory.destroy({
+        const isProductThere = await Products.findOne({
             where:{
-                product_id:productId
+                product_id: productId
+            },
+            attributes:['product_id']
+        })
+
+
+        if(isProductThere){
+
+            //DELETE Product FROM DATA BASE WITH THE DISRE ID VALUE
+            const product = await Products.destroy({
+                where: {
+                    product_id: productId
+                }
+            });
+
+            if(!product){
+                return next(new ErrorResponse("Something went wrong!", 500));
             }
-        })
 
-        if(!oldInventories){
-            return next(new ErrorResponse("Something went wrong!", 500));
+            const isThereOldInventories = await OldInventory.findAll({
+                where: {
+                    product_id: productId
+                },
+                attributes:['id']
+            })
+
+            if(isThereOldInventories.length > 0){
+                const oldInventories = await OldInventory.destroy({
+                    where:{
+                        product_id:productId
+                    }
+                })
+    
+                if(!oldInventories){
+                    return next(new ErrorResponse("Something went wrong!", 500));
+                }
+            }
+
+            //this will send a request to cloudinary to delete the image from there and return ok or fail 
+            const result = await deleteImage(imageId)
+
+            //return success response with message
+            res.status(200).json({
+                status:"success",
+                cloudinary:result,
+                message:"Product Deleted",
+            })
+
+        }else{
+            return next(new ErrorResponse("No Product Found With This ID!", 404));
         }
-
-        //this will send a request to cloudinary to delete the image from there and return ok or fail 
-        const result = await deleteImage(imageId)
-
-        //return success response with message
-        res.status(200).json({
-            status:"success",
-            cloudinary:result,
-            message:"Product Deleted",
-        })
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 

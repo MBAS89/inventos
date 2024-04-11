@@ -110,11 +110,27 @@ const InvoiceItems = sequelize.define('invoice_items',  {
         defaultValue: 1,
         allowNull: false,
     },
-    profit: {
-        type: DataTypes.FLOAT,
+    total_cost:{
+        type: DataTypes.FLOAT
     },
     cost:{
-        type: DataTypes.FLOAT,
+        type: DataTypes.FLOAT
+    },
+    price:{
+        type: DataTypes.FLOAT
+    },
+    sale_price_unit:{
+        type: DataTypes.FLOAT
+    },
+    sale_price_peice:{
+        type: DataTypes.FLOAT
+    },
+    whole_sale_price:{
+        type: DataTypes.FLOAT
+    },
+    oldInventory:{
+        type: DataTypes.INTEGER,
+        allowNull:true
     }
 });
 

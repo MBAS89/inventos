@@ -183,6 +183,27 @@ exports.createOuterInvoice = async (req, res, next) => {
             store_id
         });
 
+        let supplier
+        if(suppliersId){
+            supplier = await Suppliers.findOne({
+                where:{
+                    id:suppliersId
+                },
+                include:[
+                    {
+                        model:SuppliersTypes,
+                        attributes:['type_name', 'id']
+                    }
+                ]
+            })
+
+            supplier.total_transactions = supplier.total_transactions  ? supplier.total_transactions + total_to_pay : total_to_pay
+            supplier.total_debt_for = total_due < 0 ?  supplier.total_debt_for  ? supplier.total_debt_for + Math.abs(total_due) :  Math.abs(total_due)  : supplier.total_debt_for
+            supplier.total_debt_us = total_due > 0 ? supplier.total_debt_us  ? supplier.total_debt_us + total_due : total_due : supplier.total_debt_us 
+
+            await supplier.save();
+        }
+
 
         // Add items to the invoice one by one
         for (const item of items) {

@@ -14,8 +14,10 @@ const { checkRequiredFields } = require('../../utils/functions/checkRequiredFile
 
 // a middle ware to handle errors
 const ErrorResponse = require('../../utils/errorResponse');
-const { Invoices } = require('../../models/sales/invoices');
+const { Invoices, InvoiceItems } = require('../../models/sales/invoices');
 const { getOrderOptions } = require('../../utils/functions/orderOptions');
+const Products = require('../../models/inventory/products');
+const Employees = require('../../models/employees/employees');
 
 exports.getCustomers = async (req, res, next) => {
     try {
@@ -63,11 +65,17 @@ exports.getCustomers = async (req, res, next) => {
 
 exports.getSingleCustomer = async (req, res, next) => {
     try {
-        const { storeId, customerId } = req.query;
+        const { storeId, customerId, page, limit = 10 } = req.query;
 
         if (!customerId || !storeId) {
             return next(new ErrorResponse('Customer ID and Store ID are required', 400));
         }
+
+        const totalCount = await Invoices.count({ where: { store_id: storeId,  customerId:customerId } });
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
         
         const customer = await Customers.findOne({
             where: { 
@@ -89,10 +97,28 @@ exports.getSingleCustomer = async (req, res, next) => {
             where:{
                 store_id: storeId,
                 customerId:customer.id
-            }
+            },
+            limit:parseInt(limit),
+            offset:(currentPage - 1) * parseInt(limit),
+            include: [
+                {
+                    model: InvoiceItems,
+                    as: 'items',
+                    include: [
+                        {
+                            model: Products,
+                            attributes: ['product_id', 'name', 'image', 'sku', 'retail_price_unit', 'pieces_per_unit', 'retail_price_piece']
+                        }
+                    ]
+                },
+                {
+                    model:Employees,
+                    attributes: ['id', 'full_name', 'image'],
+                }
+            ]
         })
 
-        res.status(200).json({ customer, invoices });
+        res.status(200).json({ customer, invoices, totalCount, totalPages, currentPage });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
