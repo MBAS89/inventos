@@ -52,7 +52,7 @@ exports.getCustomers = async (req, res, next) => {
                 as: 'customerType',
                 attributes: ['type_name', 'id', 'discount_value', 'wholeSalePrice']
             }],
-            order:column && sort ? getOrderOptions(column, sort) : []
+            order:column && sort ? getOrderOptions(column, sort) : [['id', 'ASC']]
         });
         return res.status(200).json({ totalCount, totalPages, currentPage, customers });
 

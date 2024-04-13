@@ -17,6 +17,8 @@ const { OuterInvoices, OuterInvoiceItems } = require('../models/sales/outerInvoi
 const OldInventory = require('../models/inventory/oldInventory');
 const Suppliers = require('../models/suppliers/suppliers');
 const SuppliersTypes = require('../models/suppliers/suppliersType');
+const ExpensesTypes = require('../models/expenses/expensesType');
+const Expenses = require('../models/expenses/expenses');
 
 
 exports.readSingleOuterInvoice = async (req, res, next) => {
@@ -299,6 +301,27 @@ exports.createOuterInvoice = async (req, res, next) => {
                 return next(new ErrorResponse(`Product with ID ${item.product_id} not found.`, 404));
             }
         }
+
+        const expensesType = await ExpensesTypes.findOne({
+            where:{
+                type_name:"Inoivce Payment",
+                store_id
+            },
+            attributes:['id']
+        });
+        
+        const expensesTypeData = expensesType ? expensesType : await ExpensesTypes.create({
+            store_id,
+            type_name:"Inoivce Payment"
+        });
+        
+        await Expenses.create({
+            store_id,
+            expenses_title: total_paid >= total_to_pay ? "Outer Inoivce Payment (full paid)" : "Outer Inoivce Payment (partial paid)",
+            amount: total_paid,
+            description: `A ${total_paid >= total_to_pay ? 'Full' : 'Partial'} Payment For An Outer Invice For ${supplier.supplier_name} Supplier Invoice ID:${invoice.id} With Amount Of $${total_to_pay}`,
+            expenses_type_id: expensesTypeData.id
+        });
 
         //return response of the req
         res.status(201).json({

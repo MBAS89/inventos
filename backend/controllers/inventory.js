@@ -15,6 +15,7 @@ const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds'
 const { getOrderOptions } = require('../utils/functions/orderOptions');
 const { generateUniqueSKU } = require('../utils/functions/genrateSku');
 const OldInventory = require('../models/inventory/oldInventory');
+const { Invoices, InvoiceItems } = require('../models/sales/invoices');
 
 
 
@@ -659,7 +660,17 @@ exports.readSingleProduct = async (req, res, next) => {
             return  next(new ErrorResponse('No Product Found!', 404))
         }
 
-        return res.status(200).json({ product });
+        const thisProductInvoices = await InvoiceItems.findAll({
+            where:{
+                product_id:productId
+            }
+        })
+
+        const totalSales = thisProductInvoices.reduce((total, item) => {
+            return total + (item.price * item.qty);
+        }, 0);
+
+        return res.status(200).json({ product, totalSales });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 

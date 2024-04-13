@@ -207,10 +207,6 @@ exports.createInvoice = async (req, res, next) => {
         }
         
 
-        console.log(items)
-
-
-
         // Add items to the invoice one by one
         for (const item of items) {
             await InvoiceItems.create({
@@ -446,6 +442,29 @@ exports.removeInvoice = async (req, res, next) => {
     try {
         //retrieve invoiceId from the req params
         const { invoiceId } = req.params
+
+        const invoice = await Invoices.findOne({
+            where:{
+                id: invoiceId
+            }
+        })
+
+
+        let customer
+        if(invoice.customerId){
+            customer = await Customers.findOne({
+                where:{
+                    id:invoice.customerId
+                },
+                attributes:['id','total_transactions', 'total_debt', 'total_paid']
+            })
+
+            customer.total_transactions = invoice.total_paid >  customer.total_transactions  ? customer.total_transactions - invoice.total_to_pay : 0
+            customer.total_debt = invoice.total_due >  customer.total_debt  ? customer.total_debt - total_due : 0
+            customer.total_paid = invoice.total_paid > customer.total_paid  ? customer.total_paid - total_paid : 0
+
+            await customer.save();
+        }
 
         // Delete the invoice where invoice_id = invoiceId
         await Invoices.destroy({
