@@ -24,6 +24,7 @@ const ValidateEmployeesName = require('../middleware/validations/employees/Valid
 const ValidateRoleName = require('../middleware/validations/employees/ValidateRoleName')
 
 const Auth = require('../middleware/auth/authMiddleware')
+const { readEmployeePayments } = require('../controllers/employees/payments')
 
 //Routes
 
@@ -68,5 +69,7 @@ router.post('/contracts/add-employee-contract', Auth, ValidateEmployeesName, upl
 router.put('/contracts/edit/:contractId', Auth, editContract)
 router.delete('/contracts/remove/:contractId', Auth, removeContract)
 
+//payments routes 
+router.get('/payments/read', Auth, readEmployeePayments)
 
 module.exports = router

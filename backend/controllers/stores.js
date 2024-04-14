@@ -25,6 +25,49 @@ const Roles = require("../models/employees/roles");
 const Departments = require("../models/employees/department");
 const Log = require("../models/employees/log");
 
+//reusable funtions 
+const { getOrderOptions } = require('../utils/functions/orderOptions');
+
+
+exports.fetchAllStores = async (req, res, next) => {
+    try {
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
+
+        if (!page) {
+            return next(new ErrorResponse('Page Number Are Required', 400));
+        }
+        
+        const totalCount = await Stores.count();
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            [Op.or]: [
+                { store_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { owner_first_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { owner_last_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { owner_email: { [Op.iLike]: `%${searchQuery}%` } },
+                { phone_number: { [Op.iLike]: `%${searchQuery}%` } }
+            ]
+        } : {};
+
+        const stores = await Stores.findAll({
+            where: whereClause,
+            limit: searchQuery ? null : parseInt(limit),
+            offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
+            order:column && sort ? getOrderOptions(column, sort) : [['id', 'ASC']],
+            attributes: { exclude: ['password'] } 
+        });
+
+    
+        return res.status(200).json({ totalCount, totalPages, currentPage, stores });
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 exports.createStore = async (req, res, next) => {
     try {
