@@ -17,7 +17,7 @@ const storage = new CloudinaryStorage({
     params: {
         folder: (req, file) => {
             //pick where you want the image to be stored in cloudinary site 
-            return `stores/${req.authData.store_name ? req.authData.store_name : req.body.storeName}/${req.body.folderName}`;
+            return `stores/${req.query.storeDashCreate ? req.body.store_name : req.authData.store_name ? req.authData.store_name : req.body.storeName}/${req.query.storeDashCreate ? 'info images' : req.body.folderName}`;
         },
         format: async (req, file) => {
             //pick the supported file format 

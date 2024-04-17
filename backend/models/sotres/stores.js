@@ -44,11 +44,11 @@ const Stores = sequelize.define('stores', {
   },
   store_image: {
     type: DataTypes.STRING(255),
-    defaultValue: 'https://res.cloudinary.com/dagzd3ntq/image/upload/v1705500104/otrhxsof3dk0ahtnth0x.png',
+    defaultValue: 'https://res.cloudinary.com/dagzd3ntq/image/upload/v1713377735/xvxfxqqyhhvv01dohulz.png',
   },   
   store_image_id: {
     type: DataTypes.STRING(255),
-    defaultValue: 'otrhxsof3dk0ahtnth0x',
+    defaultValue: 'id',
   },  
 });
 
