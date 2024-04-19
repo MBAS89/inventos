@@ -38,6 +38,9 @@ import { SuppliersSettings } from "./pages/dashboard/settings/SuppliersSettings"
 import { Coupons } from "./components/inventory/Coupons"
 import { ExpensesSettings } from "./pages/dashboard/settings/ExpensesSettings"
 import { SingleExpense } from "./pages/dashboard/expenses/SingleExpense"
+import { AdminLayout } from "./components/admin/AdminLayout"
+import { Admin } from "./pages/admin/Admin"
+import { Stores } from "./pages/admin/stores/Stores"
 
 function App() {
   return (
@@ -48,6 +51,16 @@ function App() {
             <Home />
           </MainLayout>
         }></Route>
+        <Route path="/admin" element={
+          <AdminLayout>
+            <Admin />
+          </AdminLayout>
+        }></Route>
+        <Route path="/admin/stores" element={
+          <AdminLayout>
+            <Stores />
+          </AdminLayout>
+        }></Route>  
         <Route path="/auth/login" element={
           <MainLayout>
             <StoreLogin />
