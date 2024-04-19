@@ -276,6 +276,8 @@ exports.editStoreDash = async (req, res, next) => {
             attributes: ['id','store_image_id']
         });
 
+
+
         // If the Store exists, extract the image ID
         const oldStoreImageId = store ? store.store_image_id : null;
 
@@ -333,10 +335,12 @@ exports.editStoreDash = async (req, res, next) => {
             updateFields.password = hashedPassword;
         }
 
-        // Check store name in my database
         const existingStore = await Stores.findOne({
             where: {
-                store_name
+                store_name,
+                id: {
+                    [Op.not]: storeId 
+                }
             },
             attributes: ['id']
         });
@@ -474,6 +478,51 @@ exports.createStore = async (req, res, next) => {
                 store
             }
         })
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.deleteStore = async (req, res, next) => {
+    try {
+
+        //retrive storeId from req params 
+        const { storeId } =  req.params
+
+        /*
+            retrive imageId from req query i stored this in query because
+            the value of this may have / and this will make an issue if i did use params 
+        */
+        const { imageId } = req.query
+
+        //check if supplierId have value if not throw an error
+        if(!storeId){
+            return next(new ErrorResponse("Store ID Is required", 422));
+        }
+
+        //this will send a request to cloudinary to delete the image from there and return ok or fail 
+        const result = await deleteImage(imageId)
+
+
+        //DELETE supplier FROM DATA BASE WITH THE DISRE ID VALUE
+        const store = await Stores.destroy({
+            where: {
+                id: storeId
+            }
+        });
+
+        if(!store){
+            return next(new ErrorResponse("Something Went Wrong", 500));
+        }
+
+        //return success response with message
+        res.status(200).json({
+            status:"success",
+            cloudinary:result,
+            message:"Store Deleted",
+        })
+
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
