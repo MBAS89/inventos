@@ -6,8 +6,8 @@ const cron = require('node-cron');
 const cookieParser = require('cookie-parser')
 
 //modles 
-const Stores = require('./models/sotres/stores');
-const Owners = require('./models/sotres/owners');
+const Stores = require('./config/associations/stores');
+const Owners = require('./config/associations/stores');
 const Admins = require('./models/sotres/admins');
 const OwnersStore = require('./models/sotres/ownerStores');
 const { Invoices, InvoiceItems } = require('./models/sales/invoices');

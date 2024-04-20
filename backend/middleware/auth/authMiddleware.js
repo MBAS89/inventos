@@ -16,7 +16,8 @@ const RolePermissions = require("../../models/employees/rolePermission");
 const Owners = require("../../models/sotres/owners");
 
 //node cache package
-const NodeCache = require('node-cache')
+const NodeCache = require('node-cache');
+const OwnersStore = require("../../models/sotres/ownerStores");
 const cache = new NodeCache()
 
 /* 
@@ -85,15 +86,15 @@ const Auth = async (req, res, next) => {
                 //just say if decoded.payload.role === 'owner' and let in but im adding extra layer of scurity
                 //just to make sure info is right you can just say if decoded.payload.role === 'owner' and it will work fine
 
-                const owner = await Owners.findOne({
-                    where: {
-                        id: decoded.payload.id,
-                        store_id:decoded.payload.store_id
+                const storeOwner = await OwnersStore.findOne({
+                    where:{
+                        store_id:decoded.payload.store_id,
+                        owner_id:decoded.payload.id
                     }
                 })
 
                 //if he is an owner that mean he have all the permissions
-                if(owner){
+                if(storeOwner){
                     // Set data in cache with TTL and department information and pass value
                     cache.set(req.cookies.jwt, { pass: true, department: department, payload:decoded.payload }, TTL_SECONDS);
                     next()

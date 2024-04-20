@@ -170,69 +170,51 @@ exports.createStoreDash = async (req, res, next) => {
         //hash password before insert into database
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        //insert the store to database
-        const store = await Stores.create({
-            store_name,
-            owner_first_name,
-            owner_last_name,
-            owner_email,
-            store_image:imageUrl ? imageUrl : 'https://res.cloudinary.com/dagzd3ntq/image/upload/v1713377735/xvxfxqqyhhvv01dohulz.png',
-            store_image_id:imageId ? imageId : 'id',
-            password: hashedPassword,
-            phone_number
-        });
+        let owner = await Owners.findOne({ where: { email: owner_email } });
 
-        if(!store){
-            if(imageId){
-                //this will send a request to cloudinary to delete the uploaded image becasue the request failed 
-                await deleteImage(imageId)
-            }
-            //this Will Tell the user which fields they need to fill
-            return next(new ErrorResponse("Something Went Wrong", 500));
-        }
-
-        //check if an owner with this email already in database
-        const owner = await Owners.findOne({
-            where: {
-                email: owner_email
-            }
-        });
-
-        //if owner is in database
-        if(owner){
-            
-            //owner is there so just add the store to his list becasue owner can have multiple stores
-            await OwnersStore.create({
-                owner_id:owner.id,
-                store_id:store.id
-            });
-
-        }else{
-            //owner is not in database create a new owner 
-            const owner = await Owners.create({
-                store_id: store.id,
+        if (!owner) {
+            owner = await Owners.create({
                 email: owner_email,
                 first_name: owner_first_name,
                 last_name: owner_last_name,
                 phone_number,
                 password: hashedPassword
             });
-
-            //then add this store to his list 
-            await OwnersStore.create({
-                owner_id:owner.id,
-                store_id:store.id
-            });
         }
-
-        //return response of the req
-        res.status(201).json({
-            status:"success",
-            message:"Store Created",
+    
+        const store = await Stores.create({
+            store_name,
+            owner_first_name,
+            owner_last_name,
+            owner_email,
+            store_image: imageUrl ? imageUrl : 'https://res.cloudinary.com/dagzd3ntq/image/upload/v1713377735/xvxfxqqyhhvv01dohulz.png',
+            store_image_id: imageId ? imageId : 'id',
+            password: hashedPassword,
+            phone_number,
+            ownerId: owner.id
+        });
+    
+        if (!store) {
+            if (imageId) {
+                await deleteImage(imageId);
+            }
+            return next(new ErrorResponse("Something Went Wrong", 500));
+        }
+    
+        await OwnersStore.create({
+            owner_id: owner.id,
+            store_id: store.id,
+            storeId: store.id,
+            ownerId: owner.id
+        });
+    
+        return res.status(201).json({
+            status: "success",
+            message: "Store Created",
             data: {
                 store
             }
-        })
+        });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
@@ -273,7 +255,7 @@ exports.editStoreDash = async (req, res, next) => {
             where: {
                 id: storeId
             },
-            attributes: ['id','store_image_id']
+            attributes: ['id','store_image_id', 'ownerId']
         });
 
 
@@ -381,7 +363,7 @@ exports.editStoreDash = async (req, res, next) => {
             },
             {
                 returning: true,
-                where: { store_id: storeId }
+                where: { id:store.ownerId }
             }
         );
 
@@ -412,6 +394,7 @@ exports.editStoreDash = async (req, res, next) => {
         })
 
     } catch (error) {
+        console.log(error)
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
     }
@@ -425,52 +408,44 @@ exports.createStore = async (req, res, next) => {
         //hash password before insert into database
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        //insert the store to database
-        const store = await Stores.create({
-            store_name,
-            owner_first_name,
-            owner_last_name,
-            owner_email,
-            password: hashedPassword,
-            phone_number
-        });
+        let owner = await Owners.findOne({ where: { email: owner_email } });
 
-        //check if an owner with this email already in database
-        const owner = await Owners.findOne({
-            where: {
-                email: owner_email
-            }
-        });
-
-        //if owner is in database
-        if(owner){
-            
-            //owner is there so just add the store to his list becasue owner can have multiple stores
-            await OwnersStore.create({
-                owner_id:owner.id,
-                store_id:store.id
-            });
-
-        }else{
-            //owner is not in database create a new owner 
-            const owner = await Owners.create({
-                store_id: store.id,
+        if (!owner) {
+            owner = await Owners.create({
                 email: owner_email,
                 first_name: owner_first_name,
                 last_name: owner_last_name,
                 phone_number,
                 password: hashedPassword
             });
-
-            //then add this store to his list 
-            await OwnersStore.create({
-                owner_id:owner.id,
-                store_id:store.id
-            });
         }
-
+    
+        const store = await Stores.create({
+            store_name,
+            owner_first_name,
+            owner_last_name,
+            owner_email,
+            password: hashedPassword,
+            phone_number,
+            ownerId: owner.id
+        });
+    
+        if (!store) {
+            if (imageId) {
+                await deleteImage(imageId);
+            }
+            return next(new ErrorResponse("Something Went Wrong", 500));
+        }
+    
+        await OwnersStore.create({
+            owner_id: owner.id,
+            store_id: store.id,
+            storeId: store.id,
+            ownerId: owner.id
+        });
+    
         //return response of the req
-        res.status(201).json({
+        return res.status(201).json({
             status:"success",
             message:"Store Created",
             //results:storeResponse.rows.length,
@@ -478,6 +453,7 @@ exports.createStore = async (req, res, next) => {
                 store
             }
         })
+
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
@@ -531,146 +507,92 @@ exports.deleteStore = async (req, res, next) => {
 
 exports.storeLogin = async (req, res, next) => {
     try {
-        //retrive all values from req body 
-        const { store_name, email, password } = req.body
+        const { store_name, email, password } = req.body;
 
-        //check if the store is there
-        const store = await Stores.findOne({
-            where:{
-                store_name
-            }
-        })
-
-        //if store is not there
-        if(!store){
-            //send message saying store not found
+        const store = await Stores.findOne({ where: { store_name } });
+    
+        if (!store) {
             return next(new ErrorResponse("Store Not Found!", 404));
         }
-
-        //if store is there we will know check if the user login is the store owner 
-        const owner = await Owners.findOne({
-            where: {
-                email: email,
-                store_id:store.id
-            }
-        })
-
-        //if the logged in is the store owner 
-        if(owner){
-            //compare password to the exsisting owner password
-            const passwordMatch = await bcrypt.compare(password, owner.password)
-
-            //if password dose not we will reposnse with an error
-            if(!passwordMatch){
-                //send message saying store not found
-                return next(new ErrorResponse("Invalid Email Or Password", 401));
-            }
-
-            //if password pass we will create a payload to put into the token
-            const payload = {
-                store_id:store.id,
-                store_name:store.store_name,
-                image:store.store_image,
-                id:owner.id,
-                email:owner.email,
-                name:`${owner.first_name} ${owner.last_name}`,
-                role:"owner",
-                departments:"All"
-            }
-
-            //calling the generate token funtion this will put token in req.cookie
-            generateToken(res, payload)
-
-            //return response of the req
-            res.status(200).json(payload)
-
-
-        //if the logged in is not the store owner we will check if he is an employee of that store 
-        }else{
-            //check if emlpoyee is for this store 
-            const employee = await Employees.findOne({
-                where: {
-                    email: email,
-                    store_id:store.id
-                },
-                include: [
-                    {
-                        model: Roles,
-                        attributes: { exclude: ['createdAt', 'updatedAt'] }, 
-                        include: [
-                            {
-                                model: Permissions,
-                                attributes: { exclude: ['createdAt', 'updatedAt'] },
-                                include: [
-                                    {
-                                        model: Departments,
-                                        attributes: { exclude: ['createdAt', 'updatedAt'] }
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            })
-
-            if(!employee){
-                return next(new ErrorResponse("Invalid Email Or Password", 401));
-            }
-
-            //compare password to the exsisting employee password
-            const passwordMatch = await bcrypt.compare(password, employee.password)
-
-            //if password dose not we will reposnse with an error
-            if(!passwordMatch){
-                //send message saying store not found
-                return next(new ErrorResponse("Invalid Email Or Password", 401));
-            }
-
-            //check if employee still work here
-            if(employee.status === "out-payroll"){
-                //send message to employee telling him you are not granted to enter 
-                return next(new ErrorResponse(`You No Longer Work Here Contact Owner`, 401));
-            }
-
-            const departments = [];
-
-            // Extract departments from permissions
-            employee.role.permissions.forEach(permission => {
-              const department = permission.department;
-              if (!departments.some(dep => dep.id === department.id)) {
-                departments.push(department);
-              }
+    
+        const owner = await Owners.findOne({ where: { email } });
+    
+        if (owner) {
+            const storeOwner = await OwnersStore.findOne({
+                where: { owner_id: owner.id, store_id: store.id }
             });
-
-            //create a log for this employee 
-            await Log.create({
-                employeeId: employee.id,
-                signInTime: new Date(),
-                signOutTime: null,
-                accountedFor: false
-            });
-
-
-            //if password pass we will create a payload to put into the token
-            const payload = {
-                store_id:store.id,
-                store_name:store.store_name,
-                id:employee.id,
-                image:employee.image,
-                email:employee.email,
-                name:employee.full_name,
-                role:employee.roleId,
-                departments:departments,
+    
+            if (!storeOwner || !(await bcrypt.compare(password, store.password))) {
+                return next(new ErrorResponse("Invalid Email Or Password", 401));
             }
-
-            //calling the generate token funtion this will put token in req.cookie
-            generateToken(res, payload)
-
-            //return response of the req
-            res.status(200).json(payload)
-
+    
+            const payload = {
+                store_id: store.id,
+                store_name: store.store_name,
+                image: store.store_image,
+                id: user.id,
+                email: user.email,
+                name: `${user.first_name} ${user.last_name}`,
+                role: "owner",
+                departments: "All"
+            };
+    
+            generateToken(res, payload);
+            return res.status(200).json(payload);
         }
-
+    
+        const employee = await Employees.findOne({
+            where: { email, store_id: store.id },
+            include: [
+                {
+                    model: Roles,
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                    include: [
+                        {
+                            model: Permissions,
+                            attributes: { exclude: ['createdAt', 'updatedAt'] },
+                            include: [
+                                {
+                                    model: Departments,
+                                    attributes: { exclude: ['createdAt', 'updatedAt'] }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+    
+        if (!employee || !(await bcrypt.compare(password, employee.password))) {
+            return next(new ErrorResponse("Invalid Email Or Password", 401));
+        }
+    
+        if (employee.status === "out-payroll") {
+            return next(new ErrorResponse(`You No Longer Work Here Contact Owner`, 401));
+        }
+    
+        const departments = [...new Set(employee.role.permissions.map(permission => permission.department))];
+    
+        await Log.create({
+            employeeId: employee.id,
+            signInTime: new Date(),
+            signOutTime: null,
+            accountedFor: false
+        });
+    
+        const payload = {
+            store_id: store.id,
+            store_name: store.store_name,
+            id: employee.id,
+            image: employee.image,
+            email: employee.email,
+            name: employee.full_name,
+            role: employee.roleId,
+            departments
+        };
+    
+        generateToken(res, payload);
+        return res.status(200).json(payload);
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)

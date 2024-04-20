@@ -8,15 +8,6 @@ const Owners = sequelize.define('owners', {
         autoIncrement: true,
         allowNull: false,
     },
-    store_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'stores', // Make sure this matches the model name for stores
-            key: 'id'
-        },
-        onDelete: 'CASCADE',
-    },
     email: {
         type: DataTypes.STRING(255),
         allowNull: false,
