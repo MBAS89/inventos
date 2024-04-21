@@ -477,6 +477,17 @@ exports.deleteStore = async (req, res, next) => {
             return next(new ErrorResponse("Store ID Is required", 422));
         }
 
+        const storeThere = await Stores.findOne({
+            where:{
+                id:storeId
+            },
+            attributes:['id', 'ownerId']
+        })
+
+        if(!storeThere){
+            return next(new ErrorResponse("There Is No Store With This ID ", 404));
+        }
+
         //this will send a request to cloudinary to delete the image from there and return ok or fail 
         const result = await deleteImage(imageId)
 
@@ -487,6 +498,15 @@ exports.deleteStore = async (req, res, next) => {
                 id: storeId
             }
         });
+
+        await OwnersStore.destroy({
+            where:{
+                store_id:storeId,
+                owner_id:storeThere.ownerId,
+                ownerId:storeThere.ownerId,
+                storeId:storeId
+            }
+        })
 
         if(!store){
             return next(new ErrorResponse("Something Went Wrong", 500));
@@ -530,9 +550,9 @@ exports.storeLogin = async (req, res, next) => {
                 store_id: store.id,
                 store_name: store.store_name,
                 image: store.store_image,
-                id: user.id,
-                email: user.email,
-                name: `${user.first_name} ${user.last_name}`,
+                id: owner.id,
+                email: owner.email,
+                name: `${owner.first_name} ${owner.last_name}`,
                 role: "owner",
                 departments: "All"
             };

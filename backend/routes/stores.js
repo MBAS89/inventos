@@ -5,7 +5,7 @@ const router = express.Router()
 const {  createStore, storeLogin, storelogout, fetchAllStores, createStoreDash, editStoreDash, readSingleStore, deleteStore } = require('../controllers/stores')
 
 //owners controllers
-const { fetchAllOwners } = require('../controllers/owners')
+const { fetchAllOwners, readOwner, deleteOwner, editOwner } = require('../controllers/owners')
 
 //custom store validatitor middleware
 const validateCreateStore = require('../middleware/validations/stores/validateStore')
@@ -27,6 +27,8 @@ router.get('/auth/logout', storelogout)
 
 
 router.get('/owners/read', fetchAllOwners)
-
+router.get('/owners/read-single', readOwner)
+router.delete('/owners/delete', deleteOwner)
+router.put('/owners/edit', editOwner)
 
 module.exports = router
