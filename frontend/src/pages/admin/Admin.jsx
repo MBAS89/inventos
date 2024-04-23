@@ -9,6 +9,8 @@ import { TbDeviceAnalytics } from "react-icons/tb"
 import { LiaFileInvoiceDollarSolid } from "react-icons/lia"
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
+import { MdOutlineSecurity } from "react-icons/md";
+
 
 export const Admin = () => {
 
@@ -16,8 +18,8 @@ export const Admin = () => {
     const buttonsData = [
         { Icon: TbDeviceAnalytics, title: "Analytics", link:"analytics" },
         { Icon: HiOutlineBuildingStorefront, title: "Stores",link:"stores" },
-        { Icon: BsBoxSeam, title: "Inventory",link:"inventory" },
-        { Icon: BsPeople, title: "Customers",link:"customers" },
+        { Icon: BsPeople, title: "Owners",link:"owners" },
+        { Icon: MdOutlineSecurity, title: "Permissions",link:"permissions" },
         { Icon: FiTruck, title: "Suppliers",link:"suppliers" },
         { Icon: MdOutlineManageAccounts, title: "Employees",link:"employees" },
         { Icon: MdAttachMoney, title: "Expenses",link:"expenses" },

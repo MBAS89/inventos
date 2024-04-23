@@ -19,15 +19,15 @@ export const RoleBox = ({roleData}) => {
 
     const headItems = [
         {
-            title:"Department",
+            title:"department",
         },{
-            title:"Add"
+            title:"add"
         },{
-            title:"Delete"
+            title:"delete"
         },{
-            title:"Edit"
+            title:"edit"
         },{
-            title:"Read"
+            title:"read"
         }
     ]
 
@@ -144,7 +144,7 @@ export const RoleBox = ({roleData}) => {
                     <thead className='text-left w-full'>
                         <tr>
                             {headItems.map((item, index) => (
-                                <th className='px-4' key={index}>{item.title}</th>
+                                <th className='px-4 capitalize' key={index}>{item.title}</th>
                             ))}
                         </tr>
                     </thead>
@@ -156,17 +156,22 @@ export const RoleBox = ({roleData}) => {
                                 <td className="px-4 py-2 font-bold capitalize ">
                                   {department.name}
                                 </td>
-                                {department.permissions.map((permission) => (
-                                    <td key={permission.id} className="px-4 py-2">
-                                        <input
-                                            className="h-5 w-5 cursor-pointer rounded border-gray-300  focus:outline-none  checked:bg-[#50B426] focus:ring-[#50B426]"
-                                            type="checkbox"
-                                            disabled={isAddingLoading || isRemovingLoading}
-                                            checked={isPermissionChecked(permission)}
-                                            onChange={(e) => handleAddAndDeleteRolePermisson(e, permission)}
-                                        />
-                                    </td>
-                                ))}
+                                {headItems.slice(1).map((headItem, index) => {
+                                    const correspondingPermission = department.permissions.find(permission => permission.name.toLowerCase() === headItem.title.toLowerCase());
+                                    return (
+                                        <td key={index} className="px-4 py-2">
+                                            {correspondingPermission ? (
+                                                <input
+                                                    className="h-5 w-5 cursor-pointer rounded border-gray-300 focus:outline-none checked:bg-[#50B426] focus:ring-[#50B426]"
+                                                    type="checkbox"
+                                                    disabled={isAddingLoading || isRemovingLoading}
+                                                    checked={isPermissionChecked(correspondingPermission)}
+                                                    onChange={(e) => handleAddAndDeleteRolePermisson(e, correspondingPermission)}
+                                                />
+                                            ) : <div className='ml-1'>-</div>}
+                                        </td>
+                                    );
+                                })}
                             </tr>
                         ))}
                     </tbody>

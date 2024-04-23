@@ -44,10 +44,12 @@ export const SearchComponents = ({ placeholder, actionName, setOpenPopup, setsea
           </button>
       </div>
       <div>
-        <button onClick={handleClick} className="w-full flex justify-center items-center gap-4 rounded border border-[#50B426] bg-[#50B426] px-8 py-2 text-sm font-medium text-white hover:bg-transparent hover:text-[#50B426]">
-          <span>{actionName}</span> 
-          <AiOutlinePlus className='text-lg'/>
-        </button>
+        {actionName !== "Add Owner" &&
+          <button onClick={handleClick} className="w-full flex justify-center items-center gap-4 rounded border border-[#50B426] bg-[#50B426] px-8 py-2 text-sm font-medium text-white hover:bg-transparent hover:text-[#50B426]">
+            <span>{actionName}</span> 
+            <AiOutlinePlus className='text-lg'/>
+          </button>
+        }
       </div>     
     </div>
   )

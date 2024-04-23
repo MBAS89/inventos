@@ -41,6 +41,9 @@ import { SingleExpense } from "./pages/dashboard/expenses/SingleExpense"
 import { AdminLayout } from "./components/admin/AdminLayout"
 import { Admin } from "./pages/admin/Admin"
 import { Stores } from "./pages/admin/stores/Stores"
+import { Owners } from "./pages/admin/owners/Owners"
+import { OwnerView } from "./pages/admin/owners/OwnerView"
+import { AdminPermissions } from "./pages/admin/permissions/AdminPermissions"
 
 function App() {
   return (
@@ -61,6 +64,17 @@ function App() {
             <Stores />
           </AdminLayout>
         }></Route>  
+        <Route path="/admin/owners" element={
+          <AdminLayout>
+            <Owners />
+          </AdminLayout>
+        }></Route>
+        <Route path="/admin/owners/view/:ownerId" element={<OwnerView />}></Route>  
+        <Route path="/admin/permissions" element={
+          <AdminLayout>
+            <AdminPermissions />
+          </AdminLayout>
+        }></Route>
         <Route path="/auth/login" element={
           <MainLayout>
             <StoreLogin />
