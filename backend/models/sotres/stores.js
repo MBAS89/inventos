@@ -49,7 +49,15 @@ const Stores = sequelize.define('stores', {
   store_image_id: {
     type: DataTypes.STRING(255),
     defaultValue: 'id',
-  },  
+  },
+  planId: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+    references: {
+      model: 'plans',
+      key: 'id',
+    },
+  }
 });
 
 module.exports = Stores;

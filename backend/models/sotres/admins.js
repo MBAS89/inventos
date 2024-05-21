@@ -8,15 +8,6 @@ const Admins = sequelize.define('admins', {
         autoIncrement: true,
         allowNull: false,
     },
-    store_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'stores',
-            key: 'id'
-        },
-        onDelete: 'CASCADE',
-    },
     first_name: {
         type: DataTypes.STRING(50),
         allowNull: false,
@@ -28,6 +19,7 @@ const Admins = sequelize.define('admins', {
     email: {
         type: DataTypes.STRING(255),
         allowNull: false,
+        unique:true
     },
     phone_number: {
         type: DataTypes.STRING(20),

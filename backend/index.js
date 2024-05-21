@@ -55,7 +55,7 @@ app.get("/api/v1", (req, res) => {
 app.use('/api/v1/stores', require('./routes/stores'));
 
 //store admins route
-app.use('/api/v1/store/admins', require('./routes/admins'));
+app.use('/api/v1/admins', require('./routes/admins'));
 
 //inventroy routes 
 app.use('/api/v1/store/inventory', require('./routes/inventory'));

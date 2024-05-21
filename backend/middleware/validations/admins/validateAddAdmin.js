@@ -9,10 +9,10 @@ const ErrorResponse = require('../../../utils/errorResponse')
 const validateAddAdmin = async (req, res, next) => {
     try {
 
-        const { store_id, first_name, last_name, email, password, confirm_password, phone_number} = req.body
+        const { first_name, last_name, email, password, confirm_password, phone_number } = req.body
 
         // Check if all fields are present
-        if (!store_id || !first_name || !last_name || !email || !password || !confirm_password || !phone_number) {
+        if (!first_name || !last_name || !email || !password || !confirm_password || !phone_number) {
             return next(new ErrorResponse("All Fields Are Required", 422));
         }
 
@@ -21,20 +21,15 @@ const validateAddAdmin = async (req, res, next) => {
             return next(new ErrorResponse("Passwords Do Not Match", 406));
         }
 
-        /* 
-            check if admin in database and he is admin for that store
-            already becease he can be an admin for other
-            stores and this is not an issue
-        */
+        //check if admin in database
         const existingAdmin = await Admins.findOne({
             where: {
-                email,
-                store_id
+                email
             }
         });
     
         if (existingAdmin) {
-            return next(new ErrorResponse("User Already an Admin for This Store", 406));
+            return next(new ErrorResponse("Invalid Email Or Password", 406));
         }
 
         next();

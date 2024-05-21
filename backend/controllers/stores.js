@@ -24,6 +24,7 @@ const OwnersStore = require('../models/sotres/ownerStores');
 const Employees = require('../models/employees/employees');
 const RolePermissions = require('../models/employees/rolePermission')
 const Permissions = require('../models/employees/permission')
+const Plans = require('../models/sotres/plans')
 
 //function to generate Token to auth 
 const { generateToken } = require('../utils/generatToken');
@@ -181,6 +182,26 @@ exports.createStoreDash = async (req, res, next) => {
                 password: hashedPassword
             });
         }
+
+        const defaultPlan = await Plans.findOne({ where: { name: 'free' } });
+
+        let plan
+        if(!defaultPlan){
+            plan = await Plans.create({
+                name:"free",
+                description:'free plan',
+                customers:5,
+                suppliers:3,
+                categories:5,
+                brands:5,
+                products:5,
+                employees:2,
+                expenses:10,
+                inner_invoices:10,
+                outer_invoices:10,
+                price:0
+            })
+        }
     
         const store = await Stores.create({
             store_name,
@@ -191,7 +212,8 @@ exports.createStoreDash = async (req, res, next) => {
             store_image_id: imageId ? imageId : 'id',
             password: hashedPassword,
             phone_number,
-            ownerId: owner.id
+            ownerId: owner.id,
+            planId: defaultPlan ? defaultPlan.id : plan.id
         });
     
         if (!store) {
@@ -419,6 +441,26 @@ exports.createStore = async (req, res, next) => {
                 password: hashedPassword
             });
         }
+
+        const defaultPlan = await Plans.findOne({ where: { name: 'free' } });
+
+        let plan
+        if(!defaultPlan){
+            plan = await Plans.create({
+                name:"free",
+                description:'free plan',
+                customers:5,
+                suppliers:3,
+                categories:5,
+                brands:5,
+                products:5,
+                employees:2,
+                expenses:10,
+                inner_invoices:10,
+                outer_invoices:10,
+                price:0
+            })
+        }
     
         const store = await Stores.create({
             store_name,
@@ -427,7 +469,8 @@ exports.createStore = async (req, res, next) => {
             owner_email,
             password: hashedPassword,
             phone_number,
-            ownerId: owner.id
+            ownerId: owner.id,
+            planId: defaultPlan ? defaultPlan.id : plan.id
         });
     
         if (!store) {

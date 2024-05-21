@@ -7,19 +7,21 @@ const ErrorResponse = require('../utils/errorResponse');
 //modles
 const Admins = require('../models/sotres/admins');
 
+const { generateAdminToken } = require('../utils/generateAdminToken');
+
+
 exports.addAdmin = async (req, res, next) => {
 
     try {
 
         //retrive all values from req body 
-        const { store_id, first_name, last_name, email, password, phone_number} = req.body
+        const { first_name, last_name, email, password, phone_number } = req.body
 
         //hash password before insert into database
         const hashedPassword = await bcrypt.hash(password, 10);
 
         //insert the admin to database in the store that he belong to
         const admin = await Admins.create({
-            store_id,
             first_name,
             last_name,
             email,
@@ -36,7 +38,6 @@ exports.addAdmin = async (req, res, next) => {
         res.status(201).json({
             status: "success",
             message: "Admin Added",
-            results: 1,
             data: {
                 admin
             }
@@ -53,19 +54,27 @@ exports.removeAdmin = async (req, res, next) => {
     try {
 
         //retrive all values from req body 
-        const { storeId } = req.params
-        const { email } = req.query
+        const { adminId } = req.query
 
         //check if all fileds are there
-        if(!storeId || !email){
-            return next(new ErrorResponse("A Store ID AND Email Required"))
+        if(!adminId){
+            return next(new ErrorResponse("A Admin ID Is Required", 406))
         }
 
-        //delete admin from admins table where store id and email match the giving values 
+        const admin = await Admins.findOne({
+            where:{
+                id:adminId
+            }
+        })
+
+        if(!admin){
+            return next(new ErrorResponse('Admin Not Found', 404))
+        }
+
+        //delete admin from admins table 
         await Admins.destroy({
             where: {
-                store_id: storeId,
-                email: email
+                id:adminId
             }
         });
 
@@ -75,6 +84,109 @@ exports.removeAdmin = async (req, res, next) => {
             status:"success",
             message:"Admin Removed"
         })
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.editAdmin = async (req, res, next) => {
+    try {
+        //retrive admin id
+        const { adminId } = req.query
+
+        //retrive all values from req body 
+        const { first_name, last_name, email, password, phone_number } = req.body
+
+        if(password){
+            //hash password before insert into database
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const updatedAdmin = await Admins.update(
+                { 
+                    first_name,
+                    last_name,
+                    email,
+                    password:hashedPassword,
+                    phone_number
+                },
+                { returning: true, where: { id: adminId } }
+            );
+
+            //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
+            if(!updatedAdmin){
+                return next(new ErrorResponse("Something Went Wrong", 500));
+            }
+        
+            //return success response with message
+            return res.status(201).json({
+                status:"success",
+                message:"Admin Updated",
+                data: {
+                    coupon:updatedAdmin
+                }
+            })
+
+        }else{
+            const updatedAdmin = await Admins.update(
+                { 
+                    first_name,
+                    last_name,
+                    email,
+                    phone_number
+                },
+                { returning: true, where: { id: adminId } }
+            );
+
+            //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
+            if(!updatedAdmin){
+                return next(new ErrorResponse("Something Went Wrong", 500));
+            }
+        
+            //return success response with message
+            return res.status(201).json({
+                status:"success",
+                message:"Admin Updated",
+                data: {
+                    coupon:updatedAdmin
+                }
+            })
+        }
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+
+exports.loginAdmin = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+
+        if(!email || !password){
+            return next(new ErrorResponse("All Fields Are Required", 422));
+        }
+
+        const admin = await Admins.findOne({ where: { email } });
+
+        if (!admin || !(await bcrypt.compare(password, admin.password))) {
+            return next(new ErrorResponse("Invalid Email Or Password", 401));
+        }
+
+        const payload = {
+            first_name: admin.first_name,
+            last_name: admin.last_name,
+            id: admin.id,
+            email: admin.email,
+            phone_number: admin.phone_number,
+            role: "admin",
+            departments: "All"
+        };
+
+        generateAdminToken(res, payload);
+        return res.status(200).json(payload);
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
