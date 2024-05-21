@@ -8,7 +8,6 @@ export const AdminPermissions = () => {
     
     const {data, isLoading } = useReadDepartmentsQuery()
 
-    console.log(data)
     return (
         <div className='flex flex-col pb-10 bg-gray-100 min-h-[calc(100vh-64px)]'>
             <h1 className='text-[2rem] mt-2 w-[84%] mx-auto font-bold text-gray-500 p-5'>Permissions And Departments</h1>

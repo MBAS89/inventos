@@ -10,6 +10,7 @@ import { LiaFileInvoiceDollarSolid } from "react-icons/lia"
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { MdOutlineSecurity } from "react-icons/md";
+import { LuGoal } from "react-icons/lu";
 
 
 export const Admin = () => {
@@ -20,7 +21,7 @@ export const Admin = () => {
         { Icon: HiOutlineBuildingStorefront, title: "Stores",link:"stores" },
         { Icon: BsPeople, title: "Owners",link:"owners" },
         { Icon: MdOutlineSecurity, title: "Permissions",link:"permissions" },
-        { Icon: FiTruck, title: "Suppliers",link:"suppliers" },
+        { Icon: LuGoal, title: "Plans",link:"plans" },
         { Icon: MdOutlineManageAccounts, title: "Employees",link:"employees" },
         { Icon: MdAttachMoney, title: "Expenses",link:"expenses" },
         { Icon: LiaFileInvoiceDollarSolid, title: "Invoices",link:"invoices" },
