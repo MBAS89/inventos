@@ -6,14 +6,36 @@ import { IoMdNotificationsOutline, IoIosPower  } from "react-icons/io";
 import { MdOutlineDarkMode } from "react-icons/md";
 
 //react router dom
-import { useLocation, NavLink } from "react-router-dom";
+import { useLocation, NavLink, useNavigate } from "react-router-dom";
 
 //react toast 
 import { toast } from 'react-toastify';
+import { adminInfoState, clearAdminCredentials } from "../../features/slices/adminAuthSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useAdminLogoutMutation } from "../../features/api/auth/authAdminApiSlice";
 
 
 export const AdminHeader = () => {
     const location = useLocation()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+
+
+    const { adminInfo } = useSelector(adminInfoState)
+    
+    const [logout, {isLoading, error}] = useAdminLogoutMutation()
+
+    const handleLogout = async () => {
+      try {
+          const res = await logout().unwrap()
+          dispatch(clearAdminCredentials())
+          toast.success(res.message)
+          navigate('/auth/admin')
+      } catch (error) {
+          toast.error(error.data.error)
+      }
+    }
+
 
     return (
         <header className="bg-white z-20">
@@ -36,12 +58,12 @@ export const AdminHeader = () => {
                     </div>
 
                     <div className="flex items-center gap-5">
-                        {location.pathname !== "/admin" && 
+                        {location.pathname !== "/admin" || location.pathname !== "/auth"  && 
                         <NavLink to="/admin" className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
                             <AiOutlineAppstore className="text-[1.3rem]"/>
                         </NavLink>}
-                        {true && 
-                            <div className="block cursor-pointer shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
+                        {adminInfo && 
+                            <div onClick={handleLogout}  className="block cursor-pointer shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
                                 <IoIosPower className="text-[1.3rem] font-bold text-red-500"/>
                             </div>
                         }
