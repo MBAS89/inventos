@@ -7,6 +7,10 @@ const ErrorResponse = require('../utils/errorResponse');
 //modles
 const Admins = require('../models/sotres/admins');
 
+//cahe libray
+const NodeCache = require("node-cache");
+const cache = new NodeCache();
+
 const { generateAdminToken } = require('../utils/generateAdminToken');
 
 
@@ -187,6 +191,30 @@ exports.loginAdmin = async (req, res, next) => {
 
         generateAdminToken(res, payload);
         return res.status(200).json(payload);
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+
+exports.logoutAdmin = async (req, res, next) => {
+    try {
+        //remove the token form the request by setting expire time to 0 
+        res.cookie('admin', '', {
+            httpOnly:true,
+            expires: new Date(0)
+        })
+
+        // delete token form cahe
+        cache.del(req.cookies.admin)  //req.cookies.jwt is the key of the token 
+
+        //return response of the req
+        res.status(200).json({
+            status:"success",
+            message:"Logout Successful",
+        })
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 

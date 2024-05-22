@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 //store controllers
-const {  addAdmin, removeAdmin, editAdmin, loginAdmin } = require('../controllers/admins')
+const {  addAdmin, removeAdmin, editAdmin, loginAdmin, logoutAdmin } = require('../controllers/admins')
 
 
 //custom admin validatitors middleware
@@ -15,5 +15,6 @@ router.post('/add', AuthAdmin, validateAddAdmin, addAdmin)
 router.put('/edit', AuthAdmin, validateEditAdmin, editAdmin)
 router.delete('/remove', AuthAdmin, removeAdmin)
 router.post('/login', loginAdmin)
+router.get('/logout', logoutAdmin)
 
 module.exports = router
