@@ -46,6 +46,7 @@ import { OwnerView } from "./pages/admin/owners/OwnerView"
 import { AdminPermissions } from "./pages/admin/permissions/AdminPermissions"
 import { AdminLogin } from "./pages/admin/auth/AdminLogin"
 import { Plans } from "./pages/admin/plans/Plans"
+import { Admins } from "./pages/admin/admins/admins"
 
 function App() {
   return (
@@ -80,6 +81,11 @@ function App() {
         <Route path="/admin/permissions" element={
           <AdminLayout>
             <AdminPermissions />
+          </AdminLayout>
+        }></Route>
+        <Route path="/admin/admins" element={
+          <AdminLayout>
+            <Admins />
           </AdminLayout>
         }></Route>
         <Route path="/admin/plans" element={

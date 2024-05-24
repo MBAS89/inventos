@@ -22,7 +22,7 @@ export const Admin = () => {
         { Icon: BsPeople, title: "Owners",link:"owners" },
         { Icon: MdOutlineSecurity, title: "Permissions",link:"permissions" },
         { Icon: LuGoal, title: "Plans",link:"plans" },
-        { Icon: MdOutlineManageAccounts, title: "Employees",link:"employees" },
+        { Icon: MdOutlineManageAccounts, title: "Admins",link:"admins" },
         { Icon: MdAttachMoney, title: "Expenses",link:"expenses" },
         { Icon: LiaFileInvoiceDollarSolid, title: "Invoices",link:"invoices" },
     ];
