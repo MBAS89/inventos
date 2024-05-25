@@ -29,6 +29,10 @@ const Admins = sequelize.define('admins', {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
+    super:{
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
+    }
 });
 
 module.exports = Admins;

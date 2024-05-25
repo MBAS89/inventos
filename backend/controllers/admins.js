@@ -1,8 +1,13 @@
+const { Op } = require('sequelize');
+
 //bcrypt to hash the password before insert it into database
 const bcrypt = require('bcrypt');
 
 //error handler
 const ErrorResponse = require('../utils/errorResponse');
+
+//jwt 
+const jwt = require('jsonwebtoken');
 
 //modles
 const Admins = require('../models/sotres/admins');
@@ -12,11 +17,99 @@ const NodeCache = require("node-cache");
 const cache = new NodeCache();
 
 const { generateAdminToken } = require('../utils/generateAdminToken');
+const { getOrderOptions } = require('../utils/functions/orderOptions');
+
+exports.fetchAllAdmins = async (req, res, next) => {
+    try {
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
+
+        if (!page) {
+            return next(new ErrorResponse('Page Number Is Required', 400));
+        }
+        
+        const totalCount = await Admins.count();
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            [Op.or]: [
+                { first_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { last_name: { [Op.iLike]: `%${searchQuery}%` } },
+                { email: { [Op.iLike]: `%${searchQuery}%` } },
+                { phone_number: { [Op.iLike]: `%${searchQuery}%` } }
+            ]
+        } : {};
+
+        const admins = await Admins.findAll({
+            where: whereClause,
+            limit: searchQuery ? null : parseInt(limit),
+            offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
+            order:column && sort ? getOrderOptions(column, sort) : [['id', 'ASC']],
+            attributes: { exclude: ['password'] },
+        });
+
+        return res.status(200).json({ totalCount, totalPages, currentPage, admins });
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+exports.readSingleAdmin = async (req, res, next) => {
+    try {
+        //retrive adminId from req params 
+        const { adminId } =  req.query
+
+        if(!adminId){
+            //If there is no Id 
+            return next(new ErrorResponse('Admin ID is required', 406));
+        }
+
+        const admin = await Admins.findOne({
+            where:{
+                id:adminId
+            }
+        })
+
+        if(!admin){
+            //If there is no Admin found 
+            return next(new ErrorResponse('Admin With This ID is Not Found!', 404));
+        }
+
+        return res.status(200).json({ admin });
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
 
 
 exports.addAdmin = async (req, res, next) => {
 
     try {
+
+        const token = req.cookies.admin
+
+        if(!token){
+            return next(new ErrorResponse("Unauthorized Access: Invalid Token", 401)); 
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_ADMIN_SECRT)
+
+        const isSuper = await Admins.findOne({
+            where:{
+                id:decoded.payload.id,
+                super:true
+            }
+        })
+
+
+        if(!isSuper){
+            return next(new ErrorResponse("Unauthorized To Do These Types Of Actions", 401)); 
+        }
 
         //retrive all values from req body 
         const { first_name, last_name, email, password, phone_number } = req.body
@@ -56,6 +149,27 @@ exports.addAdmin = async (req, res, next) => {
 exports.removeAdmin = async (req, res, next) => {
 
     try {
+
+        const token = req.cookies.admin
+
+        if(!token){
+            return next(new ErrorResponse("Unauthorized Access: Invalid Token", 401)); 
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_ADMIN_SECRT)
+
+        const isSuper = await Admins.findOne({
+            where:{
+                id:decoded.payload.id,
+                super:true
+            }
+        })
+
+
+        if(!isSuper){
+            return next(new ErrorResponse("Unauthorized To Do These Types Of Actions", 401)); 
+        }
+
 
         //retrive all values from req body 
         const { adminId } = req.query
@@ -97,11 +211,32 @@ exports.removeAdmin = async (req, res, next) => {
 
 exports.editAdmin = async (req, res, next) => {
     try {
+
+        const token = req.cookies.admin
+
+        if(!token){
+            return next(new ErrorResponse("Unauthorized Access: Invalid Token", 401)); 
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_ADMIN_SECRT)
+
+        const isSuper = await Admins.findOne({
+            where:{
+                id:decoded.payload.id,
+                super:true
+            }
+        })
+
+
+        if(!isSuper){
+            return next(new ErrorResponse("Unauthorized To Do These Types Of Actions", 401)); 
+        }
+
         //retrive admin id
         const { adminId } = req.query
 
         //retrive all values from req body 
-        const { first_name, last_name, email, password, phone_number } = req.body
+        const { first_name, last_name, email, password, phone_number, superAdmin } = req.body
 
         if(password){
             //hash password before insert into database
@@ -113,7 +248,8 @@ exports.editAdmin = async (req, res, next) => {
                     last_name,
                     email,
                     password:hashedPassword,
-                    phone_number
+                    phone_number,
+                    super:superAdmin
                 },
                 { returning: true, where: { id: adminId } }
             );
@@ -138,7 +274,8 @@ exports.editAdmin = async (req, res, next) => {
                     first_name,
                     last_name,
                     email,
-                    phone_number
+                    phone_number,
+                    super:superAdmin
                 },
                 { returning: true, where: { id: adminId } }
             );
