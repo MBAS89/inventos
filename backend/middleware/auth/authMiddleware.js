@@ -14,6 +14,7 @@ const Permissions = require("../../models/employees/permission");
 const Departments = require("../../models/employees/department");
 const RolePermissions = require("../../models/employees/rolePermission");
 const Owners = require("../../models/sotres/owners");
+const Admins = require("../../models/sotres/admins");
 
 //node cache package
 const NodeCache = require('node-cache');
@@ -70,7 +71,7 @@ const Auth = async (req, res, next) => {
         // Determine the action type dynamically based on the request method.
         const action = actionType(req.method);
 
-        const token = req.cookies.jwt
+        const token = req.cookies.admin || req.cookies.jwt
 
         // The time of living of this cahe in memory 
         const TTL_SECONDS = 3600; //1hour in seconds
@@ -78,7 +79,9 @@ const Auth = async (req, res, next) => {
         if(token){
             try {
                 //verify token and set all token value in decoded variable this will hold the key jwt the payload the data and the expiration
-                const decoded = jwt.verify(token, process.env.JWT_SECRT)
+                const decoded = jwt.verify(token, req.cookies.admin ? process.env.JWT_ADMIN_SECRT : process.env.JWT_SECRT)
+
+                console.log(decoded)
 
                 req.authData =  decoded.payload
 
@@ -86,12 +89,25 @@ const Auth = async (req, res, next) => {
                 //just say if decoded.payload.role === 'owner' and let in but im adding extra layer of scurity
                 //just to make sure info is right you can just say if decoded.payload.role === 'owner' and it will work fine
 
+                const isAdmin = await Admins.findOne({
+                    where:{
+                        id:decoded.payload.id
+                    }
+                })
+
+
+                if(isAdmin){
+                    return next()
+                }
+
                 const storeOwner = await OwnersStore.findOne({
                     where:{
                         store_id:decoded.payload.store_id,
                         owner_id:decoded.payload.id
                     }
                 })
+
+                
 
                 //if he is an owner that mean he have all the permissions
                 if(storeOwner){
@@ -142,6 +158,7 @@ const Auth = async (req, res, next) => {
                 }
 
             } catch (error) {
+                console.log(error)
                 return next(new ErrorResponse("Unauthorized Access: Invalid Token", 401)); 
             }
         }else{
