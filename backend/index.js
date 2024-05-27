@@ -78,6 +78,8 @@ app.use('/api/v1/store/casher', require('./routes/casher'));
 //Casher routes
 app.use('/api/v1/store/expenses', require('./routes/expenses'));
 
+//Casher routes
+app.use('/api/v1/plans', require('./routes/plans'));
 
 //test routes
 app.use('/api/v1/store/test', require('./routes/test'))

@@ -1,4 +1,14 @@
 
+//jwt 
+const jwt = require('jsonwebtoken');
+
+//Modles
+const Admins = require('../models/sotres/admins');
+const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds');
+const Plans = require('../models/sotres/plans');
+const ErrorResponse = require('../utils/errorResponse');
+
+
 
 exports.fetchAllPlans = async (req, res, next) => {
     try {
@@ -20,7 +30,85 @@ exports.fetchSinglePlans = async (req, res, next) => {
 
 exports.createPlan = async (req, res, next) => {
     try {
+        const token = req.cookies.admin
+
+        if(!token){
+            return next(new ErrorResponse("Unauthorized Access: Invalid Token", 401)); 
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_ADMIN_SECRT)
+
+        const isSuper = await Admins.findOne({
+            where:{
+                id:decoded.payload.id,
+                super:true
+            }
+        })
+
+
+        if(!isSuper){
+            return next(new ErrorResponse("Unauthorized To Do These Types Of Actions", 401)); 
+        }
+
+        const { 
+            name, description, customers, suppliers, categories, brands, 
+            products, employees, expenses, inner_invoices, outer_invoices, price, on_sale, sale_price 
+        } = req.body
+
+        //Check if all Required Fileds are there
+        const requiredFields = [
+            'name', 'description', 'customers', 'suppliers', 'categories', 'brands', 
+            'products', 'employees', 'expenses', 'inner_invoices', 'outer_invoices', 'price'
+        ];
+
+        const validationError = checkRequiredFields(next, req.body, requiredFields);
+
+
+        if(validationError){
+            //this Will Tell the user which fields they need to fill
+            return next(new ErrorResponse(validationError, 422));
+        }
+
+
+        const planThere = await Plans.findOne({
+            where:{
+                name:name
+            }
+        })
+
         
+        if(planThere){
+            //this Will Tell the user which fields they need to fill
+            return next(new ErrorResponse('Plan is Already there', 406));
+        }
+
+        const plan = await Plans.create({
+            name,
+            description,
+            customers,
+            suppliers,
+            categories,
+            brands,
+            products,
+            employees,
+            expenses,
+            inner_invoices,
+            outer_invoices,
+            price,
+            on_sale:on_sale ? on_sale : false,
+            sale_price:sale_price ? sale_price : 0
+        })
+
+
+        //return success response with message
+        res.status(201).json({
+            status: "success",
+            message: "Plan Added",
+            data: {
+                plan
+            }
+        });
+
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
         next(error) 
