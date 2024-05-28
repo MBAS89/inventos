@@ -1,5 +1,5 @@
 const express = require('express')
-const { createPlan } = require('../controllers/plans')
+const { createPlan, removePlan } = require('../controllers/plans')
 
 const router = express.Router()
 
@@ -8,6 +8,6 @@ const router = express.Router()
 
 //routes
 router.post('/add', createPlan)
-
+router.delete('/remove', removePlan)
 
 module.exports = router

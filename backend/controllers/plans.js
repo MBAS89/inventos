@@ -126,9 +126,63 @@ exports.editPlan = async (req, res, next) => {
 
 exports.removePlan = async (req, res, next) => {
     try {
-        
+
+        const token = req.cookies.admin
+
+        if(!token){
+            return next(new ErrorResponse("Unauthorized Access: Invalid Token", 401)); 
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_ADMIN_SECRT)
+
+        const isSuper = await Admins.findOne({
+            where:{
+                id:decoded.payload.id,
+                super:true
+            }
+        })
+
+
+        if(!isSuper){
+            return next(new ErrorResponse("Unauthorized To Do These Types Of Actions", 401)); 
+        }
+
+
+        const { planId } = req.query
+
+        //check if there is a Plan with this Id
+
+        const palan = await Plans.findOne({
+            where:{
+                id:planId
+            },
+            attribute:['id']
+        })
+
+        if(palan){
+            //DELETE Plan FROM DATA BASE WITH THE DISRE ID VALUE
+            const paln = await Plans.destroy({
+                where: {
+                    id:planId,
+                }
+            });
+
+            if(!paln){
+                return next(new ErrorResponse("Something went wrong!", 500));
+            }
+
+            //return success response with message
+            res.status(200).json({
+                status:"success",
+                message:"Paln Deleted",
+            })
+
+        }else{
+            return next(new ErrorResponse("There Is No Plan With This ID ", 404));
+        }
+
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error) 
+        next(error)
     }
 }
