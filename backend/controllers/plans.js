@@ -9,24 +9,65 @@ const Admins = require('../models/sotres/admins');
 const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds');
 const Plans = require('../models/sotres/plans');
 const ErrorResponse = require('../utils/errorResponse');
+const { getOrderOptions } = require("../utils/functions/orderOptions");
 
 
 
 exports.fetchAllPlans = async (req, res, next) => {
     try {
+        const { page, limit = 10, searchQuery, sort, column } = req.query;
+
+        if (!page) {
+            return next(new ErrorResponse('Page Number Is Required', 400));
+        }
         
+        const totalCount = await Plans.count();
+
+        const totalPages = Math.ceil(totalCount / limit);
+    
+        const currentPage = parseInt(page);
+
+        const whereClause = searchQuery ? {
+            [Op.or]: [
+                { name: { [Op.iLike]: `%${searchQuery}%` } }
+            ]
+        } : {};
+
+        const plans = await Plans.findAll({
+            where: whereClause,
+            limit: searchQuery ? null : parseInt(limit),
+            offset: searchQuery ? null : (currentPage - 1) * parseInt(limit),
+            order:column && sort ? getOrderOptions(column, sort) : [['id', 'ASC']]
+        });
+
+        return res.status(200).json({ totalCount, totalPages, currentPage, plans });
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error) 
+        next(error)
     }
 }
 
 exports.fetchSinglePlans = async (req, res, next) => {
     try {
+        const { planId } = req.query
         
+        const plan = await Plans.findOne({
+            where:{
+                id:planId
+            }
+        })
+
+        if(plan){
+
+            return res.status(200).json({plan})
+
+        }else{
+            return next(new ErrorResponse("There Is No Plan With This ID ", 404));
+        }
+
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
-        next(error) 
+        next(error)
     }
 }
 
@@ -140,7 +181,7 @@ exports.editPlan = async (req, res, next) => {
             return next(new ErrorResponse("Unauthorized To Do These Types Of Actions", 401)); 
         }
 
-        
+
         const { planId } = req.query
 
         const { 
@@ -162,7 +203,7 @@ exports.editPlan = async (req, res, next) => {
             return next(new ErrorResponse(validationError, 422));
         }
     
-        const checkPlan = await Coupon.findOne({
+        const checkPlan = await Plans.findOne({
             where: {
                 name: name,
                 id: { [Sequelize.Op.ne]: planId } 
