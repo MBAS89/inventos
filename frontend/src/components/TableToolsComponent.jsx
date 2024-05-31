@@ -160,6 +160,8 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
             navigate(`/dashboard/inventory/single-product/${selected[Object.keys(selected)[0]]}`)
         }else if(department === "Owners"){
             navigate(`/admin/owners/view/${selected[Object.keys(selected)[0]]}`)
+        }else if(department === "Plans"){
+            navigate(`/admin/plans/view/${selected[Object.keys(selected)[0]]}`)
         }
     }
 

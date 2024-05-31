@@ -47,6 +47,7 @@ import { AdminPermissions } from "./pages/admin/permissions/AdminPermissions"
 import { AdminLogin } from "./pages/admin/auth/AdminLogin"
 import { Plans } from "./pages/admin/plans/Plans"
 import { Admins } from "./pages/admin/admins/admins"
+import { PlanView } from "./pages/admin/plans/PlanView"
 
 function App() {
   return (
@@ -93,6 +94,7 @@ function App() {
             <Plans />
           </AdminLayout>
         }></Route>
+        <Route path="/admin/plans/view/:planId" element={<PlanView />}></Route>  
         <Route path="/auth/login" element={
           <MainLayout>
             <StoreLogin />
