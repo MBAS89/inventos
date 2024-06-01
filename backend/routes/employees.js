@@ -25,6 +25,7 @@ const ValidateRoleName = require('../middleware/validations/employees/ValidateRo
 
 const Auth = require('../middleware/auth/authMiddleware')
 const { readEmployeePayments } = require('../controllers/employees/payments')
+const AuthAdmin = require('../middleware/auth/authAdminMiddleware')
 
 //Routes
 
@@ -49,15 +50,15 @@ router.put('/roles/edit/:roleId', Auth, ValidateRoleName, editRole)
 router.delete('/roles/remove/:roleId', Auth, removeRole)
 
 //Departments Routes
-router.get('/departments/read', Auth, readDepartments)
-router.post('/departments/add', Auth, addDepartment)
-router.put('/departments/edit/:departmentId', Auth, editDepartment)
-router.delete('/departments/remove/:departmentId', Auth, removeDepartment)
+router.get('/departments/read', readDepartments)
+router.post('/departments/add', AuthAdmin, addDepartment)
+router.put('/departments/edit/:departmentId', AuthAdmin, editDepartment)
+router.delete('/departments/remove/:departmentId', AuthAdmin, removeDepartment)
 
 //Permissions Routes
-router.post('/permissions/add', Auth, addPermission)
-router.put('/permissions/edit/:permissionId', Auth, editPermission)
-router.delete('/permissions/remove/:permissionId', Auth, removePermission)
+router.post('/permissions/add', AuthAdmin, addPermission)
+router.put('/permissions/edit/:permissionId', AuthAdmin, editPermission)
+router.delete('/permissions/remove/:permissionId', AuthAdmin, removePermission)
 
 //RolePermissions Routes
 router.post('/role-permissions/add', Auth, addRolePermission)

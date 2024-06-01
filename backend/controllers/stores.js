@@ -36,6 +36,7 @@ const Log = require("../models/employees/log");
 const { getOrderOptions } = require('../utils/functions/orderOptions');
 const { cloudinaryExtractPublicId, deleteImage } = require('../utils/functions/cloudinary/cloudinaryUtils');
 const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds');
+const Admins = require('../models/sotres/admins');
 
 
 exports.fetchAllStores = async (req, res, next) => {
@@ -576,6 +577,29 @@ exports.storeLogin = async (req, res, next) => {
     
         if (!store) {
             return next(new ErrorResponse("Store Not Found!", 404));
+        }
+
+        //let admin access any store
+        const admin = await Admins.findOne({where: { email, super:true }})
+
+        if(admin){
+            if(!(await bcrypt.compare(password, admin.password))){
+                return next(new ErrorResponse("Invalid Email Or Password", 401));
+            }
+
+            const payload = {
+                store_id: store.id,
+                store_name: store.store_name,
+                image: store.store_image,
+                id: store.ownerId,
+                email: store.owner_email,
+                name: `${store.owner_first_name} ${store.owner_last_name}`,
+                role: "owner",
+                departments: "All"
+            };
+    
+            generateToken(res, payload);
+            return res.status(200).json(payload);
         }
     
         const owner = await Owners.findOne({ where: { email } });
