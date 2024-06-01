@@ -16,8 +16,8 @@ export const FilteredItems = ({ data, selectedId, selectedType, setSelectedId, h
 
   const payload = {
     page:currentPage,
-    brandId:data ? selectedType === 'brand' ? selectedId ? selectedId : data.brands[0].brand_id  : '': '',
-    categoryId:data ? selectedType === 'category' ? selectedId ? selectedId : data.categories[0].category_id  : '': '',
+    brandId:data?.brands.length > 0 ? selectedType === 'brand' ? selectedId ? selectedId : data.brands[0].brand_id  : '': '',
+    categoryId:data?.categories.length > 0 ? selectedType === 'category' ? selectedId ? selectedId : data.categories[0].category_id  : '': '',
     searchQuery
   }
 
@@ -26,7 +26,7 @@ export const FilteredItems = ({ data, selectedId, selectedType, setSelectedId, h
   useEffect(() => {
     if(data){
       if(!selectedId){
-        setSelectedId(data.categories[0].category_id)
+        setSelectedId(data.categories.length > 0 ? data.categories[0].category_id : '')
       }
       refetch();
     }

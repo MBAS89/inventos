@@ -36,7 +36,7 @@ export const AdminHeader = () => {
       }
     }
 
-
+    console.log(location.pathname)
     return (
         <header className="bg-white z-20">
             <div className="mx-auto max-w-screen-full px-4 sm:px-6 lg:px-8">
@@ -58,10 +58,11 @@ export const AdminHeader = () => {
                     </div>
 
                     <div className="flex items-center gap-5">
-                        {location.pathname !== "/admin" || location.pathname !== "/auth"  && 
-                        <NavLink to="/admin" className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
-                            <AiOutlineAppstore className="text-[1.3rem]"/>
-                        </NavLink>}
+                        {!['/auth/admin', '/admin'].includes(location.pathname) && (
+                            <NavLink to="/admin" className="block shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
+                                <AiOutlineAppstore className="text-[1.3rem]" />
+                            </NavLink>
+                        )}
                         {adminInfo && 
                             <div onClick={handleLogout}  className="block cursor-pointer shrink-0 rounded-full bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-200">
                                 <IoIosPower className="text-[1.3rem] font-bold text-red-500"/>

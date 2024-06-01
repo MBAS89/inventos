@@ -74,7 +74,7 @@ export const AdminLogin = () => {
                             Forgot your password?
                         </Link>
                     </div>
-                    <button type="submit" disabled={isLoading || error} class="bg-[#54AD31] hover:bg-[#54ad31d1] flex justify-center gap-4 w-full mt-4 m-auto px-6 py-3 rounded text-white text-sm font-normal">
+                    <button type="submit" disabled={isLoading} class="bg-[#54AD31] hover:bg-[#54ad31d1] flex justify-center gap-4 w-full mt-4 m-auto px-6 py-3 rounded text-white text-sm font-normal">
                         {isLoading &&  <BiLoaderCircle className='text-[1.4rem] animate-spin'/>}
                         Login
                     </button>

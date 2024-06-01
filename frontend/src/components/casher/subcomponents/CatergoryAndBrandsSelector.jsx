@@ -31,6 +31,7 @@ export const CatergoryAndBrandsSelector = ({category, setCategory, data, isLoadi
         )
 
     };
+
   
     return (
         <div className="p-4">
@@ -39,7 +40,7 @@ export const CatergoryAndBrandsSelector = ({category, setCategory, data, isLoadi
                     modules={[Navigation, Pagination, A11y]}
                     spaceBetween={30}
                     slidesPerView="auto"
-                    className={`z-10 flex ${isLoading ? 'flex-col' : 'flex-col-reverse'}`}
+                    className={`z-10 flex ${isLoading ? 'flex-col' : (data?.categories.length > 0 || data?.brands.legth > 0) ? 'flex-col-reverse' : 'flex-col'}`}
                 >
                 <div className='flex items-center justify-between -z-10 mb-4'>
                     <nav className="flex gap-4" aria-label="Tabs">
@@ -53,29 +54,32 @@ export const CatergoryAndBrandsSelector = ({category, setCategory, data, isLoadi
                 </div>
                 <SwiperButtons />
                 {!isLoading ? (
-                    !category ? data.brands.map((item) => (
-                        <SwiperSlide key={item.brand_id} onClick={() => setSelectedId(item.brand_id)} className={`${selectedId === item.brand_id && selectedType === 'brand' ? 'bg-green-200' : 'bg-white'} cursor-pointer w-[12rem] hover:bg-green-200 flex items-center justify-center flex-col rounded-lg p-4`}>
-                            <div className=' bg-gray-100 rounded-full p-2'>
-                                <img width="40" height="40" src={item.image} alt={item.name}/>
-                            </div>
-                            <h3 className='font-bold capitalize'>{item.name}</h3>
-                            <span className='flex justify-center items-center gap-px'>
-                                <div className='w-[6px] h-[6px] rounded-full bg-[#50B426]'></div>
-                                <p className='text-[11px]'>{item.totalProducts} items</p>
-                            </span>
-                        </SwiperSlide>
-                    )):data.categories.map((item) => (
-                        <SwiperSlide key={item.category_id} onClick={() => setSelectedId(item.category_id)} className={`${selectedId === item.category_id && selectedType === 'category' ? 'bg-green-200' : 'bg-white'} cursor-pointer  w-[12rem] hover:bg-green-200 flex items-center justify-center flex-col rounded-lg p-4`}>
-                            <div className=' bg-gray-100 rounded-full p-2'>
-                                <img width="40" height="40" src={item.image} alt={item.name}/>
-                            </div>
-                            <h3 className='font-bold capitalize'>{item.name}</h3>
-                            <span className='flex justify-center items-center gap-px'>
-                                <div className='w-[6px] h-[6px] rounded-full bg-[#50B426]'></div>
-                                <p className='text-[11px]'>{item.totalProducts} items</p>
-                            </span>
-                        </SwiperSlide>
-                    ))
+                    data.brands.legth > 0 && data.categories.legth > 0 ?
+                        !category ? data.brands.map((item) => (
+                            <SwiperSlide key={item.brand_id} onClick={() => setSelectedId(item.brand_id)} className={`${selectedId === item.brand_id && selectedType === 'brand' ? 'bg-green-200' : 'bg-white'} cursor-pointer w-[12rem] hover:bg-green-200 flex items-center justify-center flex-col rounded-lg p-4`}>
+                                <div className=' bg-gray-100 rounded-full p-2'>
+                                    <img width="40" height="40" src={item.image} alt={item.name}/>
+                                </div>
+                                <h3 className='font-bold capitalize'>{item.name}</h3>
+                                <span className='flex justify-center items-center gap-px'>
+                                    <div className='w-[6px] h-[6px] rounded-full bg-[#50B426]'></div>
+                                    <p className='text-[11px]'>{item.totalProducts} items</p>
+                                </span>
+                            </SwiperSlide>
+                        )):data.categories.map((item) => (
+                            <SwiperSlide key={item.category_id} onClick={() => setSelectedId(item.category_id)} className={`${selectedId === item.category_id && selectedType === 'category' ? 'bg-green-200' : 'bg-white'} cursor-pointer  w-[12rem] hover:bg-green-200 flex items-center justify-center flex-col rounded-lg p-4`}>
+                                <div className=' bg-gray-100 rounded-full p-2'>
+                                    <img width="40" height="40" src={item.image} alt={item.name}/>
+                                </div>
+                                <h3 className='font-bold capitalize'>{item.name}</h3>
+                                <span className='flex justify-center items-center gap-px'>
+                                    <div className='w-[6px] h-[6px] rounded-full bg-[#50B426]'></div>
+                                    <p className='text-[11px]'>{item.totalProducts} items</p>
+                                </span>
+                            </SwiperSlide>
+                        ))
+                    :
+                    <div className='text-[3.5rem] text-center italic text-gray-300 mt-2 mb-2 p-4'>No {selectedType == 'brand' ? 'brands' : 'Categories'} Found!</div>
                 ):(
                     <div className='flex gap-4'>
                         <div className='bg-slate-500 animate-pulse w-[14rem] h-[8rem] rounded-lg'>
