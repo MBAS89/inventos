@@ -152,6 +152,8 @@ export const TableToolsComponent = ({ setOpenDeletePopup, setReset, department, 
             navigate(`/dashboard/employees/employee-information/${selected[Object.keys(selected)[0]]}`)
         }else if(department === "invoices"){
             navigate(`/dashboard/invoices/info/${selected[Object.keys(selected)[0]]}`)
+        }else if(department === "outer-invoices"){
+            navigate(`/dashboard/invoices/outer-invoices/info/${selected[Object.keys(selected)[0]]}`)
         }else if(department === "Suppliers"){
             navigate(`/dashboard/suppliers/single-supplier/${selected[Object.keys(selected)[0]]}`)
         }else if(department === "Expenses"){

@@ -48,6 +48,7 @@ import { AdminLogin } from "./pages/admin/auth/AdminLogin"
 import { Plans } from "./pages/admin/plans/Plans"
 import { Admins } from "./pages/admin/admins/admins"
 import { PlanView } from "./pages/admin/plans/PlanView"
+import { OuterInvoiceInfoPage } from "./pages/dashboard/invoices/OuterInvoiceInfoPage"
 
 function App() {
   return (
@@ -169,6 +170,11 @@ function App() {
         <Route path="/dashboard/invoices/info/:invoiceId" element={
           <DashLayout>
             <InvoiceInfoPage />
+          </DashLayout>
+        }></Route>
+        <Route path="/dashboard/invoices/outer-invoices/info/:invoiceId" element={
+          <DashLayout>
+            <OuterInvoiceInfoPage />
           </DashLayout>
         }></Route>
         <Route path="/dashboard/settings/permissions" element={
