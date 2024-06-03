@@ -122,7 +122,7 @@ exports.readOuterInvoices = async (req, res, next) => {
                     include: [
                         {
                             model: Products,
-                            attributes: ['product_id', 'name', 'image', 'sku']
+                            attributes: ['product_id', 'name', 'image', 'sku', 'pieces_per_unit', 'cost_piece', 'cost_unit']
                         }
                     ]
                 },
