@@ -3,7 +3,7 @@ import { MdOutlineRemoveRedEye } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
 import { handleStatus } from '../../../functions/handleStatus'
 
-export const InvoiceItems = ({ data }) => {
+export const InvoiceItems = ({ data, outer }) => {
 
     const negative = useNavigate()
 
@@ -47,14 +47,14 @@ export const InvoiceItems = ({ data }) => {
                                     Unit Vlaue
                                 </th>
                                 <th className="px-4 py-2 font-medium text-gray-900">
-                                    Unit Price 
+                                    {outer ? 'Unit Cost' : 'Unit Price'} 
                                 </th>
                                 <th className="px-4 py-2 font-medium text-gray-900">
                                     Pieces In Unit
                                 </th>
                                 {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
                                 <th className="px-4 py-2 font-medium text-gray-900">
-                                    Piece Price 
+                                    {outer ? 'Piece Cost ' : 'Piece Price '}  
                                 </th>
                                 )}
                                 <th className="px-4 py-2 font-medium text-gray-900">
@@ -106,14 +106,14 @@ export const InvoiceItems = ({ data }) => {
                                     {item.product.unit_value}
                                 </td>
                                 <td className="px-4 py-2 font-bold text-[#50B426]">
-                                    ${item.price * item.product.pieces_per_unit}
+                                    ${outer ? item.product.cost_unit : item.price * item.product.pieces_per_unit}
                                 </td>
                                 <td className="px-4 py-2 font-bold ">
                                     {item.product.pieces_per_unit}
                                 </td>
                                 {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
                                     <td className="px-4 py-2 font-bold text-[#50B426]">
-                                        {item.product.retail_price_piece ? `$${item.price}` : '-'}
+                                        {outer ? `$${item.product.cost_piece}` : item.product.retail_price_piece ? `$${item.price}` : '-'}
                                     </td>
                                 )}
                                 <td className="px-4 py-2 font-bold text-[#50B426]">
@@ -125,11 +125,11 @@ export const InvoiceItems = ({ data }) => {
                                     </td>
                                 )}
                                 <td className="px-4 py-2 font-bold text-[#50B426]">
-                                    {item.whole_sale_price ? item.product.pieces_per_unit > 1 ?  `$${item.whole_sale_price * item.product.pieces_per_unit}` : `$${item.whole_sale_price}` : '-'}
+                                    {outer ? `$${item.product.wholesale_price_unit}` : item.whole_sale_price ? item.product.pieces_per_unit > 1 ?  `$${item.whole_sale_price * item.product.pieces_per_unit}` : `$${item.whole_sale_price}` : '-'}
                                 </td>
                                 {data && data.items.some(item => item.product.pieces_per_unit > 1) && (
                                     <td className="px-4 py-2 font-bold text-[#50B426]">
-                                        {item.whole_sale_price ? `$${item.whole_sale_price * item.product.pieces_per_unit}` : '-'}
+                                        {outer ? `$${item.product.wholesale_price_piece}`  : item.whole_sale_price ? `$${item.whole_sale_price}` : '-'}
                                     </td>
                                 )}
                                 <td className="px-4 py-2 font-bold">

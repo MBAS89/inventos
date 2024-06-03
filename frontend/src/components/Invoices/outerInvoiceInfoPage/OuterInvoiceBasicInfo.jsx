@@ -33,7 +33,7 @@ export const OuterInvoiceBasicInfo = ({data}) => {
                             <div className='p-4 border-2 border-[#50B426] rounded-lg w-[60%]'>
                                 <div className='flex justify-between'>
                                     <h4 className='font-bold'>Supplier Info</h4>
-                                    <MdOutlineRemoveRedEye onClick={() => naviagte(`/dashboard/customers/single-customer/${data.supplier.id}`)} className='text-[#50B426] text-[1.2rem] cursor-pointer hover:scale-125'/>
+                                    <MdOutlineRemoveRedEye onClick={() => naviagte(`/dashboard/suppliers/single-supplier/${data.supplier.id}`)} className='text-[#50B426] text-[1.2rem] cursor-pointer hover:scale-125'/>
                                 </div>
                                 <div className='flex gap-5 mt-4 items-center'>
                                     <div className=' bg-[#50B426] rounded-full w-[60px] h-[60px] p-1'>
@@ -41,7 +41,7 @@ export const OuterInvoiceBasicInfo = ({data}) => {
                                     </div>
                                     <div>
                                         <h5 className='text-gray-600'>Full Name</h5>
-                                        <p className='font-bold'>{data.supplier.supplier_namee}</p>
+                                        <p className='font-bold'>{data.supplier.supplier_name}</p>
                                     </div>
                                     <div>
                                         <h5 className='text-gray-600'>Supplier Type</h5>

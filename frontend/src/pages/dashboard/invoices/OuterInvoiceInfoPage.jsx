@@ -6,9 +6,12 @@ import { useParams } from 'react-router-dom'
 //reusable components
 import { Breadcrumb } from '../../../components/Breadcrumb'
 import { OuterInvoiceBasicInfo } from '../../../components/Invoices/outerInvoiceInfoPage/OuterInvoiceBasicInfo';
+import { OuterInvoiceNumbers } from '../../../components/Invoices/outerInvoiceInfoPage/OuterInvoiceNumbers';
 
 //redux
 import { useReadOuterInvoiceQuery } from '../../../features/api/sales/outerInvoicesApiSlice';
+import { InvoiceItems } from '../../../components/Invoices/invoiceInfoPage/InvoiceItems';
+
 
 
 
@@ -33,6 +36,8 @@ export const OuterInvoiceInfoPage = () => {
                 }
             </div>
             <OuterInvoiceBasicInfo data={data}/>
+            <OuterInvoiceNumbers data={data}/>
+            <InvoiceItems data={data} outer={true}/>
         </div>
     )
 }

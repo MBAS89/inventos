@@ -7,8 +7,6 @@ import { TablePagination } from '../TablePagination'
 
 
 export const OuterInvoicesTable = ({headItems, data, isLoading, currentPage, setCurrentPage, selectedInvoice, handleCheckboxChange}) => {
-
-    console.log(data)
     return (
         <div className='px-6 mt-2'>
             <div className="overflow-x-auto">
@@ -34,13 +32,13 @@ export const OuterInvoicesTable = ({headItems, data, isLoading, currentPage, set
                                 <td className="px-4 py-2 font-medium text-gray-900 flex flex-col gap-2">
                                     {invoice.items.map((item) => (
                                         <div key={item.id} className='flex items-center gap-3'>
-                                            <div className='font-bold'>{item.qty} X</div>
+                                            <div className='font-bold w-[10%]'>{item.qty} X</div>
                                             <div className=' bg-gray-100 p-1 rounded-md w-[10%] flex items-center justify-center'>
                                                 <img width="40" height="40" src={item.product.image} alt="nut"/>
                                             </div>
                                             <div className='w-[80%] flex flex-col gap-2'>
                                                 <span className='capitalize'>{item.product.name}</span>
-                                                <span className='font-bold text-[#4454DC]'>${item.product.pieces_per_unit > 1 ? item.product.retail_price_piece : item.product.retail_price_unit}</span>
+                                                <span className='font-bold text-[#4454DC]'>${item.product.pieces_per_unit > 1 ? item.product.cost_piece : item.product.cost_unit}</span>
                                             </div>
                                         </div>
                                     ))}

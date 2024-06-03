@@ -36,13 +36,13 @@ export const InvoicesTable = ({headItems, data, isLoading, currentPage, setCurre
                                 <td className="px-4 py-2 font-medium text-gray-900 flex flex-col gap-2">
                                     {invoice.items.map((item) => (
                                         <div key={item.id} className='flex items-center gap-3'>
-                                            <div className='font-bold'>{item.qty} X</div>
+                                            <div className='font-bold w-[10%]'>{item.qty} X</div>
                                             <div className=' bg-gray-100 p-1 rounded-md w-[10%] flex items-center justify-center'>
                                                 <img width="40" height="40" src={item.product.image} alt="nut"/>
                                             </div>
                                             <div className='w-[80%] flex flex-col gap-2'>
                                                 <span className='capitalize'>{item.product.name}</span>
-                                                <span className='font-bold text-[#4454DC]'>$</span>
+                                                <span className='font-bold text-[#4454DC]'>${item.price}</span>
                                             </div>
                                         </div>
                                     ))}
