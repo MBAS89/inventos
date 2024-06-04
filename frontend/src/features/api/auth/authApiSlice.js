@@ -21,8 +21,17 @@ export const authApiSlice = apiSlice.injectEndpoints({
                 url: `${AUTH_URL}/logout`,
                 method: 'GET',
             })
-        })
+        }),
+        confirmEmail:builder.mutation({
+            query: (data) => ({
+                url: `${AUTH_URL}/confirm-email`,
+                method: 'POST',
+                body:{
+                    verificationToken:data.verificationToken
+                }
+            })
+        }),
     })
 })
 
-export const { useLoginMutation, useLogoutMutation } = authApiSlice
+export const { useLoginMutation, useLogoutMutation, useConfirmEmailMutation } = authApiSlice

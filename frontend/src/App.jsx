@@ -49,6 +49,7 @@ import { Plans } from "./pages/admin/plans/Plans"
 import { Admins } from "./pages/admin/admins/admins"
 import { PlanView } from "./pages/admin/plans/PlanView"
 import { OuterInvoiceInfoPage } from "./pages/dashboard/invoices/OuterInvoiceInfoPage"
+import { StoreConfirmedEmail } from "./pages/auth/StoreConfirmedEmail"
 
 function App() {
   return (
@@ -104,6 +105,11 @@ function App() {
         <Route path="/auth/register" element={
           <MainLayout>
             <StoreRegister />
+          </MainLayout>
+        }></Route>
+        <Route path="/auth/confirmed-email/:tokenId" element={
+          <MainLayout>
+            <StoreConfirmedEmail />
           </MainLayout>
         }></Route>
         <Route path="/dashboard" element={
