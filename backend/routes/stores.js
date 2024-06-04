@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 //store controllers
-const {  createStore, storeLogin, storelogout, fetchAllStores, createStoreDash, editStoreDash, readSingleStore, deleteStore } = require('../controllers/stores')
+const {  createStore, storeLogin, storelogout, fetchAllStores, createStoreDash, editStoreDash, readSingleStore, deleteStore, confirmEmail } = require('../controllers/stores')
 
 //owners controllers
 const { fetchAllOwners, readOwner, deleteOwner, editOwner } = require('../controllers/owners')
@@ -23,6 +23,7 @@ router.post('/create', validateCreateStore, createStore)
 router.post('/create-dash', uploadMiddleware, createStoreDash)
 router.put('/edit', uploadMiddleware,  editStoreDash)
 router.post('/auth/login', storeLogin)
+router.post('/auth/confirm-email', confirmEmail)
 router.get('/auth/logout', storelogout)
 
 

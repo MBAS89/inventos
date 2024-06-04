@@ -57,6 +57,18 @@ const Stores = sequelize.define('stores', {
       model: 'plans',
       key: 'id',
     },
+  },
+  confirmed : {
+    type: DataTypes.BOOLEAN,
+    defaultValue:false
+  },
+  verification_token:{
+    type: DataTypes.TEXT,
+    allowNull:true
+  },
+  verification_token_expires_at:{
+    type:DataTypes.DATE,
+    allowNull:true
   }
 });
 

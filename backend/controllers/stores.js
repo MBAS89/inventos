@@ -37,6 +37,8 @@ const { getOrderOptions } = require('../utils/functions/orderOptions');
 const { cloudinaryExtractPublicId, deleteImage } = require('../utils/functions/cloudinary/cloudinaryUtils');
 const { checkRequiredFields } = require('../utils/functions/checkRequiredFileds');
 const Admins = require('../models/sotres/admins');
+const { generateVerificationToken } = require('../utils/generateVerificationToken');
+const { sendVerificationEmail } = require('../utils/email/emailService');
 
 
 exports.fetchAllStores = async (req, res, next) => {
@@ -462,6 +464,8 @@ exports.createStore = async (req, res, next) => {
                 price:0
             })
         }
+
+        const verificationToken = await generateVerificationToken()
     
         const store = await Stores.create({
             store_name,
@@ -471,7 +475,9 @@ exports.createStore = async (req, res, next) => {
             password: hashedPassword,
             phone_number,
             ownerId: owner.id,
-            planId: defaultPlan ? defaultPlan.id : plan.id
+            planId: defaultPlan ? defaultPlan.id : plan.id,
+            verification_token:verificationToken,
+            verification_token_expires_at:new Date().getTime() + 24 * 60 * 60 * 1000, // 24 hours
         });
     
         if (!store) {
@@ -487,6 +493,8 @@ exports.createStore = async (req, res, next) => {
             storeId: store.id,
             ownerId: owner.id
         });
+
+        await sendVerificationEmail(store.owner_email, store.verification_token)
     
         //return response of the req
         return res.status(201).json({
@@ -727,6 +735,41 @@ exports.storelogout = async (req, res, next) => {
             message:"Logout Successful",
         })
 
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
+
+
+exports.confirmEmail = async (req, res, next) => {
+
+    const { verificationToken } = req.body;
+
+    try {
+
+        // verify the JWT token and extract the verification token from the payload
+        const { verificationToken: token, exp } = jwt.verify(
+            verificationToken,
+            process.env.JWT_SECRT
+        );
+
+        // check if the verification token exists and is not expired
+        const store = await Stores.findOne({ where:{verification_token: verificationToken}});
+
+        if (!store || !token || exp >= store.verification_token_expires_at) {
+            return res
+              .status(400)
+              .json({ message: "Invalid or expired verification token" });
+        }
+
+        // set the store's verification status to true and clear the verification token
+        store.confirmed = true;
+        store.verification_token = null;
+        store.verification_token_expires_at = null;
+        await store.save();
+
+        return res.status(200).json({ message: "Email verified successfully", sucess:true });
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
