@@ -553,3 +553,81 @@ exports.editEmployeeJobDetails = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.editEmployeeSalary = async (req, res, next) => {
+    try {
+        const { employeeId } = req.query;
+
+        //check if employeeId Have a value 
+        if(!employeeId){
+            //this Will Tell the user which fields they need to fill
+            return next(new ErrorResponse("Employee ID Required", 422));
+        }
+
+        const { salary_type, hourly_rate, yearly_salary, monthly_salary } = req.body;
+
+        //Check if all Required Fileds are there
+        const requiredFields = ['salary_type'];
+        const validationError = checkRequiredFields(next, req.body, requiredFields);
+
+        if(validationError){
+            //this Will Tell the user which fields they need to fill
+            return next(new ErrorResponse(validationError, 422));
+        }
+
+        let hourly
+        let monthly
+        let yearly
+
+        if(yearly_salary){
+            yearly = yearly_salary
+            monthly = yearly_salary / 12
+            hourly = null
+        }else if(monthly_salary){
+            yearly = monthly_salary * 12
+            monthly = monthly_salary
+            hourly = null
+        }else if(hourly_rate){
+            yearly = null
+            monthly = null
+            hourly = hourly_rate
+        }else{
+            yearly = null
+            monthly = null
+            hourly = null
+        }
+
+        //Edit Employee in database with new values 
+        const updatedEmployee = await Employees.update(
+            {
+                salary_type_id:salary_type,
+                hourly_rate:hourly,
+                yearly_salary:yearly,
+                monthly_salary:monthly,
+            },
+            {
+                returning: false,
+                where: { id: employeeId }
+            }
+        );
+
+        //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
+        if(updatedEmployee[0] === 0){
+            return next(new ErrorResponse("Something Went Wrong", 500));
+        }
+
+        //return success response with message
+        res.status(201).json({
+            status:"success",
+            message:"Employee Salary Edited",
+            data: {
+                employee:updatedEmployee
+            }
+        })
+
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}
