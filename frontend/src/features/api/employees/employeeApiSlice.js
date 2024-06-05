@@ -153,6 +153,19 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Employees']
         }),
+        editEmployeeSalray:builder.mutation({
+            query: (data) => ({
+                url: `${EMPLOYEE_URL}/edit-salary?employeeId=${data.employeeId}`,
+                method: 'PUT',
+                body:{
+                    salary_type:data.salaryType,
+                    hourly_rate:data.salaryTypeValue == 'hourly' ? data.rate : null,
+                    monthly_salary:data.salaryTypeValue == 'monthly' ? data.rate : null,
+                    yearly_salary: data.salaryTypeValue == 'yearly' ? data.rate : null
+                }
+            }),
+            invalidatesTags: ['Employees']
+        }),
     })
 })
 
@@ -164,5 +177,6 @@ export const {
     useEditEmployeeMutation,
     useAddEmployeeWithContractMutation,
     useEditEmployeeRoleMutation,
-    useEditEmployeeJobDetailsMutation
+    useEditEmployeeJobDetailsMutation,
+    useEditEmployeeSalrayMutation
 } = employeeApiSlice

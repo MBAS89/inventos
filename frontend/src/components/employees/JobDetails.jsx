@@ -8,11 +8,14 @@ import { format, parseISO } from 'date-fns'
 
 //resuable componets
 import { JobDetailsEditPopUp } from './JobDetailsEditPopUp'
+import { SalaryPopUp } from './SalaryPopUp'
 
 export const JobDetails = ({data, isLoading}) => {
 
     const [openEditPopUp, setOpenEditPopUp] = useState(false)
     const [action, setAction] = useState('')
+
+    const [openSalaryPopUp, setOpenSalaryPopUp] = useState(false)
 
     return (
         <div className='w-[60%] mx-auto flex gap-5'>
@@ -47,7 +50,7 @@ export const JobDetails = ({data, isLoading}) => {
                     <div className='flex flex-col justify-start items-start gap-2'>
                         <button onClick={() => {setAction('change-employment-date'); setOpenEditPopUp(true)} } className='font-bold text-[#50B426] hover:text-green-600 active:text-green-900'>Change Date</button>
                         <button onClick={() => {setAction('change-expected-end-date'); setOpenEditPopUp(true)}} className='font-bold text-[#50B426] hover:text-green-600 active:text-green-900'>Change Date</button>
-                        <button className='font-bold text-[#50B426] hover:text-green-600 active:text-green-900'>Change Salary</button>
+                        <button onClick={() => setOpenSalaryPopUp(true)} className='font-bold text-[#50B426] hover:text-green-600 active:text-green-900'>Change Salary</button>
                     </div>
                 </div>
             </div>
@@ -60,6 +63,14 @@ export const JobDetails = ({data, isLoading}) => {
                         data={data}
                     />
                 }
+
+                {openSalaryPopUp && 
+                    <SalaryPopUp 
+                        setOpenSalaryPopUp={setOpenSalaryPopUp}
+                        data={data}
+                    />
+                }
+
             </div>
         </div>
     )
