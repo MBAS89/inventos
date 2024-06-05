@@ -1,12 +1,43 @@
 import React, { useState } from 'react'
+
+//icons
 import { AiOutlineMail, AiOutlinePhone, AiOutlineCloseCircle } from "react-icons/ai"
 import { RiAdminLine } from "react-icons/ri"
+
+//redux
 import { useReadRolesQuery } from '../../features/api/permissions/rolesApiSlice'
+import { useEditEmployeeRoleMutation } from '../../features/api/employees/employeeApiSlice'
+import { toast } from 'react-toastify'
 
 export const EmployeeInfo = ({ data, isLoading }) => {
     const { data:roles } = useReadRolesQuery({}, 'readRoles')
 
     const [editRoleMode, setEditRoleMode] = useState(false)
+
+    const [employeeRole, setEmployeeRole] = useState('Please select')
+
+    const [editEmployeeRole, {isLoading:isEmployeeLoading }] = useEditEmployeeRoleMutation()
+    const handleEmployeeRoleChnage = async () => {
+        if(!employeeRole || employeeRole == 'Please select'){
+            return toast.error("Please Select A Role Before Edit!")
+        }
+
+        const payload = {
+            employeeId:data.employee.id,
+            roleId:employeeRole
+        }
+
+        try {
+            const res = await editEmployeeRole(payload).unwrap()
+            toast.success(res.message)
+
+            setEditRoleMode(false)
+            setEmployeeRole('Please select')
+
+        } catch (error) {
+            toast.error(error.data.error)
+        }
+    }
 
     return (
         <div className='w-[60%] mx-auto'>
@@ -79,7 +110,7 @@ export const EmployeeInfo = ({ data, isLoading }) => {
                     </div>
                     {editRoleMode && 
                         <div className='w-[90%] mx-auto'>
-                            <select  name="role" id="role" className=" w-full mb-2 text-center mt-1.5 p-4 border border-[#50B426] rounded-md text-gray-700 sm:text-sm">
+                            <select onChange={(e) => setEmployeeRole(e.target.value)} value={employeeRole} disabled={isEmployeeLoading}  name="role" id="role" className=" w-full mb-2 text-center mt-1.5 p-4 border border-[#50B426] rounded-md text-gray-700 sm:text-sm">
                                 <option disabled>Please select</option>
                                 {roles && roles.roles.map((role) => (
                                     <option key={role.id} value={role.id}>{role.name}</option>
@@ -88,11 +119,11 @@ export const EmployeeInfo = ({ data, isLoading }) => {
                         </div>
                     }
                     <div className='flex gap-3 w-[90%] mx-auto'>
-                        <button onClick={editRoleMode ? undefined : () => setEditRoleMode(true)} className="w-[100%] flex justify-center items-center gap-4 rounded border border-[#50B426] hover:bg-[#50B426] px-12 py-3 text-sm font-medium hover:text-white bg-transparent text-[#50B426] focus:outline-none active:bg-green-500 active:text-white">
+                        <button onClick={editRoleMode ? handleEmployeeRoleChnage : () => setEditRoleMode(true)} className="w-[100%] flex justify-center items-center gap-4 rounded border border-[#50B426] hover:bg-[#50B426] px-12 py-3 text-sm font-medium hover:text-white bg-transparent text-[#50B426] focus:outline-none active:bg-green-500 active:text-white">
                             <span>{editRoleMode ? 'Confirm Edit' : 'Edit/Add Role'}</span> 
                             <RiAdminLine className='text-lg'/>
                         </button>
-                        {editRoleMode && <button onClick={() => setEditRoleMode(false)} className="w-[30%] rounded border-gray-600 hover:bg-gray-400 active:bg-gray-700 hover:text-white border-2 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-600">Cancel</button>}
+                        {editRoleMode && <button disabled={isEmployeeLoading} onClick={() => setEditRoleMode(false)} className="w-[30%] rounded border-gray-600 hover:bg-gray-400 active:bg-gray-700 hover:text-white border-2 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-600">Cancel</button>}
                     </div>
 
                 </div>
