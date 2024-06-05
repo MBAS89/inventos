@@ -141,6 +141,18 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Employees']
         }),
+        editEmployeeJobDetails:builder.mutation({
+            query: (data) => ({
+                url: `${EMPLOYEE_URL}/edit-job-details?employeeId=${data.employeeId}`,
+                method: 'PUT',
+                body:{
+                    action:data.action,
+                    employmentDate:data.employmentDate,
+                    expectedEndDate:data.expectedEndDate
+                }
+            }),
+            invalidatesTags: ['Employees']
+        }),
     })
 })
 
@@ -151,5 +163,6 @@ export const {
     useRemoveEmployeeMutation, 
     useEditEmployeeMutation,
     useAddEmployeeWithContractMutation,
-    useEditEmployeeRoleMutation
+    useEditEmployeeRoleMutation,
+    useEditEmployeeJobDetailsMutation
 } = employeeApiSlice
