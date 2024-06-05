@@ -3,11 +3,14 @@ import React, { useState } from 'react'
 //icons
 import { AiOutlineMail, AiOutlinePhone, AiOutlineCloseCircle } from "react-icons/ai"
 import { RiAdminLine } from "react-icons/ri"
+import { FaRegCheckCircle } from "react-icons/fa";
+
 
 //redux
 import { useReadRolesQuery } from '../../features/api/permissions/rolesApiSlice'
 import { useEditEmployeeRoleMutation } from '../../features/api/employees/employeeApiSlice'
 import { toast } from 'react-toastify'
+import { EmployeeWarningPopUp } from './EmployeeWarningPopUp'
 
 export const EmployeeInfo = ({ data, isLoading }) => {
     const { data:roles } = useReadRolesQuery({}, 'readRoles')
@@ -38,6 +41,9 @@ export const EmployeeInfo = ({ data, isLoading }) => {
             toast.error(error.data.error)
         }
     }
+
+    const [openWarningPopUp, setOpenWarningPopUp] = useState(false)
+    const [action, setAction] = useState("")
 
     return (
         <div className='w-[60%] mx-auto'>
@@ -153,16 +159,37 @@ export const EmployeeInfo = ({ data, isLoading }) => {
                 <div className='bg-white w-[40%] h-[8rem] rounded-md border-2 border-gray-200 p-4 '>
                     <h2 className='font-bold text-[1.3rem] pl-4 mb-2'>Other Actions</h2>
                     <div className='pl-4'>
-                        <button className='flex items-center gap-2 py-1'>
-                            <AiOutlineCloseCircle className="text-red-500 text-[1.3rem]" /> <span className='capitalize text-red-500'>End Employee Service</span>
-                        </button>
-                        <button className='flex items-center gap-2 py-1'>
-                            <AiOutlineCloseCircle className="text-red-500 text-[1.3rem]" /> <span className='capitalize text-red-500'>Delete Employee</span>
-                        </button>
+                        {!isLoading ? (
+                            <div>
+                                {data.employee.status === "on-payroll" ? 
+                                    <button onClick={() => {setOpenWarningPopUp(true); setAction("End Employee Service")}} className='flex items-center gap-2 py-1'>
+                                        <AiOutlineCloseCircle className="text-red-500 text-[1.3rem]" /> <span className='capitalize text-red-500'>End Employee Service</span>
+                                    </button>
+                                :
+                                    <button onClick={() => {setOpenWarningPopUp(true); setAction("Start Employee Service")}} className='flex items-center gap-2 py-1'>
+                                        <FaRegCheckCircle className="text-[#50B426] text-[1.3rem]" /> <span className='capitalize text-[#50B426]'>Start Employee Service</span>
+                                    </button>
+                                }
+                                <button onClick={() => {setOpenWarningPopUp(true); setAction("Delete An Employee")}} className='flex items-center gap-2 py-1'>
+                                    <AiOutlineCloseCircle className="text-red-500 text-[1.3rem]" /> <span className='capitalize text-red-500'>Delete Employee</span>
+                                </button>
+                            </div>
+                        ):(
+                            <div className=' flex flex-col gap-4'>
+                                <div className='bg-slate-500 animate-pulse h-[20px] w-[240px] rounded-lg'></div>
+                                <div className='bg-slate-500 animate-pulse h-[20px] w-[240px] rounded-lg'></div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
-
+            {openWarningPopUp && 
+                <EmployeeWarningPopUp 
+                    setOpenWarningPopUp={setOpenWarningPopUp}
+                    action={action}
+                    data={data}
+                />
+            }
         </div>
     )
 }
