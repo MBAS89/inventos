@@ -512,3 +512,44 @@ exports.editEmployeeRole = async (req, res, next) => {
         next(error)
     }
 }
+
+exports.editEmployeeJobDetails = async (req, res, next) => {
+    try {
+        const { employeeId } = req.query;
+        const { action, employmentDate, expectedEndDate } = req.body;
+
+        const actions = {
+            "change-employment-date": {
+                date: employmentDate,
+                field: "employment_date",
+                error: "Please select a valid employment date!"
+            },
+            "change-expected-end-date": {
+                date: expectedEndDate,
+                field: "end_of_service",
+                error: "Please select a valid expected end date!"
+            }
+        };
+
+        if (!actions[action]?.date) {
+            return next(new ErrorResponse(actions[action]?.error || "Please specify an action", 406));
+        }
+
+        const updatedEmployee = await Employees.update(
+            { [actions[action].field]: actions[action].date },
+            { returning: false, where: { id: employeeId } }
+        );
+
+        if (updatedEmployee[0] === 0) {
+            return next(new ErrorResponse("Something Went Wrong", 500));
+        }
+
+        res.status(201).json({
+            status: "success",
+            message: "Employee Job Details Edited",
+            data: { employee: updatedEmployee }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
