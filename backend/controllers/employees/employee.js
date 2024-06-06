@@ -685,3 +685,57 @@ exports.editEmployeeWorkingStatus = async (req, res, next) => {
         next(error)
     }
 }
+
+exports.editEmployeePaidType = async (req, res, next) => {
+    try {
+        const { employeeId } = req.query;
+
+
+        //check if employeeId Have a value 
+        if(!employeeId){
+            //this Will Tell the user which fields they need to fill
+            return next(new ErrorResponse("Employee ID Required", 422));
+        }
+
+        const { type } = req.body;
+
+        //Check if all Required Fileds are there
+        const requiredFields = ['type'];
+        const validationError = checkRequiredFields(next, req.body, requiredFields);
+
+        if(validationError){
+            //this Will Tell the user which fields they need to fill
+            return next(new ErrorResponse(validationError, 422));
+        }
+
+        //Edit Employee in database with new values 
+        const updatedEmployee = await Employees.update(
+            {
+                paid_type:type
+            },
+            {
+                returning: false,
+                where: { id: employeeId }
+            }
+        );
+
+        //CHECK IF WE DID NOT RECEIVE ANYTHING FROM DATABASE THAT MEAN SOMETHING WENT WRONG SO WE INFORM USER
+        if(updatedEmployee[0] === 0){
+            return next(new ErrorResponse("Something Went Wrong", 500));
+        }
+
+        //return success response with message
+        res.status(201).json({
+            status:"success",
+            message:"Employee Paid Type Edited",
+            data: {
+                employee:updatedEmployee
+            }
+        })
+
+
+    } catch (error) {
+        //if there is an error send it to the error middleware to be output in a good way 
+        next(error)
+    }
+}

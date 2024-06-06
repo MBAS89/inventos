@@ -5,7 +5,7 @@ const router = express.Router()
 //SALARY TYPES CONTROLLERS
 const { addSalaryTypes, editSalaryTypes, removeSalaryTypes, readSalaryTypes } = require('../controllers/employees/salaryTypes')
 //EMPLOYEE CONTROLLERS
-const { addEmployee, editEmployee, removeEmployee, readEmployees, readSingleEmployee, editEmployeeRole, editEmployeeJobDetails, editEmployeeSalary, editEmployeeWorkingStatus } = require('../controllers/employees/employee')
+const { addEmployee, editEmployee, removeEmployee, readEmployees, readSingleEmployee, editEmployeeRole, editEmployeeJobDetails, editEmployeeSalary, editEmployeeWorkingStatus, editEmployeePaidType } = require('../controllers/employees/employee')
 //ROLES CONTROLLERS
 const { addRole, editRole, removeRole, readRoles, readRole } = require('../controllers/employees/roles')
 //DEPARTMENTS CONTROLLERS
@@ -45,6 +45,7 @@ router.put('/edit-role', Auth, editEmployeeRole)
 router.put('/edit-job-details', Auth, editEmployeeJobDetails)
 router.put('/edit-salary', Auth, editEmployeeSalary)
 router.put('/edit-status', Auth, editEmployeeWorkingStatus)
+router.put('/edit-paid-type', Auth, editEmployeePaidType)
 
 //Roles Routes
 router.get('/roles/read/single', Auth, readRole)
