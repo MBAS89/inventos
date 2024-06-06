@@ -176,6 +176,16 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Employees']
         }),
+        editEmployeePaidType:builder.mutation({
+            query: (data) => ({
+                url: `${EMPLOYEE_URL}/edit-paid-type?employeeId=${data.employeeId}`,
+                method: 'PUT',
+                body:{
+                    type:data.type
+                }
+            }),
+            invalidatesTags: ['Employees']
+        })
     })
 })
 
@@ -189,5 +199,6 @@ export const {
     useEditEmployeeRoleMutation,
     useEditEmployeeJobDetailsMutation,
     useEditEmployeeSalrayMutation,
-    useEditEmployeeWorkingStatusMutation
+    useEditEmployeeWorkingStatusMutation,
+    useEditEmployeePaidTypeMutation
 } = employeeApiSlice
