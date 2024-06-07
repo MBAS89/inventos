@@ -16,6 +16,8 @@ const { addPermission, editPermission, removePermission } = require('../controll
 const { addRolePermission, removeRolePermission } = require('../controllers/employees/rolePermissions')
 //CONTRACTS CONTROLLERS
 const { addContractToEmployee, addContractAndNewEmployee, editContract, removeContract } = require('../controllers/employees/contracts')
+//PAYMENTS CONTROLLERS
+const { readEmployeePayments, createEmployeePayment, payOrCancelPayment, editPayment, deletePayment, readEmployeePayment } = require('../controllers/employees/payments')
 
 //upload image to cloudinary middleware
 const uploadMiddleware = require('../middleware/uploadImageToCloudinary')
@@ -23,8 +25,8 @@ const uploadMiddleware = require('../middleware/uploadImageToCloudinary')
 const ValidateEmployeesName = require('../middleware/validations/employees/ValidateEmployeesName')
 const ValidateRoleName = require('../middleware/validations/employees/ValidateRoleName')
 
+//auth middleware
 const Auth = require('../middleware/auth/authMiddleware')
-const { readEmployeePayments } = require('../controllers/employees/payments')
 const AuthAdmin = require('../middleware/auth/authAdminMiddleware')
 
 //Routes
@@ -77,5 +79,11 @@ router.delete('/contracts/remove/:contractId', Auth, removeContract)
 
 //payments routes 
 router.get('/payments/read', Auth, readEmployeePayments)
+router.get('/payments/read-single', Auth, readEmployeePayment)
+router.post('/payments/add', Auth, createEmployeePayment)
+router.put('/payments/pay-or-cancel', Auth, payOrCancelPayment)
+router.put('/payments/edit', Auth, editPayment)
+router.delete('/payments/remove', Auth, deletePayment)
+
 
 module.exports = router

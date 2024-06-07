@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, fn, col, literal } = require('sequelize');
 
 //error response middleware
 const ErrorResponse = require('../../utils/errorResponse')
@@ -58,15 +58,41 @@ exports.readEmployees = async (req, res, next) => {
             include: [
                 {
                     model: SalaryTypes,
-                    as: 'salary_type', 
-                    attributes: ['id', 'type'] 
+                    as: 'salary_type',
+                    attributes: ['id', 'type']
                 },
                 {
                     model: Roles,
-                    attributes: ['id', 'name'],
+                    attributes: ['id', 'name']
                 }
             ]
         });
+
+        // Fetch payments for each employee
+        for (const employee of employees) {
+            const payments = await Payment.findAll({ where: { employeeId: employee.id } });
+            let totalDue = 0;
+            let totalPaid = 0;
+
+            // Calculate total due and total paid amounts
+            for (const payment of payments) {
+                if (payment.status === 'due') {
+                    totalDue += payment.amount;
+                } else if (payment.status === 'paid') {
+                    totalPaid += payment.amount;
+                }
+            }
+
+            // Set totalDue and totalPaid to 0 if no payments exist
+            if (payments.length === 0) {
+                totalDue = 0;
+                totalPaid = 0;
+            }
+
+            // Add total due and total paid properties to the employee object
+            employee.dataValues.totalDue = totalDue;
+            employee.dataValues.totalPaid = totalPaid;
+        }
 
         return res.status(200).json({ totalCount, totalPages, currentPage, employees });
 

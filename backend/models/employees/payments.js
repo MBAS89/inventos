@@ -20,11 +20,17 @@ const Payment = sequelize.define('payment', {
         allowNull: false,
         defaultValue:'due'
     },
+    claimed:{
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
+    },
     paidDate:{
         type:DataTypes.DATE,
+        allowNull: true
     },
     paymentDate:{
         type:DataTypes.DATE,
+        allowNull: false
     },
     hoursWorked: DataTypes.FLOAT,
 });
