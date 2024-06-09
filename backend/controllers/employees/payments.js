@@ -8,6 +8,8 @@ const Payment = require("../../models/employees/payments");
 const { getOrderOptions } = require("../../utils/functions/orderOptions");
 const ErrorResponse = require("../../utils/errorResponse");
 const { checkRequiredFields } = require('../../utils/functions/checkRequiredFileds');
+const ExpensesTypes = require('../../models/expenses/expensesType');
+const Expenses = require('../../models/expenses/expenses');
 
 
 exports.readEmployeePayments = async (req, res, next) => {
@@ -130,6 +132,8 @@ exports.payOrCancelPayment = async (req, res, next) => {
     try {
         const { paymentId } = req.query;
 
+        const store_id = req.authData.store_id
+
         //if there is no payment id
         if(!paymentId){
             //this Will Tell the user which fields they need to fill
@@ -138,6 +142,7 @@ exports.payOrCancelPayment = async (req, res, next) => {
 
         const { paid } = req.body
         
+
         //Edit this Payment in the data base
         const updatedPayment = await Payment.update(
             {
@@ -145,7 +150,7 @@ exports.payOrCancelPayment = async (req, res, next) => {
                 paidDate:new Date()
             },
             {
-                returning: false,
+                returning: true,
                 where: { id: paymentId }
             }
         );
@@ -154,6 +159,30 @@ exports.payOrCancelPayment = async (req, res, next) => {
         if(updatedPayment[0] === 0){
             return next(new ErrorResponse("Something Went Wrong", 500));
         }
+
+        if(paid){
+            const expensesType = await ExpensesTypes.findOne({
+                where:{
+                    type_name:"Employee Payment",
+                    store_id
+                },
+                attributes:['id']
+            });
+            
+            const expensesTypeData = expensesType ? expensesType : await ExpensesTypes.create({
+                store_id,
+                type_name:"Employee Payment"
+            });
+            
+            await Expenses.create({
+                store_id,
+                expenses_title: "Employee Payment (full paid)",
+                amount: updatedPayment[1][0].amount,
+                description: `A Full Payment For An Employee Payment ID:${paymentId} With Amount Of $${updatedPayment[1][0].amount}`,
+                expenses_type_id: expensesTypeData.id
+            });
+        }
+
 
         //return success response with message
         res.status(201).json({

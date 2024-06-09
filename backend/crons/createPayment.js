@@ -1,3 +1,7 @@
+//sequelize
+const { Op } = require('sequelize');
+
+//modles
 const Employees = require("../models/employees/employees");
 const Log = require("../models/employees/log");
 const Payment = require("../models/employees/payments");
@@ -18,7 +22,10 @@ const createPayment = async () => {
             {
                 model:Log,
                 where:{
-                    accountedFor: false
+                    accountedFor: false,
+                    signOutTime: {
+                        [Op.ne]: null
+                    }
                 }
             }
         ]
@@ -69,7 +76,11 @@ const createPayment = async () => {
             if (!existingPayment) {
                 // Calculate hours worked
                 hoursWorked = employee.logs.reduce((totalHours, log) => {
-                    return totalHours + ((log.signOutTime - log.signInTime) / (1000 * 60 * 60));
+                    let signInTime = new Date(log.signInTime);
+                    let signOutTime = new Date(log.signOutTime);
+                    let durationInMilliseconds = signOutTime - signInTime;
+                    let durationInHours = durationInMilliseconds / (1000 * 60 * 60);
+                    return totalHours + durationInHours;
                 }, 0);
     
                 // Calculate payment amount

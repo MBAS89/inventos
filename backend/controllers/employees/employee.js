@@ -150,13 +150,26 @@ exports.readSingleEmployee = async (req, res, next) => {
             ]
         })
 
+        // Fetch payments for the employee
         const payments = await Payment.findAll({
-            where:{
-                employeeId:employee.id
+            where: {
+                employeeId: employee.id
             }
-        })
+        });
 
-        return res.status(200).json({ employee, contracts, payments });
+        let totalDue = 0;
+        let totalPaid = 0;
+
+        // Calculate total due and total paid amounts
+        for (const payment of payments) {
+            if (payment.status === 'due') {
+                totalDue += payment.amount;
+            } else if (payment.status === 'paid') {
+                totalPaid += payment.amount;
+            }
+        }
+
+        return res.status(200).json({ employee, contracts, totalDue, totalPaid });
 
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
