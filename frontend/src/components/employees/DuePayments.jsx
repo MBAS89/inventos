@@ -114,6 +114,16 @@ export const DuePayments = ({ data, setOpenAddEditPaymentPopUp, setEditMode, set
 
     return (
         <div className='w-[60%] mx-auto'>
+            <div className='flex w-[59%] mt-4 gap-4'>
+                <div className='h-[7rem] w-full bg-white border-2 rounded-md flex flex-col items-center justify-center gap-1'>
+                    <h4 className='font-bold text-[#50B426] text-[1.5rem]'>${data.totalDue}</h4>
+                    <span>Total Due</span>
+                </div>
+                <div className='h-[7rem] w-full bg-white border-2 rounded-md flex flex-col items-center justify-center gap-1'>
+                    <h4 className='font-bold text-[#50B426] text-[1.5rem]'>${data.totalPaid}</h4>
+                    <span>Total Paid</span>
+                </div>
+            </div>
             <div className='rounded-md border-2 border-gray-1700 p-4 bg-white mt-4 w-[59%] min-h-[10rem]'>
                 <div className='flex justify-between'>
                     <h2 className='font-bold text-[1.3rem] pl-4 mb-2'>Due Payments</h2>

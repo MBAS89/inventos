@@ -87,8 +87,8 @@ export const EmployeesTable = ({ headItems, selectedEmployee, setSelectedEmploye
                                 <td className="px-4 py-2 text-gray-700">
                                     {handleContract(employee.work_type)}
                                 </td>
-                                <td className="px-4 py-2 text-[#50B426] font-bold">$</td>
-                                <td className="px-4 py-2 font-bold text-[#4454DC]">$</td>
+                                <td className="px-4 py-2 text-[#50B426] font-bold">${employee.totalPaid.toFixed(2)}</td>
+                                <td className="px-4 py-2 font-bold text-[#4454DC]">${employee.totalDue.toFixed(2)}</td>
                                 <td className="px-4 py-2 text-[#9b6328] font-bold w-24">{handleSalary(employee)}</td>
                                 <td className="px-4 py-2 text-gray-700">{format(parseISO(employee.employment_date), "dd/MM/yyyy h:mmaaa")}</td>
                                 <td className="px-4 py-2 text-gray-700">{employee.end_of_service ? format(parseISO(employee.end_of_service), "dd/MM/yyyy h:mmaaa") : 'Not specified'}</td>
