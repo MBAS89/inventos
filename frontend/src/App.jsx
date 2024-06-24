@@ -50,6 +50,8 @@ import { Admins } from "./pages/admin/admins/admins"
 import { PlanView } from "./pages/admin/plans/PlanView"
 import { OuterInvoiceInfoPage } from "./pages/dashboard/invoices/OuterInvoiceInfoPage"
 import { StoreConfirmedEmail } from "./pages/auth/StoreConfirmedEmail"
+import { AnalyticsLayout } from "./components/analytics/AnalyticsLayout"
+import { Analytics } from "./pages/analytics/Analytics"
 
 function App() {
   return (
@@ -216,6 +218,14 @@ function App() {
             <SettingsLayout>
               <SettingsHome />
             </SettingsLayout>
+          </DashLayout>
+        }>
+        </Route>
+        <Route path="/dashboard/analytics" element={
+          <DashLayout>
+            <AnalyticsLayout>
+              <Analytics />
+            </AnalyticsLayout>
           </DashLayout>
         }>
         </Route>
