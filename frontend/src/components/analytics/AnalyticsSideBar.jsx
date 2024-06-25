@@ -9,6 +9,8 @@ import { AiFillHome } from "react-icons/ai";
 import { IoPeopleSharp } from "react-icons/io5";
 import { FaTruck } from "react-icons/fa";
 import { TbCash } from "react-icons/tb";
+import { TiBusinessCard } from "react-icons/ti";
+
 
 
 export const AnalyticsSideBar = () => {
@@ -17,13 +19,13 @@ export const AnalyticsSideBar = () => {
     const navLinks = [
         {
             title:'home',
-            link:'/dashboard/settings',
+            link:'/dashboard/analytics',
             icon: <AiFillHome className='text-[1.5rem]' />
         },
         {
-            title:'permissions',
-            link:'/dashboard/settings/permissions',
-            icon: <MdOutlineSecurity className='text-[1.5rem]' />
+            title:'Employee',
+            link:'/dashboard/analytics/employees',
+            icon: <TiBusinessCard className='text-[1.5rem]' />
         },
         {
             title:'customers',
