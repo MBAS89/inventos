@@ -52,6 +52,7 @@ import { OuterInvoiceInfoPage } from "./pages/dashboard/invoices/OuterInvoiceInf
 import { StoreConfirmedEmail } from "./pages/auth/StoreConfirmedEmail"
 import { AnalyticsLayout } from "./components/analytics/AnalyticsLayout"
 import { Analytics } from "./pages/analytics/Analytics"
+import { EmployeeAnalytics } from "./pages/analytics/EmployeeAnalytics"
 
 function App() {
   return (
@@ -225,6 +226,14 @@ function App() {
           <DashLayout>
             <AnalyticsLayout>
               <Analytics />
+            </AnalyticsLayout>
+          </DashLayout>
+        }>
+        </Route>
+        <Route path="/dashboard/analytics/employees" element={
+          <DashLayout>
+            <AnalyticsLayout>
+              <EmployeeAnalytics />
             </AnalyticsLayout>
           </DashLayout>
         }>

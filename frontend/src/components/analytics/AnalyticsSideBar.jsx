@@ -4,12 +4,12 @@ import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom';
 
 //icons
-import { MdOutlineSecurity } from "react-icons/md";
 import { AiFillHome } from "react-icons/ai";
 import { IoPeopleSharp } from "react-icons/io5";
 import { FaTruck } from "react-icons/fa";
 import { TbCash } from "react-icons/tb";
 import { TiBusinessCard } from "react-icons/ti";
+import { BsBoxSeam } from "react-icons/bs";
 
 
 
@@ -29,18 +29,23 @@ export const AnalyticsSideBar = () => {
         },
         {
             title:'customers',
-            link:'/dashboard/settings/customers',
+            link:'/dashboard/analytics/customers',
             icon: <IoPeopleSharp className='text-[1.5rem]' />
         },
         {
             title:'suppliers',
-            link:'/dashboard/settings/suppliers',
+            link:'/dashboard/analytics/suppliers',
             icon: <FaTruck className='text-[1.5rem]' />
         },
         {
             title:'expenses',
-            link:'/dashboard/settings/expenses',
+            link:'/dashboard/analytics/expenses',
             icon: <TbCash className='text-[1.5rem]' />
+        },
+        {
+            title:'inventroy',
+            link:'/dashboard/analytics/inventroy',
+            icon: <BsBoxSeam className='text-[1.5rem]' />
         }
     ]
 
