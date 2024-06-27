@@ -54,6 +54,7 @@ import { AnalyticsLayout } from "./components/analytics/AnalyticsLayout"
 import { Analytics } from "./pages/analytics/Analytics"
 import { EmployeeAnalytics } from "./pages/analytics/EmployeeAnalytics"
 import { CustomersAnalytics } from "./pages/analytics/CustomersAnalytics"
+import { SuppliersAnalytics } from "./pages/analytics/SuppliersAnalytics"
 
 function App() {
   return (
@@ -243,6 +244,14 @@ function App() {
           <DashLayout>
             <AnalyticsLayout>
               <CustomersAnalytics />
+            </AnalyticsLayout>
+          </DashLayout>
+        }>
+        </Route>
+        <Route path="/dashboard/analytics/suppliers" element={
+          <DashLayout>
+            <AnalyticsLayout>
+              <SuppliersAnalytics />
             </AnalyticsLayout>
           </DashLayout>
         }>
