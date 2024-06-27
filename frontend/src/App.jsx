@@ -53,6 +53,7 @@ import { StoreConfirmedEmail } from "./pages/auth/StoreConfirmedEmail"
 import { AnalyticsLayout } from "./components/analytics/AnalyticsLayout"
 import { Analytics } from "./pages/analytics/Analytics"
 import { EmployeeAnalytics } from "./pages/analytics/EmployeeAnalytics"
+import { CustomersAnalytics } from "./pages/analytics/CustomersAnalytics"
 
 function App() {
   return (
@@ -234,6 +235,14 @@ function App() {
           <DashLayout>
             <AnalyticsLayout>
               <EmployeeAnalytics />
+            </AnalyticsLayout>
+          </DashLayout>
+        }>
+        </Route>
+        <Route path="/dashboard/analytics/customers" element={
+          <DashLayout>
+            <AnalyticsLayout>
+              <CustomersAnalytics />
             </AnalyticsLayout>
           </DashLayout>
         }>
