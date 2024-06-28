@@ -38,8 +38,8 @@ export const AnalyticsSideBar = () => {
             icon: <FaTruck className='text-[1.5rem]' />
         },
         {
-            title:'expenses',
-            link:'/dashboard/analytics/expenses',
+            title:'expenses-sales',
+            link:'/dashboard/analytics/expenses-sales',
             icon: <TbCash className='text-[1.5rem]' />
         },
         {

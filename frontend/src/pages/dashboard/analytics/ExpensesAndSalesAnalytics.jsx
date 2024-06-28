@@ -1,37 +1,32 @@
 import React from 'react'
 
 //reusbale components 
-import { Widgets } from '../../components/analytics/home/Widgets'
-
-
-//components
-import { SuppliersStatus } from '../../components/analytics/suppliers/SuppliersStatus';
-import { SuppliersVisualAnalytics } from '../../components/analytics/suppliers/SuppliersVisualAnalytics';
-
+import { Widgets } from '../../../components/analytics/home/Widgets'
 
 //icons
-import { FaPeopleGroup } from "react-icons/fa6";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
-import { TbTableOptions } from "react-icons/tb";
+import { GiPayMoney } from "react-icons/gi";
+import { GiReceiveMoney } from "react-icons/gi";
+import { ExpensesAndSalesVisualAnalytics } from '../../../components/analytics/expenses-and-sales/ExpensesAndSalesVisualAnalytics';
+import { SalesVisualAnalytics } from '../../../components/analytics/expenses-and-sales/SalesVisualAnalytics';
 
 
-
-export const SuppliersAnalytics = () => {
+export const ExpensesAndSalesAnalytics = () => {
 
     const widgetData = [
         {
-            color: "bg-blue-200",
-            icon: <FaPeopleGroup className='text-[1.5rem] text-blue-800' />,
+            color: "bg-red-200",
+            icon: <GiPayMoney className='text-[1.5rem] text-red-800' />,
             value: "350",
             change: "2.5",
-            title: "total Suppliers"
+            title: "Total Expenses"
         },
         {
             color: "bg-green-200",
             icon: <FaMoneyBillTrendUp className='text-[1.5rem] text-green-800' />,
             value: "228",
             change: "2.5",
-            title: "Total Transactions"
+            title: "Total Sales"
         },
         {
             color: "bg-yellow-200",
@@ -41,11 +36,11 @@ export const SuppliersAnalytics = () => {
             title: "Total Debt"
         },
         {
-            color: "bg-purple-200",
-            icon: <TbTableOptions className='text-[1.5rem] text-purple-800' />,
+            color: "bg-orange-200",
+            icon: <GiReceiveMoney className='text-[1.5rem] text-orange-800' />,
             value: "25",
             change: "25",
-            title: "Total Suppliers Types"
+            title: "Total Dues"
         }
     ];
 
@@ -65,8 +60,8 @@ export const SuppliersAnalytics = () => {
                 ))}
             </div>
             <div className='mt-10 w-[90%] mx-auto flex gap-10'>
-                <SuppliersVisualAnalytics />
-                <SuppliersStatus />
+                <ExpensesAndSalesVisualAnalytics />
+                <SalesVisualAnalytics />
             </div>
         </div>
     )

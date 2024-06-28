@@ -1,14 +1,18 @@
 import React from 'react'
-import { Widgets } from '../../components/analytics/home/Widgets'
+
+//reusable components
+import { Widgets } from '../../../components/analytics/home/Widgets'
+
+//components
+import { SalesAnalytics } from '../../../components/analytics/home/SalesAnalytics';
+import { StoreValues } from '../../../components/analytics/home/StoreValues';
+import { EmployeePayments } from '../../../components/analytics/home/EmployeePayments';
+import { ShipmentsStatus } from '../../../components/analytics/home/ShipmentsStatus';
 
 //icons
 import { CiBoxes } from "react-icons/ci";
 import { TbStars } from "react-icons/tb";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
-import { SalesAnalytics } from '../../components/analytics/home/SalesAnalytics';
-import { StoreValues } from '../../components/analytics/home/StoreValues';
-import { EmployeePayments } from '../../components/analytics/home/EmployeePayments';
-import { ShipmentsStatus } from '../../components/analytics/home/ShipmentsStatus';
 
 
 export const Analytics = () => {

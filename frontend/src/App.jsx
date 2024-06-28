@@ -51,10 +51,11 @@ import { PlanView } from "./pages/admin/plans/PlanView"
 import { OuterInvoiceInfoPage } from "./pages/dashboard/invoices/OuterInvoiceInfoPage"
 import { StoreConfirmedEmail } from "./pages/auth/StoreConfirmedEmail"
 import { AnalyticsLayout } from "./components/analytics/AnalyticsLayout"
-import { Analytics } from "./pages/analytics/Analytics"
-import { EmployeeAnalytics } from "./pages/analytics/EmployeeAnalytics"
-import { CustomersAnalytics } from "./pages/analytics/CustomersAnalytics"
-import { SuppliersAnalytics } from "./pages/analytics/SuppliersAnalytics"
+import { Analytics } from "./pages/dashboard/analytics/Analytics"
+import { EmployeeAnalytics } from "./pages/dashboard/analytics/EmployeeAnalytics"
+import { CustomersAnalytics } from "./pages/dashboard/analytics/CustomersAnalytics"
+import { SuppliersAnalytics } from "./pages/dashboard/analytics/SuppliersAnalytics"
+import { ExpensesAndSalesAnalytics } from "./pages/dashboard/analytics/ExpensesAndSalesAnalytics"
 
 function App() {
   return (
@@ -252,6 +253,14 @@ function App() {
           <DashLayout>
             <AnalyticsLayout>
               <SuppliersAnalytics />
+            </AnalyticsLayout>
+          </DashLayout>
+        }>
+        </Route>
+        <Route path="/dashboard/analytics/expenses-sales" element={
+          <DashLayout>
+            <AnalyticsLayout>
+              <ExpensesAndSalesAnalytics />
             </AnalyticsLayout>
           </DashLayout>
         }>

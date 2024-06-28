@@ -1,13 +1,13 @@
 import React from 'react'
 
-//reusbale components 
-import { Widgets } from '../../components/analytics/home/Widgets'
+//reusable components
+import { Widgets } from '../../../components/analytics/home/Widgets'
 
 //componets
-import { EmployeeVisualAnalytics } from '../../components/analytics/employees/EmployeeVisualAnalytics';
-import { EmployeePayments } from '../../components/analytics/home/EmployeePayments';
-import { EmployeeWorkTypes } from '../../components/analytics/employees/EmployeeWorkTypes';
-import { EmployeeStatus } from '../../components/analytics/employees/EmployeeStatus';
+import { EmployeeVisualAnalytics } from '../../../components/analytics/employees/EmployeeVisualAnalytics';
+import { EmployeePayments } from '../../../components/analytics/home/EmployeePayments';
+import { EmployeeWorkTypes } from '../../../components/analytics/employees/EmployeeWorkTypes';
+import { EmployeeStatus } from '../../../components/analytics/employees/EmployeeStatus';
 
 //icons
 import { FaPeopleGroup } from "react-icons/fa6";

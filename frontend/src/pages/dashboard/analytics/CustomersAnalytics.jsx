@@ -1,16 +1,17 @@
 import React from 'react'
 
-//reusbale components 
-import { Widgets } from '../../components/analytics/home/Widgets'
+//reusable components
+import { Widgets } from '../../../components/analytics/home/Widgets'
 
 //components
-import { CustomersVisualAnalytics } from '../../components/analytics/customers/CustomersVisualAnalytics';
+import { CustomersVisualAnalytics } from '../../../components/analytics/customers/CustomersVisualAnalytics';
+import { CustomersStatus } from '../../../components/analytics/customers/CustomersStatus';
 
 //icons
 import { FaPeopleGroup } from "react-icons/fa6";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
 import { TbTableOptions } from "react-icons/tb";
-import { CustomersStatus } from '../../components/analytics/customers/CustomersStatus';
+
 
 
 
