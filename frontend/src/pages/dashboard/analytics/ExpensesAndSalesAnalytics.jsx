@@ -9,6 +9,8 @@ import { GiPayMoney } from "react-icons/gi";
 import { GiReceiveMoney } from "react-icons/gi";
 import { ExpensesAndSalesVisualAnalytics } from '../../../components/analytics/expenses-and-sales/ExpensesAndSalesVisualAnalytics';
 import { SalesVisualAnalytics } from '../../../components/analytics/expenses-and-sales/SalesVisualAnalytics';
+import { InvoicesAnalytics } from '../../../components/analytics/expenses-and-sales/InvoicesAnalytics';
+import { LatestExpenses } from '../../../components/analytics/expenses-and-sales/LatestExpenses';
 
 
 export const ExpensesAndSalesAnalytics = () => {
@@ -62,6 +64,10 @@ export const ExpensesAndSalesAnalytics = () => {
             <div className='mt-10 w-[90%] mx-auto flex gap-10'>
                 <ExpensesAndSalesVisualAnalytics />
                 <SalesVisualAnalytics />
+            </div>
+            <div className='w-[90%] mx-auto flex gap-10'>
+                <InvoicesAnalytics />
+                <LatestExpenses />
             </div>
         </div>
     )
