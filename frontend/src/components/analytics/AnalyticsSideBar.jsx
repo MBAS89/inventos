@@ -44,7 +44,7 @@ export const AnalyticsSideBar = () => {
         },
         {
             title:'inventroy',
-            link:'/dashboard/analytics/inventroy',
+            link:'/dashboard/analytics/inventory',
             icon: <BsBoxSeam className='text-[1.5rem]' />
         }
     ]

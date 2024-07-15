@@ -56,6 +56,7 @@ import { EmployeeAnalytics } from "./pages/dashboard/analytics/EmployeeAnalytics
 import { CustomersAnalytics } from "./pages/dashboard/analytics/CustomersAnalytics"
 import { SuppliersAnalytics } from "./pages/dashboard/analytics/SuppliersAnalytics"
 import { ExpensesAndSalesAnalytics } from "./pages/dashboard/analytics/ExpensesAndSalesAnalytics"
+import { InventoryAnalytics } from "./pages/dashboard/analytics/InventoryAnalytics"
 
 function App() {
   return (
@@ -261,6 +262,14 @@ function App() {
           <DashLayout>
             <AnalyticsLayout>
               <ExpensesAndSalesAnalytics />
+            </AnalyticsLayout>
+          </DashLayout>
+        }>
+        </Route>
+        <Route path="/dashboard/analytics/inventory" element={
+          <DashLayout>
+            <AnalyticsLayout>
+              <InventoryAnalytics />
             </AnalyticsLayout>
           </DashLayout>
         }>
