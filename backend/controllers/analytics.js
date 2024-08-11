@@ -8,7 +8,8 @@ const Payment = require("../models/employees/payments");
 const SalaryTypes = require('../models/employees/salarytypes');
 const Customers = require('../models/cutomers/cutomers')
 const CustomersTypes = require('../models/cutomers/customersTypes')
-
+const Suppliers = require("../models/suppliers/suppliers")
+const SuppliersTypes = require("../models/suppliers/suppliersType")
 
 //Employee Analytics 
 const getWeeklySums = async () => {
@@ -331,6 +332,137 @@ const getDailyCustomersSums = async () => {
 };
 
 
+
+//Suppliers Analytics
+const getWeeklySuppliersSums = async () => {
+    const today = new Date();
+    const weeks = [];
+
+    for (let i = 0; i < 5; i++) {
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() - (today.getDay() - 6) - (i * 7));
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        const startOfWeek = new Date(endOfWeek);
+        startOfWeek.setDate(startOfWeek.getDate() - 6);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const year = startOfWeek.getFullYear();
+        const weekNumber = Math.ceil(((startOfWeek - new Date(startOfWeek.getFullYear(), 0, 1)) / 86400000 + new Date(startOfWeek.getFullYear(), 0, 1).getDay() + 1) / 7);
+
+        // Count Suppliers created within the week
+        const totalSuppliers = await Suppliers.count({
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfWeek,
+                    [Op.lte]: endOfWeek
+                }
+            }
+        });
+
+        weeks.unshift({ year, week: weekNumber, totalSuppliers });
+    }
+
+    return weeks;
+};
+
+const getMonthlySuppliersSums = async () => {
+    const months = [];
+    const today = new Date();
+    const currentYear = today.getFullYear();
+
+    for (let i = 0; i < 12; i++) {
+        const startOfMonth = new Date(currentYear, i, 1);
+        const endOfMonth = new Date(currentYear, i + 1, 0);
+        endOfMonth.setHours(23, 59, 59, 999);
+
+        // Count Suppliers created within the month
+        const totalSuppliers = await Suppliers.count({
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfMonth,
+                    [Op.lte]: endOfMonth
+                }
+            }
+        });
+
+        months.push({
+            month: startOfMonth.toLocaleString('default', { month: 'short' }),
+            totalSuppliers
+        });
+    }
+
+    return months;
+};
+
+
+const getYearlySuppliersSums = async () => {
+    const years = [];
+    const today = new Date();
+    const currentYear = today.getFullYear();
+
+    for (let i = 0; i < 5; i++) {
+        const year = currentYear - i;
+        const startOfYear = new Date(year, 0, 1);
+        const endOfYear = new Date(year, 11, 31);
+        endOfYear.setHours(23, 59, 59, 999);
+
+        // Count Suppliers  created within the year
+        const totalSuppliers = await Suppliers.count({
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfYear,
+                    [Op.lte]: endOfYear
+                }
+            }
+        });
+
+        years.push({
+            year: year,
+            totalSuppliers
+        });
+    }
+
+    return years;
+};
+
+
+const getDailySuppliersSums = async () => {
+    const days = [];
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        // Count Suppliers created within the day
+        const totalSuppliers = await Suppliers.count({
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfDay,
+                    [Op.lte]: endOfDay
+                }
+            }
+        });
+
+        days.push({
+            day: date.toLocaleString('default', { weekday: 'short' }),
+            totalSuppliers
+        });
+    }
+
+    return days;
+};
+
+
 exports.fetchHomeAnalytics = async (req, res, next) => {
     try {
 
@@ -516,8 +648,44 @@ exports.fetchCustomersAnalytics = async (req, res, next) => {
 
 exports.fetchSuppliersAnalytics = async (req, res, next) => {
     try {
+        // Total number of Suppliers
+        const totalSuppliers = await Suppliers.count();
 
-        return res.status(200).json();
+        // Total number of SuppliersTypes
+        const totalSuppliersTypes = await SuppliersTypes.count();
+
+        // Sum of all transactions
+        const totalTransactions = await Suppliers.sum('total_transactions');
+
+        // Sum of all debts
+        const totalDebt = await Suppliers.sum('total_debt_us');
+
+        // Top 8 Suppliers based on total transactions
+        const topSuppliers = await Suppliers.findAll({
+            order: [['total_transactions', 'DESC']],
+            limit: 8
+        });
+
+        // Get weekly, monthly, yearly, and daily sums
+        const [weeks, months, years, days] = await Promise.all([
+            getWeeklySuppliersSums(),
+            getMonthlySuppliersSums(),
+            getYearlySuppliersSums(),
+            getDailySuppliersSums()
+        ]);
+
+
+        return res.status(200).json({
+            totalSuppliers,
+            totalSuppliersTypes,
+            totalTransactions,
+            totalDebt,
+            topSuppliers,
+            weeks,
+            months,
+            years,
+            days
+        });
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
