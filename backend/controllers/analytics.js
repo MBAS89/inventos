@@ -10,6 +10,10 @@ const Customers = require('../models/cutomers/cutomers')
 const CustomersTypes = require('../models/cutomers/customersTypes')
 const Suppliers = require("../models/suppliers/suppliers")
 const SuppliersTypes = require("../models/suppliers/suppliersType")
+const Expenses = require("../models/expenses/expenses")
+const { Invoices, InvoiceItems } = require("../models/sales/invoices")
+const { OuterInvoices, OuterInvoiceItems } = require("../models/sales/outerInvoices")
+const Products = require('../models/inventory/products')
 
 //Employee Analytics 
 const getWeeklySums = async () => {
@@ -333,6 +337,323 @@ const getDailyCustomersSums = async () => {
 
 
 
+//Expenses & Sales Analytics
+const getWeeklyExpensesAndSalesSums = async () => {
+    const today = new Date();
+    const weeks = [];
+
+    for (let i = 0; i < 5; i++) {
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() - (today.getDay() - 6) - (i * 7));
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        const startOfWeek = new Date(endOfWeek);
+        startOfWeek.setDate(startOfWeek.getDate() - 6);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const year = startOfWeek.getFullYear();
+        const weekNumber = Math.ceil(((startOfWeek - new Date(startOfWeek.getFullYear(), 0, 1)) / 86400000 + new Date(startOfWeek.getFullYear(), 0, 1).getDay() + 1) / 7);
+
+        // Sum of all sales in this week 
+        const totalSales = await Invoices.sum('total_paid', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfWeek,
+                    [Op.lte]: endOfWeek
+                }
+            }
+        }) || 0;
+
+        // Sum of all Due in this week 
+        const totalDue = await Invoices.sum('total_due', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfWeek,
+                    [Op.lte]: endOfWeek
+                }
+            }
+        }) || 0;
+
+        // Sum of all Due in this week 
+        const totalDebt = await OuterInvoices.sum('total_due', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfWeek,
+                    [Op.lte]: endOfWeek
+                }
+            }
+        }) || 0;
+
+        // Sum of all Expenses in this week
+        const totalExpenses = await Expenses.sum('amount', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfWeek,
+                    [Op.lte]: endOfWeek
+                }
+            }
+        }) || 0;
+
+        // Sum of all Cost in this week 
+        const totalCost = await Invoices.sum('total_cost', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfWeek,
+                    [Op.lte]: endOfWeek
+                }
+            }
+        }) || 0;
+
+
+        const totalProfit = totalSales - totalCost - totalExpenses
+
+
+        weeks.unshift({ year, week: weekNumber, totalSales, totalDue, totalDebt, totalExpenses, totalProfit });
+    }
+
+    return weeks;
+};
+
+const getMonthlyExpensesAndSalesSums = async () => {
+    const months = [];
+    const today = new Date();
+    const currentYear = today.getFullYear();
+
+    for (let i = 0; i < 12; i++) {
+        const startOfMonth = new Date(currentYear, i, 1);
+        const endOfMonth = new Date(currentYear, i + 1, 0);
+        endOfMonth.setHours(23, 59, 59, 999);
+
+        // Sum of all sales in this Month 
+        const totalSales = await Invoices.sum('total_paid', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfMonth,
+                    [Op.lte]: endOfMonth
+                }
+            }
+        }) || 0;
+
+        // Sum of all Due in this Month 
+        const totalDue = await Invoices.sum('total_due', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfMonth,
+                    [Op.lte]: endOfMonth
+                }
+            }
+        }) || 0;
+
+        // Sum of all Due in this Month 
+        const totalDebt = await OuterInvoices.sum('total_due', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfMonth,
+                    [Op.lte]: endOfMonth
+                }
+            }
+        }) || 0;
+
+        // Sum of all Expenses in this Month
+        const totalExpenses = await Expenses.sum('amount', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfMonth,
+                    [Op.lte]: endOfMonth
+                }
+            }
+        }) || 0;
+
+        // Sum of all Cost in this Month 
+        const totalCost = await Invoices.sum('total_cost', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfMonth,
+                    [Op.lte]: endOfMonth
+                }
+            }
+        }) || 0;
+
+
+        const totalProfit = totalSales - totalCost - totalExpenses
+
+        months.push({
+            month: startOfMonth.toLocaleString('default', { month: 'short' }),
+            totalSales,
+            totalDue,
+            totalDebt,
+            totalExpenses,
+            totalProfit
+
+        });
+    }
+
+    return months;
+};
+
+
+const getYearlyExpensesAndSalesSums = async () => {
+    const years = [];
+    const today = new Date();
+    const currentYear = today.getFullYear();
+
+    for (let i = 0; i < 5; i++) {
+        const year = currentYear - i;
+        const startOfYear = new Date(year, 0, 1);
+        const endOfYear = new Date(year, 11, 31);
+        endOfYear.setHours(23, 59, 59, 999);
+
+        // Sum of all sales in this Year 
+        const totalSales = await Invoices.sum('total_paid', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfYear,
+                    [Op.lte]: endOfYear
+                }
+            }
+        }) || 0;
+
+        // Sum of all Due in this Year 
+        const totalDue = await Invoices.sum('total_due', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfYear,
+                    [Op.lte]: endOfYear
+                }
+            }
+        }) || 0;
+
+        // Sum of all Due in this Year 
+        const totalDebt = await OuterInvoices.sum('total_due', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfYear,
+                    [Op.lte]: endOfYear
+                }
+            }
+        }) || 0;
+
+        // Sum of all Expenses in this Year
+        const totalExpenses = await Expenses.sum('amount', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfYear,
+                    [Op.lte]: endOfYear
+                }
+            }
+        }) || 0;
+
+        // Sum of all Cost in this Year 
+        const totalCost = await Invoices.sum('total_cost', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfYear,
+                    [Op.lte]: endOfYear
+                }
+            }
+        }) || 0;
+
+
+        const totalProfit = totalSales - totalCost - totalExpenses
+
+        years.push({
+            year: year,
+            totalSales,
+            totalDue,
+            totalDebt,
+            totalExpenses,
+            totalProfit
+
+        });
+    }
+
+    return years;
+};
+
+
+const getDailyExpensesAndSalesSums = async () => {
+    const days = [];
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        // Sum of all sales in this Day 
+        const totalSales = await Invoices.sum('total_paid', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfDay,
+                    [Op.lte]: endOfDay
+                }
+            }
+        }) || 0;
+
+        // Sum of all Due in this Day 
+        const totalDue = await Invoices.sum('total_due', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfDay,
+                    [Op.lte]: endOfDay
+                }
+            }
+        }) || 0;
+
+        // Sum of all Due in this Day 
+        const totalDebt = await OuterInvoices.sum('total_due', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfDay,
+                    [Op.lte]: endOfDay
+                }
+            }
+        }) || 0;
+
+        // Sum of all Expenses in this Day
+        const totalExpenses = await Expenses.sum('amount', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfDay,
+                    [Op.lte]: endOfDay
+                }
+            }
+        }) || 0;
+
+        // Sum of all Cost in this Day 
+        const totalCost = await Invoices.sum('total_cost', {
+            where: {
+                createdAt: {
+                    [Op.gte]: startOfDay,
+                    [Op.lte]: endOfDay
+                }
+            }
+        }) || 0;
+
+
+        const totalProfit = totalSales - totalCost - totalExpenses
+
+        days.push({
+            day: date.toLocaleString('default', { weekday: 'short' }),
+            totalSales,
+            totalDue,
+            totalDebt,
+            totalExpenses,
+            totalProfit
+        });
+    }
+
+    return days;
+};
+
+
 //Suppliers Analytics
 const getWeeklySuppliersSums = async () => {
     const today = new Date();
@@ -462,7 +783,6 @@ const getDailySuppliersSums = async () => {
     return days;
 };
 
-
 exports.fetchHomeAnalytics = async (req, res, next) => {
     try {
 
@@ -474,8 +794,15 @@ exports.fetchHomeAnalytics = async (req, res, next) => {
 
 exports.fetchEmployeesAnalytics = async (req, res, next) => {
     try {
+
+        const storeId = req.authData.store_id
+
         // Total number of employees
-        const totalEmployees = await Employees.count();
+        const totalEmployees = await Employees.count({
+            where: { 
+                store_id:storeId
+            }
+        });
 
         const statuses = ['paid', 'due', 'canceled', 'failed'];
 
@@ -694,8 +1021,133 @@ exports.fetchSuppliersAnalytics = async (req, res, next) => {
 
 exports.fetchExpensesAnalytics = async (req, res, next) => {
     try {
+        // Total number of Expenses
+        const totalExpenses = await Expenses.count();
 
-        return res.status(200).json();
+        // Sum of all sales
+        const totalSales = await Invoices.sum('total_paid');
+
+        // Sum of all Dues
+        const totalDue = await Invoices.sum('total_due')
+
+        // Sum of all Debt 
+        const totalDebt = await OuterInvoices.sum('total_due')
+
+        const statuses = ['paid', 'partially', 'refunded', 'unknown'];
+
+        // Query to get invoices sums
+        const invoicesSums = await Invoices.findAll({
+            attributes: [
+                'status',
+                [sequelize.fn('COUNT', sequelize.col('id')), 'total']
+            ],
+            group: ['status']
+        });
+        
+        // Convert results to a map for easier lookup
+        const invoicesSumsMap = invoicesSums.reduce((map, invoice) => {
+            map[invoice.status] = invoice.dataValues.total || 0;
+            return map;
+        }, {});
+        
+        // Ensure all statuses are included
+        const invoicesSumsResult = statuses.map(status => ({
+            status,
+            total: invoicesSumsMap[status] || 0
+        }));
+
+
+        // Get weekly, monthly, yearly, and daily sums
+        const [weeks, months, yearly, days] = await Promise.all([
+            getWeeklyExpensesAndSalesSums(),
+            getMonthlyExpensesAndSalesSums(),
+            getYearlyExpensesAndSalesSums(),
+            getDailyExpensesAndSalesSums()
+
+        ]);
+
+
+        const lastThreeInnerInvoices = await Invoices.findAll({
+            limit: 3, 
+            order: [['createdAt', 'DESC']],
+            attributes: [
+                'id', 'total_amount', 'total_paid', 'status','total_due','createdAt','updatedAt'
+            ],
+            include: [
+                {
+                    model: InvoiceItems,
+                    as: 'items',
+                    attributes: [
+                        'id', 'product_id', 'qty', 'price'
+                    ],
+                    include: [
+                        {
+                            model: Products,
+                            attributes: [
+                                'product_id', 'name', 'image', 'qty'
+                            ],
+                        }
+                    ]
+                },
+                {
+                    model:Employees,
+                    attributes: ['id', 'full_name', 'image'],
+                }
+            ]
+        });
+
+        const lastThreeOuterInvoices = await OuterInvoices.findAll({
+            limit: 3, 
+            order: [['createdAt', 'DESC']],
+            attributes: [
+                'id', 'total_to_pay', 'total_paid', 'status','total_due','createdAt','updatedAt'
+            ],
+            include: [
+                {
+                    model: OuterInvoiceItems,
+                    as: 'items',
+                    attributes: [
+                        'id', 'product_id', 'qty'
+                    ],
+                    include: [
+                        {
+                            model: Products,
+                            attributes: [
+                                'product_id', 'name', 'image', 'qty'
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model:Employees,
+                    attributes: ['id', 'full_name', 'image'],
+                }
+            ]
+        });
+
+        const lastExpenses = await Expenses.findAll({
+            limit: 10, 
+            order: [['createdAt', 'DESC']],
+            attributes:[
+                'id', 'store_id', 'expenses_title', 'amount', 'createdAt', 'updatedAt'
+            ]
+
+        })
+
+        return res.status(200).json({
+            totalExpenses,
+            totalSales,
+            totalDue,
+            totalDebt,
+            invoicesSumsResult,
+            weeks,
+            months,
+            yearly,
+            days,
+            lastThreeInnerInvoices,
+            lastThreeOuterInvoices,
+            lastExpenses
+        });
     } catch (error) {
         //if there is an error send it to the error middleware to be output in a good way 
         next(error)
